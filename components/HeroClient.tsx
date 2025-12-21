@@ -1,0 +1,57 @@
+"use client";
+
+import { useState } from "react";
+import Hero from "./Hero";
+
+export default function HeroClient() {
+  // Estado de usuario simulado - en producción vendría de tu sistema de auth
+  const [user, setUser] = useState<{ email: string; name: string; avatar?: string } | null>(null);
+
+  // Función para manejar navegación
+  const handleNavigate = (page: 'home' | 'login' | 'register' | 'dashboard') => {
+    // Aquí puedes implementar la navegación real con Next.js router
+    console.log(`Navegando a: ${page}`);
+  };
+
+  // Función para manejar logout
+  const handleLogout = () => {
+    setUser(null);
+    console.log('Usuario cerró sesión');
+  };
+
+  // Función simulada de login (para pruebas)
+  const handleLogin = () => {
+    setUser({
+      name: "Juan Pérez",
+      email: "juan@example.com",
+      avatar: ""
+    });
+  };
+
+  return (
+    <>
+      <Hero 
+        user={user} 
+        onNavigate={handleNavigate} 
+        onLogout={handleLogout} 
+      />
+      
+      {/* Resto del contenido de tu página */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Puedes agregar más secciones aquí */}
+      </section>
+
+      {/* Botón temporal para simular login (solo para desarrollo) */}
+      {!user && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <button
+            onClick={handleLogin}
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg font-['Poppins',sans-serif] text-sm"
+          >
+            Simular Login (Dev)
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
