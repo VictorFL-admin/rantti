@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Hero from "./Hero";
+import HowItWorks from "./HowItWorks";
 
 export default function HeroClient() {
   // Estado de usuario simulado - en producción vendría de tu sistema de auth
@@ -36,6 +37,11 @@ export default function HeroClient() {
         onLogout={handleLogout} 
       />
       
+      {/* Sección Cómo Funciona */}
+      <div id="como-funciona">
+        <HowItWorks onNavigate={handleNavigate} />
+      </div>
+      
       {/* Resto del contenido de tu página */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Puedes agregar más secciones aquí */}
@@ -46,7 +52,7 @@ export default function HeroClient() {
         <div className="fixed bottom-4 right-4 z-50">
           <button
             onClick={handleLogin}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg font-['Poppins',sans-serif] text-sm"
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm"
           >
             Simular Login (Dev)
           </button>
