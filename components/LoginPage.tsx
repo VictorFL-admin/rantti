@@ -12,7 +12,7 @@ import Footer from "./Footer";
 import { logoImage } from "@/lib/images";
 
 interface LoginPageProps {
-  onLoginSuccess: (email: string) => void;
+  onLoginSuccess: (email: string, password: string) => void;
   onNavigate: (page: 'home' | 'register' | 'dashboard' | 'forgot-password') => void;
   prefillEmail?: string;
   prefillPassword?: string;
@@ -27,8 +27,8 @@ export default function LoginPage({ onLoginSuccess, onNavigate, prefillEmail = "
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email && password) {
-      // Login successful, pass email to get user data
-      onLoginSuccess(email);
+      // Login successful, pass email and password
+      onLoginSuccess(email, password);
     }
   };
 
