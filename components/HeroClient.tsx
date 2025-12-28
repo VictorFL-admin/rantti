@@ -47,10 +47,14 @@ export default function HeroClient() {
       </div>
       
       {/* Sección Categorías Populares */}
-      <Categories />
+      <div id="categorias">
+        <Categories />
+      </div>
       
       {/* Sección Negociaciones Activas */}
-      <FeaturedListings onNavigate={handleNavigate} />
+      <div id="negociaciones-activas">
+        <FeaturedListings onNavigate={handleNavigate} />
+      </div>
       
       {/* Sección Beneficios */}
       <BenefitsBlocks onNavigate={handleNavigate} />

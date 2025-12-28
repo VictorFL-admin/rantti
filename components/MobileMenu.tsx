@@ -65,13 +65,13 @@ export default function MobileMenu({ user, onNavigate, onLogout }: MobileMenuPro
 
           <nav className="flex flex-col gap-1 mb-6">
             <a href="#como-funciona" className="px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900">
-              Explorar
-            </a>
-            <a href="#como-funciona" className="px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900">
               Cómo funciona
             </a>
-            <a href="#" className="px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900">
+            <a href="#categorias" className="px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900">
               Categorías
+            </a>
+            <a href="#negociaciones-activas" className="px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900">
+              Negociaciones Activas
             </a>
           </nav>
 

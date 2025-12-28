@@ -8,6 +8,10 @@
   --foreground: #0f172a;
   --card: #ffffff;
   --card-foreground: #0f172a;
+}
+
+html {
+  scroll-behavior: smooth;
   --popover: #ffffff;
   --popover-foreground: #0f172a;
   --primary: #0047FF;

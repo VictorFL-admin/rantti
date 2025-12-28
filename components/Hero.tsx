@@ -69,13 +69,13 @@ export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
               {/* Desktop Navigation */}
               <div className="hidden lg:flex items-center gap-6">
                 <a href="#como-funciona" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  Explorar
-                </a>
-                <a href="#como-funciona" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                   Cómo funciona
                 </a>
-                <a href="#" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                <a href="#categorias" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                   Categorías
+                </a>
+                <a href="#negociaciones-activas" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                  Negociaciones Activas
                 </a>
               </div>
             </div>
@@ -131,13 +131,13 @@ export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-6">
               <a href="#como-funciona" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                Explorar
-              </a>
-              <a href="#como-funciona" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                 Cómo funciona
               </a>
-              <a href="#" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+              <a href="#categorias" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                 Categorías
+              </a>
+              <a href="#negociaciones-activas" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                Negociaciones Activas
               </a>
             </div>
           </div>
@@ -244,12 +244,6 @@ export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
               >
                 Comenzar Ahora
                 <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-              </Button>
-              
-              <Button 
-                className="bg-black hover:bg-gray-900 text-white px-8 py-6 text-base rounded-xl transition-all"
-              >
-                Explorar
               </Button>
             </div>
           </motion.div>
