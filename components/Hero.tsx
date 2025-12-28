@@ -189,17 +189,17 @@ export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
           >
             {/* Badge */}
             <Badge icon={<Sparkles className="w-4 h-4" />}>
-              Marketplace de Lujo
+              Compra y Vende al precio justo.
             </Badge>
 
             {/* Título Principal */}
             <div className="space-y-6">
               <h1 className="leading-tight font-semibold text-[20px] text-gray-900">
-                Negocia bienes de alto valor como un pro
+                Negocia Libremente. El pago se acuerda entre las partes.
               </h1>
               
               <p className="text-xl text-gray-600 leading-relaxed">
-                Conectamos compradores y vendedores de artículos exclusivos en un espacio seguro donde puedes negociar directamente y obtener el mejor precio.
+                Un marketplace donde compradores y vendedores acuerdan el precio en minutos, sin intermediarios ni complicaciones.
               </p>
             </div>
 
@@ -213,8 +213,7 @@ export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
                   <CheckIcon className="w-3.5 h-3.5 text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900">Negociación Directa</h3>
-                  <p className="text-sm text-gray-600">Comunícate sin intermediarios y cierra el mejor trato</p>
+                  <h3 className="font-medium text-gray-900">Chat directo para negociar.</h3>
                 </div>
               </div>
 
@@ -223,8 +222,7 @@ export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
                   <CheckIcon className="w-3.5 h-3.5 text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900">Pago Seguro</h3>
-                  <p className="text-sm text-gray-600">Transacciones protegidas para tu tranquilidad</p>
+                  <h3 className="font-medium text-gray-900">Tratos rápidos, sin vueltas.</h3>
                 </div>
               </div>
 
@@ -233,8 +231,7 @@ export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
                   <CheckIcon className="w-3.5 h-3.5 text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900">Artículos Exclusivos</h3>
-                  <p className="text-sm text-gray-600">Joyas, relojes, arte, tech premium y coleccionables únicos</p>
+                  <h3 className="font-medium text-gray-900">Precio justo para ambos.</h3>
                 </div>
               </div>
             </div>
@@ -277,37 +274,6 @@ export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
                   height={448}
                   className="w-full max-w-md h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
                 />
-              </div>
-
-              {/* Floating badges */}
-              <div className="absolute top-8 left-8 bg-white backdrop-blur-md rounded-2xl px-4 py-3 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">💎</span>
-                  <div>
-                    <p className="text-xs text-gray-500">Joyas</p>
-                    <p className="text-sm font-medium text-gray-900">Premium</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute top-32 right-8 bg-white backdrop-blur-md rounded-2xl px-4 py-3 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">⌚</span>
-                  <div>
-                    <p className="text-xs text-gray-500">Relojes</p>
-                    <p className="text-sm font-medium text-gray-900">Exclusivos</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute bottom-24 left-12 bg-white backdrop-blur-md rounded-2xl px-4 py-3 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">🎨</span>
-                  <div>
-                    <p className="text-xs text-gray-500">Arte</p>
-                    <p className="text-sm font-medium text-gray-900">Único</p>
-                  </div>
-                </div>
               </div>
             </div>
           </motion.div>

@@ -1,4 +1,4 @@
-import { Upload, MessageSquare, Handshake, PartyPopper, Search, TrendingUp, CheckCircle2 } from "../lib/icons";
+import { Upload, MessageSquare, Handshake, PartyPopper, SearchBuyIcon, TrendingBuyIcon } from "../lib/icons";
 import { Button } from "./ui/button";
 import { useState } from "react";
 
@@ -13,61 +13,61 @@ export default function HowItWorks({ onNavigate }: HowItWorksProps) {
     {
       icon: Upload,
       title: "1. Publica tu bien",
-      description: "Sube fotos, describe tu artículo y establece tu precio inicial. ¡Es súper fácil y rápido!",
+      description: "Sube fotos claras, describe tu artículo, la ubicación y establece un precio inicial.",
       color: "from-[#0047FF] to-[#0066FF]",
       tip: "Tip: Mejores fotos = Más ofertas"
     },
     {
       icon: MessageSquare,
       title: "2. Recibe ofertas",
-      description: "Compradores interesados te envían propuestas. Revisa cada una y decide cuál te conviene más.",
+      description: "Compradores interesados te envían propuestas. Revísalas y responde para seguir negociando.",
       color: "from-[#0047FF] to-[#0066FF]",
-      tip: "Responde rápido para cerrar antes"
+      tip: "Tip: Responde rápido para cerrar antes"
     },
     {
       icon: Handshake,
       title: "3. Negocia el precio",
-      description: "Intercambia contraofertas en tiempo real hasta que ambos estén contentos con el precio.",
+      description: "Intercambia contraofertas en tiempo real, hasta llegar a un precio que le convenga a ambos.",
       color: "from-[#0047FF] to-[#0066FF]",
-      tip: "La clave está en la comunicación"
+      tip: "Tip: La clave está en la comunicación"
     },
     {
       icon: PartyPopper,
       title: "4. ¡Cierra el trato!",
-      description: "Acuerda los detalles finales y coordina la entrega. Todo seguro y transparente.",
+      description: "Acuerda los detalles finales y coordina la entrega.",
       color: "from-[#0047FF] to-[#0066FF]",
-      tip: "¡Felicidades por tu negociación!"
+      tip: "Tip: Confirma precio, lugar y horario antes de cerrar."
     }
   ];
 
   const stepsComprar = [
     {
-      icon: Search,
+      icon: SearchBuyIcon,
       title: "1. Encuentra lo que buscas",
-      description: "Explora productos únicos de alto valor. Filtra por categoría y encuentra exactamente lo que necesitas.",
+      description: "Explora productos nuevos y usados en todas las categorías.",
       color: "from-[#0047FF] to-[#0066FF]",
-      tip: "Tip: Usa los filtros para ahorrar tiempo"
+      tip: "Tip: Compara precios similares para negociar mejor."
     },
     {
-      icon: TrendingUp,
+      icon: TrendingBuyIcon,
       title: "2. Haz tu oferta",
-      description: "Envía una propuesta de precio al vendedor. No te quedes con las ganas, siempre hay espacio para negociar.",
+      description: "Propón el precio que estás dispuesto a pagar. Tu oferta puede ser visible para otros vendedores interesados.",
       color: "from-[#0047FF] to-[#0066FF]",
-      tip: "Ofrece un precio justo pero razonable"
+      tip: "Tip: Ofrece un precio razonable para recibir más respuestas."
     },
     {
       icon: MessageSquare,
-      title: "3. Negocia en tiempo real",
-      description: "Intercambia mensajes y contraofertas con el vendedor hasta llegar a un acuerdo que beneficie a ambos.",
+      title: "3. Negocia",
+      description: "Otros vendedores pueden contactarte con contraofertas. Compara opciones hasta llegar a un acuerdo justo.",
       color: "from-[#0047FF] to-[#0066FF]",
-      tip: "La comunicación es clave"
+      tip: "Tip: Negocia con claridad y rapidez"
     },
     {
-      icon: CheckCircle2,
-      title: "4. ¡Compra y disfruta!",
-      description: "Finaliza la compra, coordina el encuentro o envío y recibe tu producto. ¡Así de simple!",
+      icon: PartyPopper,
+      title: "4. ¡Cierra el trato!",
+      description: "Cuando ambos estén de acuerdo, coordinen el pago y la entrega.",
       color: "from-[#0047FF] to-[#0066FF]",
-      tip: "¡Felicidades por tu nueva compra!"
+      tip: "Tip: Deja todo claro antes de encontrarse"
     }
   ];
 
@@ -97,7 +97,7 @@ export default function HowItWorks({ onNavigate }: HowItWorksProps) {
           <div className="inline-flex items-center gap-2 p-1.5 bg-gray-100 rounded-xl border border-gray-200">
             <button
               onClick={() => setActiveTab('vender')}
-              className={`px-6 py-3 rounded-lg text-sm transition-all duration-300 ${
+              className={`px-6 py-3 rounded-lg text-sm transition-all duration-300 cursor-pointer ${
                 activeTab === 'vender'
                   ? 'bg-white text-[#0047FF] shadow-md border border-gray-200'
                   : 'text-gray-600 hover:text-gray-900'
@@ -107,7 +107,7 @@ export default function HowItWorks({ onNavigate }: HowItWorksProps) {
             </button>
             <button
               onClick={() => setActiveTab('comprar')}
-              className={`px-6 py-3 rounded-lg text-sm transition-all duration-300 ${
+              className={`px-6 py-3 rounded-lg text-sm transition-all duration-300 cursor-pointer ${
                 activeTab === 'comprar'
                   ? 'bg-white text-[#0047FF] shadow-md border border-gray-200'
                   : 'text-gray-600 hover:text-gray-900'
