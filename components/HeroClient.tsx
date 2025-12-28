@@ -7,32 +7,109 @@ import Categories from "./Categories";
 import FeaturedListings from "./FeaturedListings";
 import BenefitsBlocks from "./BenefitsBlocks";
 import Footer from "./Footer";
+import LoginPage from "./LoginPage";
+import RegisterPage from "./RegisterPage";
+import ForgotPasswordPage from "./ForgotPasswordPage";
 
 export default function HeroClient() {
   // Estado de usuario simulado - en producción vendría de tu sistema de auth
   const [user, setUser] = useState<{ email: string; name: string; avatar?: string } | null>(null);
+  
+  // Estado para controlar qué página mostrar
+  const [currentPage, setCurrentPage] = useState<'home' | 'login' | 'register' | 'dashboard' | 'forgot-password'>('home');
 
   // Función para manejar navegación
-  const handleNavigate = (page: 'home' | 'login' | 'register' | 'dashboard' | 'product-specs') => {
-    // Aquí puedes implementar la navegación real con Next.js router
-    console.log(`Navegando a: ${page}`);
+  const handleNavigate = (page: 'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'product-specs') => {
+    if (page === 'product-specs') {
+      console.log('Navegando a detalles del producto');
+      // Aquí implementarías la navegación a la página de producto
+      return;
+    }
+    setCurrentPage(page as 'home' | 'login' | 'register' | 'dashboard' | 'forgot-password');
+    // Scroll al inicio cuando cambies de página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Función para manejar logout
   const handleLogout = () => {
     setUser(null);
+    setCurrentPage('home');
     console.log('Usuario cerró sesión');
   };
 
-  // Función simulada de login (para pruebas)
-  const handleLogin = () => {
+  // Función para manejar login exitoso
+  const handleLoginSuccess = (email: string, password: string) => {
     setUser({
-      name: "Juan Pérez",
-      email: "juan@example.com",
+      name: email.split('@')[0], // Usar parte del email como nombre temporal
+      email: email,
       avatar: ""
     });
+    setCurrentPage('home');
+    console.log('Login exitoso:', email);
   };
 
+  // Función para manejar registro exitoso
+  const handleRegisterSuccess = (email: string, password: string, name: string) => {
+    setUser({
+      name: name,
+      email: email,
+      avatar: ""
+    });
+    setCurrentPage('home');
+    console.log('Registro exitoso:', name, email);
+  };
+
+  // Renderizar página según el estado
+  if (currentPage === 'login') {
+    return (
+      <LoginPage 
+        onLoginSuccess={handleLoginSuccess}
+        onNavigate={handleNavigate}
+        user={user}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
+  if (currentPage === 'register') {
+    return (
+      <RegisterPage 
+        onRegisterSuccess={handleRegisterSuccess}
+        onNavigate={handleNavigate}
+        user={user}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
+  if (currentPage === 'forgot-password') {
+    return (
+      <ForgotPasswordPage 
+        onNavigate={handleNavigate}
+        user={user}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
+  if (currentPage === 'dashboard') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Dashboard</h1>
+          <p className="text-gray-600 mb-6">Bienvenido, {user?.name}!</p>
+          <button
+            onClick={() => handleNavigate('home')}
+            className="bg-[#0047FF] hover:bg-[#0039CC] text-white px-6 py-3 rounded-lg"
+          >
+            Volver al inicio
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Página principal (home)
   return (
     <>
       <Hero 
@@ -61,18 +138,6 @@ export default function HeroClient() {
       
       {/* Footer */}
       <Footer />
-
-      {/* Botón temporal para simular login (solo para desarrollo) */}
-      {!user && (
-        <div className="fixed bottom-4 right-4 z-50">
-          <button
-            onClick={handleLogin}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm"
-          >
-            Simular Login (Dev)
-          </button>
-        </div>
-      )}
     </>
   );
 }
