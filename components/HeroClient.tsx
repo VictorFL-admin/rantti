@@ -4,13 +4,16 @@ import { useState } from "react";
 import Hero from "./Hero";
 import HowItWorks from "./HowItWorks";
 import Categories from "./Categories";
+import FeaturedListings from "./FeaturedListings";
+import BenefitsBlocks from "./BenefitsBlocks";
+import Footer from "./Footer";
 
 export default function HeroClient() {
   // Estado de usuario simulado - en producción vendría de tu sistema de auth
   const [user, setUser] = useState<{ email: string; name: string; avatar?: string } | null>(null);
 
   // Función para manejar navegación
-  const handleNavigate = (page: 'home' | 'login' | 'register' | 'dashboard') => {
+  const handleNavigate = (page: 'home' | 'login' | 'register' | 'dashboard' | 'product-specs') => {
     // Aquí puedes implementar la navegación real con Next.js router
     console.log(`Navegando a: ${page}`);
   };
@@ -46,10 +49,14 @@ export default function HeroClient() {
       {/* Sección Categorías Populares */}
       <Categories />
       
-      {/* Resto del contenido de tu página */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Puedes agregar más secciones aquí */}
-      </section>
+      {/* Sección Negociaciones Activas */}
+      <FeaturedListings onNavigate={handleNavigate} />
+      
+      {/* Sección Beneficios */}
+      <BenefitsBlocks onNavigate={handleNavigate} />
+      
+      {/* Footer */}
+      <Footer />
 
       {/* Botón temporal para simular login (solo para desarrollo) */}
       {!user && (
