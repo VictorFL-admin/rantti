@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Hero from "./Hero";
 import HowItWorks from "./HowItWorks";
+import Categories from "./Categories";
 
 export default function HeroClient() {
   // Estado de usuario simulado - en producción vendría de tu sistema de auth
@@ -41,6 +42,9 @@ export default function HeroClient() {
       <div id="como-funciona">
         <HowItWorks onNavigate={handleNavigate} />
       </div>
+      
+      {/* Sección Categorías Populares */}
+      <Categories />
       
       {/* Resto del contenido de tu página */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

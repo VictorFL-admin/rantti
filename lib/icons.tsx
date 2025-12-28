@@ -16,6 +16,11 @@ import {
   ShoppingCart,
   TrendingUp,
   CheckCircle2,
+  Watch,
+  Gem,
+  Palette,
+  Gamepad2,
+  Smartphone,
   type LucideIcon
 } from "lucide-react";
 
@@ -36,7 +41,12 @@ export {
   PartyPopper,
   ShoppingCart,
   TrendingUp,
-  CheckCircle2
+  CheckCircle2,
+  Watch,
+  Gem,
+  Palette,
+  Gamepad2,
+  Smartphone
 };
 
 // Tipos
@@ -79,6 +89,21 @@ export const UserIcon = ({ className }: { className?: string }) => (
     <defs>
       <clipPath id="clip0_307_203">
         <rect width="16" height="18" fill="white"/>
+      </clipPath>
+    </defs>
+  </svg>
+);
+
+// Ícono Popular para Categorías
+export const PopularIcon = ({ className }: { className?: string }) => (
+  <svg className={className} width="19" height="8" viewBox="0 0 19 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g clipPath="url(#clip0_70_6)">
+      <path d="M14.8715 3.75564C14.8634 3.72796 14.776 3.73784 14.7516 3.73982C14.3105 3.76751 13.8511 3.85849 13.412 3.88024C12.4932 3.92573 12.3021 2.88939 13.0847 2.55713L18.254 2.02709C18.7723 1.9994 19.1545 2.49582 18.9431 2.96454L16.5912 7.75663C16.0139 8.3282 15.1134 7.81201 15.4143 7.02091C15.6114 6.50076 15.955 5.93908 16.1948 5.42487C16.205 5.40311 16.268 5.26862 16.2619 5.26269C15.4935 5.69582 14.7739 6.20212 14.0178 6.65107C12.2554 7.6973 10.3405 8.53982 8.5314 7.02882C7.03124 5.77691 6.43362 4.0444 5.53921 2.40484C5.31358 1.99149 5.03916 1.48519 4.66717 1.18061C3.5329 0.255026 1.98802 1.84514 1.0245 2.36133C0.977749 2.38704 0.739919 2.52548 0.727722 2.43055C0.776508 2.27826 0.890341 2.1418 0.989945 2.01522C1.60586 1.22808 2.7259 0.168005 3.76667 0.0236297C5.28512 -0.18799 6.13887 1.12524 6.82594 2.20311C7.61464 3.4392 8.40537 5.07085 9.6799 5.89557C10.43 6.38012 11.1699 6.11708 11.8976 5.73735C12.9587 5.18556 13.8612 4.38259 14.8715 3.75564Z" fill="currentColor"/>
+      <path d="M0.382155 3.20604C0.593213 3.20604 0.764309 3.03957 0.764309 2.83422C0.764309 2.62887 0.593213 2.4624 0.382155 2.4624C0.171096 2.4624 0 2.62887 0 2.83422C0 3.03957 0.171096 3.20604 0.382155 3.20604Z" fill="currentColor"/>
+    </g>
+    <defs>
+      <clipPath id="clip0_70_6">
+        <rect width="19" height="8" fill="white"/>
       </clipPath>
     </defs>
   </svg>
