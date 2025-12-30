@@ -58,7 +58,9 @@ export default function RegisterPage({ onRegisterSuccess, onNavigate, user = nul
         name,
         email,
         password,
+        password_confirmation: confirmPassword,
         phone: phone || "",
+        accept_terms: true, // Ya validado con el checkbox required
       });
 
       if (response.success) {
