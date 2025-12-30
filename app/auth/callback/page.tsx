@@ -18,8 +18,10 @@ function AuthCallbackContent() {
         localStorage.setItem("auth_token", token);
         localStorage.setItem("user", userStr);
 
-        // Redirigir al dashboard o home
-        router.push("/");
+        // Redirigir al dashboard después de autenticación exitosa
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1000);
       } catch (err) {
         console.error("Error procesando callback:", err);
         setError("Error al procesar la autenticación");
