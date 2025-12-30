@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Mail, Lock, User, Phone, Zap, Menu, Users, TrendingUp, Shield, DollarSign, Star, LogOut, Package } from "lucide-react";
+import { Mail, Lock, User, Phone, Zap, Menu, Users, TrendingUp, Shield, DollarSign, Star, LogOut, Package, Eye, EyeOff } from "lucide-react";
 import { SearchIcon } from "@/lib/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "./ui/sheet";
@@ -28,6 +28,8 @@ export default function RegisterPage({ onRegisterSuccess, onNavigate, user = nul
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -438,13 +440,20 @@ export default function RegisterPage({ onRegisterSuccess, onNavigate, user = nul
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#0047FF] transition-colors" />
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="Mínimo 6 caracteres"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 h-11 focus:ring-2 focus:ring-[#0047FF] focus:border-[#0047FF] transition-all"
+                      className="pl-10 pr-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 h-11 focus:ring-2 focus:ring-[#0047FF] focus:border-[#0047FF] transition-all"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#0047FF] transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
                   </div>
                 </div>
 
@@ -456,13 +465,20 @@ export default function RegisterPage({ onRegisterSuccess, onNavigate, user = nul
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#0047FF] transition-colors" />
                     <Input
                       id="confirmPassword"
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       placeholder="Repite tu contraseña"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 h-11 focus:ring-2 focus:ring-[#0047FF] focus:border-[#0047FF] transition-all"
+                      className="pl-10 pr-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 h-11 focus:ring-2 focus:ring-[#0047FF] focus:border-[#0047FF] transition-all"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#0047FF] transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
                   </div>
                 </div>
 
