@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -10,6 +12,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import Footer from "./Footer";
 import { logoImage } from "@/lib/images";
+import { login, loginWithGoogle, loginWithFacebook } from "@/lib/auth";
 
 interface LoginPageProps {
   onLoginSuccess: (email: string, password: string) => void;
@@ -23,13 +26,43 @@ interface LoginPageProps {
 export default function LoginPage({ onLoginSuccess, onNavigate, prefillEmail = "", prefillPassword = "", user = null, onLogout }: LoginPageProps) {
   const [email, setEmail] = useState(prefillEmail);
   const [password, setPassword] = useState(prefillPassword);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password) {
-      // Login successful, pass email and password
-      onLoginSuccess(email, password);
+    setError(null);
+
+    if (!email || !password) {
+      setError("Por favor completa todos los campos");
+      return;
     }
+
+    setLoading(true);
+
+    try {
+      const response = await login({ email, password });
+
+      if (response.success) {
+        // Login exitoso
+        onLoginSuccess(email, password);
+      } else {
+        // Error del servidor
+        setError(response.error?.message || "Credenciales incorrectas");
+      }
+    } catch {
+      setError("Error de conexión. Por favor intenta nuevamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    loginWithGoogle();
+  };
+
+  const handleFacebookLogin = () => {
+    loginWithFacebook();
   };
 
   const getInitials = (name: string) => {
@@ -46,7 +79,7 @@ export default function LoginPage({ onLoginSuccess, onNavigate, prefillEmail = "
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-blue-50 to-blue-100">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-gray-50 via-blue-50 to-blue-100">
       {/* NAVIGATION */}
       <nav className="relative z-50 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-8 pb-4">
         <div className="flex items-center justify-between bg-white/80 backdrop-blur-md rounded-full px-4 sm:px-6 h-12 sm:h-14 border border-gray-200 shadow-sm">
@@ -57,24 +90,26 @@ export default function LoginPage({ onLoginSuccess, onNavigate, prefillEmail = "
               onClick={() => onNavigate('home')}
               className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0"
             >
-              <img 
+              <Image 
                 src={logoImage} 
                 alt="Rantti Logo" 
+                width={120}
+                height={32}
                 className="w-auto h-7 sm:h-8 object-contain"
               />
             </button>
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-6">
-              <a href="/#como-funciona" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/#como-funciona" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                 Cómo funciona
-              </a>
-              <a href="/#categorias" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+              </Link>
+              <Link href="/#categorias" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                 Categorías
-              </a>
-              <a href="/#negociaciones-activas" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+              </Link>
+              <Link href="/#negociaciones-activas" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                 Negociaciones Activas
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -87,7 +122,7 @@ export default function LoginPage({ onLoginSuccess, onNavigate, prefillEmail = "
                   <Menu className="w-5 h-5 text-gray-700" />
                 </button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[280px] bg-white border-gray-200 text-gray-900 p-0">
+              <SheetContent side="right" className="w-70 bg-white border-gray-200 text-gray-900 p-0">
                 <SheetTitle className="sr-only">Menú de Navegación</SheetTitle>
                 <SheetDescription className="sr-only">
                   Accede a todas las opciones de navegación y configuración de tu cuenta
@@ -112,15 +147,15 @@ export default function LoginPage({ onLoginSuccess, onNavigate, prefillEmail = "
                   ) : null}
 
                   <nav className="flex flex-col gap-1 mb-6">
-                    <a href="/#como-funciona" className="px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900">
+                    <Link href="/#como-funciona" className="px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900">
                       Cómo funciona
-                    </a>
-                    <a href="/#categorias" className="px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900">
+                    </Link>
+                    <Link href="/#categorias" className="px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900">
                       Categorías
-                    </a>
-                    <a href="/#negociaciones-activas" className="px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900">
+                    </Link>
+                    <Link href="/#negociaciones-activas" className="px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900">
                       Negociaciones Activas
-                    </a>
+                    </Link>
                   </nav>
 
                   {user && onLogout && (
@@ -243,6 +278,13 @@ export default function LoginPage({ onLoginSuccess, onNavigate, prefillEmail = "
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Mensaje de error */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-900 flex items-center gap-1">
                   Correo electrónico
@@ -298,9 +340,10 @@ export default function LoginPage({ onLoginSuccess, onNavigate, prefillEmail = "
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-[#0047FF] hover:bg-[#0039CC] shadow-lg hover:shadow-xl hover:shadow-[#0047FF]/30 transition-all transform hover:scale-[1.02]"
+                disabled={loading}
+                className="w-full h-12 bg-[#0047FF] hover:bg-[#0039CC] shadow-lg hover:shadow-xl hover:shadow-[#0047FF]/30 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Iniciar Sesión 🚀
+                {loading ? "Iniciando sesión..." : "Iniciar sesión"}
               </Button>
             </form>
 
@@ -314,7 +357,12 @@ export default function LoginPage({ onLoginSuccess, onNavigate, prefillEmail = "
 
             {/* Social login */}
             <div className="grid grid-cols-2 gap-3 mb-6">
-              <Button type="button" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 h-12 transition-all group">
+              <Button 
+                type="button" 
+                onClick={handleGoogleLogin}
+                variant="outline" 
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 h-12 transition-all group"
+              >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -323,7 +371,12 @@ export default function LoginPage({ onLoginSuccess, onNavigate, prefillEmail = "
                 </svg>
                 Google
               </Button>
-              <Button type="button" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 h-12 transition-all group">
+              <Button 
+                type="button" 
+                onClick={handleFacebookLogin}
+                variant="outline" 
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 h-12 transition-all group"
+              >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                 </svg>
@@ -333,7 +386,7 @@ export default function LoginPage({ onLoginSuccess, onNavigate, prefillEmail = "
 
             {/* Register link */}
             <div className="text-center">
-              <div className="inline-block p-3 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg">
+              <div className="inline-block p-3 bg-linear-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg">
                 <p className="text-sm text-gray-600">
                   ¿Primera vez aquí? 
                   <button 
