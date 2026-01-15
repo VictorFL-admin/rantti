@@ -12,6 +12,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Rantti",
   description: "Compra y vende joyas, relojes y arte de lujo",
+  icons: {
+    icon: "/images/LOGO-BLANCO-RANTTI.ico",
+  },
 };
 
 export default function RootLayout({
