@@ -45,17 +45,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
-// import CreateListingDialog from "./CreateListingDialog";
 import SettingsPanel from "./SettingsPanel";
-// import BoostPublicationDialog from "./BoostPublicationDialog";
-// import NegotiationsPanel from "./NegotiationsPanel";
-// import NotificationsPanel from "./NotificationsPanel";
-// import PaymentsPanel from "./PaymentsPanel";
-// import MyListingsPanel from "./MyListingsPanel";
-// import ChatsPanel from "./ChatsPanel";
-// import ThemeToggle from "./ThemeToggle";
-// import PackagesPanel from "./PackagesPanel";
-// import SpecificationsPanel from "./SpecificationsPanel";
 
 interface DashboardProps {
   user: { email: string; name: string; avatar?: string };
@@ -299,11 +289,12 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           variant={activeTab === "listings" ? "default" : "ghost"}
           className={activeTab === "listings" 
             ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
           }
+          disabled
           onClick={() => {
-            setActiveTab("listings");
-            onItemClick?.();
+            // setActiveTab("listings");
+            // onItemClick?.();
           }}
         >
           <Package className="w-5 h-5 mr-3" />
@@ -313,11 +304,12 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           variant={activeTab === "negotiations" ? "default" : "ghost"}
           className={activeTab === "negotiations" 
             ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
           }
+          disabled
           onClick={() => {
-            setActiveTab("negotiations");
-            onItemClick?.();
+            // setActiveTab("negotiations");
+            // onItemClick?.();
           }}
         >
           <MessageSquare className="w-5 h-5 mr-3" />
@@ -327,11 +319,12 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           variant={activeTab === "chats" ? "default" : "ghost"}
           className={activeTab === "chats" 
             ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
           }
+          disabled
           onClick={() => {
-            setActiveTab("chats");
-            onItemClick?.();
+            // setActiveTab("chats");
+            // onItemClick?.();
           }}
         >
           <MessageCircle className="w-5 h-5 mr-3" />
@@ -341,11 +334,12 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           variant={activeTab === "notifications" ? "default" : "ghost"}
           className={activeTab === "notifications" 
             ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
           }
+          disabled
           onClick={() => {
-            setActiveTab("notifications");
-            onItemClick?.();
+            // setActiveTab("notifications");
+            // onItemClick?.();
           }}
         >
           <Bell className="w-5 h-5 mr-3" />
@@ -355,11 +349,12 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           variant={activeTab === "payments" ? "default" : "ghost"}
           className={activeTab === "payments" 
             ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
           }
+          disabled
           onClick={() => {
-            setActiveTab("payments");
-            onItemClick?.();
+            // setActiveTab("payments");
+            // onItemClick?.();
           }}
         >
           <CreditCard className="w-5 h-5 mr-3" />
@@ -369,11 +364,12 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           variant={activeTab === "packages" ? "default" : "ghost"}
           className={activeTab === "packages" 
             ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
           }
+          disabled
           onClick={() => {
-            setActiveTab("packages");
-            onItemClick?.();
+            // setActiveTab("packages");
+            // onItemClick?.();
           }}
         >
           <Box className="w-5 h-5 mr-3" />
@@ -383,11 +379,12 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           variant={activeTab === "specifications" ? "default" : "ghost"}
           className={activeTab === "specifications" 
             ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
           }
+          disabled
           onClick={() => {
-            setActiveTab("specifications");
-            onItemClick?.();
+            // setActiveTab("specifications");
+            // onItemClick?.();
           }}
         >
           <FileText className="w-5 h-5 mr-3" />

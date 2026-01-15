@@ -1,10 +1,25 @@
 "use client";
 
-import { Home, Package, MessageSquare, Heart, Settings, TrendingUp, Menu, X } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  Package, 
+  MessageSquare, 
+  Settings, 
+  LogOut,
+  MessageCircle,
+  Menu,
+  Box,
+  FileText,
+  Bell,
+  CreditCard,
+  ArrowDownRight,
+  X
+} from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { logoImage } from "@/lib/images";
-import Image from "next/image";
+import { Button } from "../ui/button";
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "../ui/sheet";
+import { VisuallyHidden } from "../ui/visually-hidden";
 
 interface DashboardSidebarProps {
   user: {
@@ -15,6 +30,7 @@ interface DashboardSidebarProps {
   currentSection: string;
   onSectionChange: (section: string) => void;
   onNavigate: (page: 'home' | 'login' | 'register' | 'dashboard') => void;
+  onLogout?: () => void;
 }
 
 export default function DashboardSidebar({
@@ -22,17 +38,9 @@ export default function DashboardSidebar({
   currentSection,
   onSectionChange,
   onNavigate,
+  onLogout,
 }: DashboardSidebarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const menuItems = [
-    { id: 'overview', label: 'Inicio', icon: Home },
-    { id: 'listings', label: 'Mis Publicaciones', icon: Package },
-    { id: 'negotiations', label: 'Negociaciones', icon: TrendingUp, badge: 3 },
-    { id: 'messages', label: 'Mensajes', icon: MessageSquare, badge: 5 },
-    { id: 'favorites', label: 'Favoritos', icon: Heart },
-    { id: 'settings', label: 'Configuración', icon: Settings },
-  ];
 
   const getInitials = (name: string) => {
     return name
@@ -43,123 +51,204 @@ export default function DashboardSidebar({
       .slice(0, 2);
   };
 
-  const SidebarContent = () => (
+  const getFirstName = (name: string) => {
+    return name.split(" ")[0];
+  };
+
+  const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => (
     <>
       {/* Logo */}
-      <div className="px-6 py-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200">
         <button 
-          onClick={() => onNavigate('home')}
+          onClick={() => {
+            onNavigate('home');
+            onItemClick?.();
+          }}
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
-          <Image 
-            src={logoImage} 
-            alt="Rantti Logo" 
-            width={120}
-            height={32}
-            className="w-auto h-8 object-contain"
-          />
+          <div className="w-8 h-8 bg-[#0047FF] rounded-lg flex items-center justify-center">
+            <span className="text-lg font-bold text-white">R</span>
+          </div>
+          <span className="text-xl font-semibold text-gray-900">Rantti</span>
         </button>
       </div>
 
-      {/* User Info */}
-      <div className="px-6 py-6 border-b border-gray-200">
+      {/* User Profile */}
+      <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          <Avatar className="w-12 h-12 ring-2 ring-[#0047FF]/20">
+          <Avatar className="w-12 h-12">
             <AvatarImage src={user.avatar || ""} />
-            <AvatarFallback className="bg-[#0047FF] text-white text-sm">
+            <AvatarFallback className="bg-[#0047FF] text-white">
               {getInitials(user.name)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-900 truncate">
-              {user.name}
-            </p>
-            <p className="text-xs text-gray-500 truncate">
-              {user.email}
-            </p>
+            <p className="text-sm text-gray-900 truncate">{getFirstName(user.name)}</p>
+            <p className="text-xs text-gray-500 truncate">{user.email}</p>
           </div>
         </div>
       </div>
 
-      {/* Navigation Menu */}
-      <nav className="flex-1 px-4 py-6">
-        <ul className="space-y-1">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentSection === item.id;
-            
-            return (
-              <li key={item.id}>
-                <button
-                  onClick={() => {
-                    onSectionChange(item.id);
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                    isActive
-                      ? 'bg-[#0047FF] text-white shadow-lg shadow-[#0047FF]/30'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-500'}`} />
-                  <span className="flex-1 text-left font-medium text-sm">
-                    {item.label}
-                  </span>
-                  {item.badge && (
-                    <span className={`px-2 py-0.5 text-xs rounded-full ${
-                      isActive
-                        ? 'bg-white/20 text-white'
-                        : 'bg-[#0047FF] text-white'
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+      {/* Navigation */}
+      <nav className="flex-1 p-4 space-y-2">
+        <Button
+          variant={currentSection === "overview" ? "default" : "ghost"}
+          className={currentSection === "overview" 
+            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+          }
+          onClick={() => {
+            onSectionChange("overview");
+            onItemClick?.();
+          }}
+        >
+          <LayoutDashboard className="w-5 h-5 mr-3" />
+          Dashboard
+        </Button>
+        <Button
+          variant={currentSection === "listings" ? "default" : "ghost"}
+          className={currentSection === "listings" 
+            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
+          }
+          disabled
+        >
+          <Package className="w-5 h-5 mr-3" />
+          Mis Publicaciones
+        </Button>
+        <Button
+          variant={currentSection === "negotiations" ? "default" : "ghost"}
+          className={currentSection === "negotiations" 
+            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
+          }
+          disabled
+        >
+          <MessageSquare className="w-5 h-5 mr-3" />
+          Negociaciones
+        </Button>
+        <Button
+          variant={currentSection === "chats" ? "default" : "ghost"}
+          className={currentSection === "chats" 
+            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
+          }
+          disabled
+        >
+          <MessageCircle className="w-5 h-5 mr-3" />
+          Chats
+        </Button>
+        <Button
+          variant={currentSection === "notifications" ? "default" : "ghost"}
+          className={currentSection === "notifications" 
+            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
+          }
+          disabled
+        >
+          <Bell className="w-5 h-5 mr-3" />
+          Notificaciones
+        </Button>
+        <Button
+          variant={currentSection === "payments" ? "default" : "ghost"}
+          className={currentSection === "payments" 
+            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
+          }
+          disabled
+        >
+          <CreditCard className="w-5 h-5 mr-3" />
+          Pagos
+        </Button>
+        <Button
+          variant={currentSection === "packages" ? "default" : "ghost"}
+          className={currentSection === "packages" 
+            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
+          }
+          disabled
+        >
+          <Box className="w-5 h-5 mr-3" />
+          Paquetes
+        </Button>
+        <Button
+          variant={currentSection === "specifications" ? "default" : "ghost"}
+          className={currentSection === "specifications" 
+            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
+          }
+          disabled
+        >
+          <FileText className="w-5 h-5 mr-3" />
+          Especificaciones
+        </Button>
+        <Button
+          variant={currentSection === "settings" ? "default" : "ghost"}
+          className={currentSection === "settings" 
+            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
+            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+          }
+          onClick={() => {
+            onSectionChange("settings");
+            onItemClick?.();
+          }}
+        >
+          <Settings className="w-5 h-5 mr-3" />
+          Configuración
+        </Button>
       </nav>
 
-      {/* Quick Action Button */}
-      <div className="px-6 pb-6">
-        <button className="w-full bg-gradient-to-r from-[#0047FF] to-[#0066FF] text-white py-3 px-4 rounded-lg font-semibold shadow-lg shadow-[#0047FF]/30 hover:shadow-xl transition-all flex items-center justify-center gap-2">
-          <Package className="w-5 h-5" />
-          Publicar Artículo
-        </button>
+      {/* Footer */}
+      <div className="p-4 border-t border-gray-200 space-y-2">
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-gray-600 hover:text-gray-900"
+          onClick={() => {
+            onNavigate('home');
+            onItemClick?.();
+          }}
+        >
+          <ArrowDownRight className="w-5 h-5 mr-3" />
+          Ir al Marketplace
+        </Button>
+        {onLogout && (
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+            onClick={() => {
+              onLogout();
+              onItemClick?.();
+            }}
+          >
+            <LogOut className="w-5 h-5 mr-3" />
+            Cerrar Sesión
+          </Button>
+        )}
       </div>
     </>
   );
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center text-gray-700"
-      >
-        {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-      </button>
-
-      {/* Mobile Sidebar */}
-      {mobileMenuOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          <div
-            className="w-64 h-full bg-white shadow-xl flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <SidebarContent />
-          </div>
-        </div>
-      )}
-
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:w-64 bg-white border-r border-gray-200 shadow-sm">
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <aside className="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col">
         <SidebarContent />
       </aside>
+
+      {/* Mobile Sidebar - Sheet/Drawer */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent side="left" className="w-64 bg-white border-gray-200 p-0">
+          <VisuallyHidden>
+            <SheetTitle>Menú de Navegación</SheetTitle>
+            <SheetDescription>
+              Navega por el dashboard de Rantti
+            </SheetDescription>
+          </VisuallyHidden>
+          <div className="flex flex-col h-full">
+            <SidebarContent onItemClick={() => setMobileMenuOpen(false)} />
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

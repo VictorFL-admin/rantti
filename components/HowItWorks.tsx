@@ -17,29 +17,25 @@ export default function HowItWorks({ onNavigate }: HowItWorksProps) {
       icon: UploadSellIcon,
       title: "1. Publica tu bien",
       description: "Sube fotos claras, describe tu artículo, la ubicación y establece un precio inicial.",
-      color: "from-[#0047FF] to-[#0066FF]",
-      tip: "Tip: Mejores fotos = Más ofertas"
+      color: "from-[#0047FF] to-[#0066FF]"
     },
     {
       icon: OffersSellIcon,
       title: "2. Recibe ofertas",
       description: "Compradores interesados te envían propuestas. Revísalas y responde para seguir negociando.",
-      color: "from-[#0047FF] to-[#0066FF]",
-      tip: "Tip: Responde rápido para cerrar antes"
+      color: "from-[#0047FF] to-[#0066FF]"
     },
     {
       icon: NegotiateSellIcon,
       title: "3. Negocia el precio",
       description: "Intercambia contraofertas en tiempo real, hasta llegar a un precio que le convenga a ambos.",
-      color: "from-[#0047FF] to-[#0066FF]",
-      tip: "Tip: La clave está en la comunicación"
+      color: "from-[#0047FF] to-[#0066FF]"
     },
     {
       icon: CloseDealSellIcon,
       title: "4. ¡Cierra el trato!",
       description: "Acuerda los detalles finales y coordina la entrega.",
-      color: "from-[#0047FF] to-[#0066FF]",
-      tip: "Tip: Confirma precio, lugar y horario antes de cerrar."
+      color: "from-[#0047FF] to-[#0066FF]"
     }
   ];
 
@@ -48,29 +44,25 @@ export default function HowItWorks({ onNavigate }: HowItWorksProps) {
       icon: SearchBuyIcon,
       title: "1. Encuentra lo que buscas",
       description: "Explora productos nuevos y usados en todas las categorías.",
-      color: "from-[#0047FF] to-[#0066FF]",
-      tip: "Tip: Compara precios similares para negociar mejor."
+      color: "from-[#0047FF] to-[#0066FF]"
     },
     {
       icon: TrendingBuyIcon,
       title: "2. Haz tu oferta",
       description: "Propón el precio que estás dispuesto a pagar. Tu oferta puede ser visible para otros vendedores interesados.",
-      color: "from-[#0047FF] to-[#0066FF]",
-      tip: "Tip: Ofrece un precio razonable para recibir más respuestas."
+      color: "from-[#0047FF] to-[#0066FF]"
     },
     {
       icon: NegotiateBuyIcon,
       title: "3. Negocia",
       description: "Otros vendedores pueden contactarte con contraofertas. Compara opciones hasta llegar a un acuerdo justo.",
-      color: "from-[#0047FF] to-[#0066FF]",
-      tip: "Tip: Negocia con claridad y rapidez"
+      color: "from-[#0047FF] to-[#0066FF]"
     },
     {
       icon: CloseDealBuyIcon,
       title: "4. ¡Cierra el trato!",
       description: "Cuando ambos estén de acuerdo, coordinen el pago y la entrega.",
-      color: "from-[#0047FF] to-[#0066FF]",
-      tip: "Tip: Deja todo claro antes de encontrarse"
+      color: "from-[#0047FF] to-[#0066FF]"
     }
   ];
 
@@ -184,14 +176,9 @@ export default function HowItWorks({ onNavigate }: HowItWorksProps) {
                 <h3 className="text-gray-900 mb-3 text-lg">
                   {step.title}
                 </h3>
-                <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                <p className="text-sm text-gray-600 leading-relaxed">
                   {step.description}
                 </p>
-
-                {/* Tip badge */}
-                <div className="inline-block px-3 py-1 bg-blue-50 border border-blue-200 rounded-full">
-                  <p className="text-xs text-[#0047FF]">{step.tip}</p>
-                </div>
               </motion.div>
             </motion.div>
           ))}

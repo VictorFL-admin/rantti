@@ -44,7 +44,7 @@ export default function Services() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div 
-          className="text-center mb-12"
+          className="text-center mb-16"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px", amount: 0.3 }}
@@ -88,7 +88,7 @@ export default function Services() {
 
         {/* Destaca tu publicación Card */}
         <motion.div 
-          className="bg-white border border-[rgba(29,41,61,0.36)] rounded-2xl p-6 sm:p-8 text-center mb-12 max-w-4xl mx-auto"
+          className="bg-white border border-[rgba(29,41,61,0.36)] rounded-2xl p-6 sm:p-8 text-center mb-16 max-w-4xl mx-auto"
           initial={{ opacity: 0, scale: 0.9, y: 40 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px", amount: 0.3 }}
@@ -176,7 +176,7 @@ export default function Services() {
         </motion.div>
 
         {/* ¿Qué significa "destacar"? */}
-        <div className="mb-10 max-w-2xl mx-auto">
+        <div className="mb-14 max-w-2xl mx-auto">
           <motion.div 
             className="text-center mb-8"
             initial={{ opacity: 0, y: 40 }}

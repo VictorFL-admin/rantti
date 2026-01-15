@@ -64,6 +64,17 @@ export async function register(userData: RegisterData): Promise<AuthResponse> {
 
     const data: AuthResponse = await response.json();
 
+    // Si la respuesta HTTP no es exitosa pero tenemos data, devolver el error del backend
+    if (!response.ok) {
+      return {
+        success: false,
+        error: {
+          message: data.error?.message || data.message || "Error al crear la cuenta",
+          code: data.error?.code || "REGISTER_ERROR",
+        },
+      };
+    }
+
     if (data.success) {
       // El token puede estar en data.token o data.data.token
       const token = data.token || data.data?.token;
@@ -117,6 +128,17 @@ export async function login(credentials: LoginData): Promise<AuthResponse> {
     console.log('🔵 Respuesta del backend en login:', data);
     console.log('🔵 Token:', data.token);
     console.log('🔵 Usuario:', data.data?.user);
+
+    // Si la respuesta HTTP no es exitosa pero tenemos data, devolver el error del backend
+    if (!response.ok) {
+      return {
+        success: false,
+        error: {
+          message: data.error?.message || data.message || "Credenciales incorrectas",
+          code: data.error?.code || "LOGIN_ERROR",
+        },
+      };
+    }
 
     if (data.success) {
       // El token puede estar en data.token o data.data.token
