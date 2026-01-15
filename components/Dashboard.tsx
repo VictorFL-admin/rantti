@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "./ui/button";
+import { API_ENDPOINTS, getApiUrl } from "@/lib/api-config";
+import { apiGet } from "@/lib/api-client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
@@ -43,7 +46,7 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog";
 // import CreateListingDialog from "./CreateListingDialog";
-// import SettingsPanel from "./SettingsPanel";
+import SettingsPanel from "./SettingsPanel";
 // import BoostPublicationDialog from "./BoostPublicationDialog";
 // import NegotiationsPanel from "./NegotiationsPanel";
 // import NotificationsPanel from "./NotificationsPanel";
@@ -61,8 +64,17 @@ interface DashboardProps {
   onUpdateUser: (updates: { name?: string; avatar?: string }) => void;
 }
 
-export default function Dashboard({ user, onLogout, onNavigate, onUpdateUser }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState("overview");
+export default function Dashboard({ user: initialUser, onLogout, onNavigate, onUpdateUser }: DashboardProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  
+  // Determine active tab from URL
+  const getTabFromPath = () => {
+    if (pathname === '/configuracion') return 'settings';
+    return 'overview';
+  };
+  
+  const [activeTab, setActiveTab] = useState(getTabFromPath());
   const [createListingOpen, setCreateListingOpen] = useState(false);
   const [boostPublicationOpen, setBoostPublicationOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -71,6 +83,14 @@ export default function Dashboard({ user, onLogout, onNavigate, onUpdateUser }: 
     id: number;
     title: string;
   } | null>(null);
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(initialUser);
+
+  // Sync activeTab with URL changes
+  useEffect(() => {
+    setActiveTab(getTabFromPath());
+  }, [pathname]);
 
   const getInitials = (name: string) => {
     return name
@@ -85,33 +105,107 @@ export default function Dashboard({ user, onLogout, onNavigate, onUpdateUser }: 
     return name.split(" ")[0];
   };
 
-  // Mock data
-  const stats = [
+  // Fetch user profile data
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await apiGet(getApiUrl(API_ENDPOINTS.USER.PROFILE));
+        
+        if (response.ok) {
+          const data = await response.json();
+          const userProfile = data.user;
+          
+          setUser({
+            name: userProfile.name || "",
+            email: userProfile.email || "",
+            avatar: userProfile.avatar || "",
+          });
+        }
+      } catch (error) {
+        console.error('Error al cargar perfil:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  // Fetch dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const response = await apiGet(getApiUrl(API_ENDPOINTS.DASHBOARD));
+        
+        if (response.ok) {
+          const data = await response.json();
+          setDashboardData(data);
+        }
+      } catch (error) {
+        console.error('Error al cargar datos del dashboard:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Preparar los stats desde la API
+  const stats = dashboardData ? [
     {
       title: "Publicaciones Activas",
-      value: "3",
-      change: "+2 esta semana",
+      value: String(dashboardData.stats.activeListings.count),
+      change: dashboardData.stats.activeListings.change,
       icon: Package,
-      trend: "up"
+      trend: dashboardData.stats.activeListings.count > 0 ? "up" : "neutral"
     },
     {
       title: "Negociaciones Activas",
-      value: "7",
-      change: "4 pendientes de respuesta",
+      value: String(dashboardData.stats.activeNegotiations.count),
+      change: `${dashboardData.stats.activeNegotiations.pending} pendientes de respuesta`,
       icon: MessageSquare,
       trend: "neutral"
     },
     {
       title: "Ofertas Recibidas",
-      value: "12",
-      change: "+5 nuevas hoy",
+      value: String(dashboardData.stats.receivedOffers.count),
+      change: dashboardData.stats.receivedOffers.new,
       icon: TrendingUp,
-      trend: "up"
+      trend: dashboardData.stats.receivedOffers.count > 0 ? "up" : "neutral"
     },
     {
       title: "Valor Total Publicado",
-      value: "$2.5M",
-      change: "3 propiedades",
+      value: dashboardData.stats.totalValue.amount,
+      change: `${dashboardData.stats.totalValue.listings} propiedades`,
+      icon: DollarSign,
+      trend: "neutral"
+    }
+  ] : [
+    {
+      title: "Publicaciones Activas",
+      value: "0",
+      change: "+0 esta semana",
+      icon: Package,
+      trend: "neutral"
+    },
+    {
+      title: "Negociaciones Activas",
+      value: "0",
+      change: "0 pendientes de respuesta",
+      icon: MessageSquare,
+      trend: "neutral"
+    },
+    {
+      title: "Ofertas Recibidas",
+      value: "0",
+      change: "+0 nuevas hoy",
+      icon: TrendingUp,
+      trend: "neutral"
+    },
+    {
+      title: "Valor Total Publicado",
+      value: "$0",
+      change: "0 propiedades",
       icon: DollarSign,
       trend: "neutral"
     }
@@ -194,7 +288,7 @@ export default function Dashboard({ user, onLogout, onNavigate, onUpdateUser }: 
             : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
           }
           onClick={() => {
-            setActiveTab("overview");
+            router.push('/dashboard');
             onItemClick?.();
           }}
         >
@@ -306,7 +400,7 @@ export default function Dashboard({ user, onLogout, onNavigate, onUpdateUser }: 
             : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
           }
           onClick={() => {
-            setActiveTab("settings");
+            router.push('/configuracion');
             onItemClick?.();
           }}
         >
@@ -438,51 +532,60 @@ export default function Dashboard({ user, onLogout, onNavigate, onUpdateUser }: 
         </header>
 
         <div className="p-4 md:p-8">
-          {/* Overview Tab */}
-          {activeTab === "overview" && (
-            <div className="space-y-6">
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                {stats.map((stat, index) => (
-                  <Card key={index} className="bg-white border-gray-200">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm text-gray-600">
-                        {stat.title}
-                      </CardTitle>
-                      <stat.icon className="w-4 h-4 text-gray-400" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl text-gray-900">{stat.value}</div>
-                      <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                        {stat.trend === "up" && <ArrowUpRight className="w-3 h-3 text-green-600" />}
-                        {stat.change}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+          {/* Loader */}
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0047FF]"></div>
+            </div>
+          ) : (
+            <>
+              {/* Overview Tab */}
+              {activeTab === "overview" && (
+                <div className="space-y-6">
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    {stats.map((stat, index) => (
+                      <Card key={index} className="bg-white border-gray-200">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                          <CardTitle className="text-sm text-gray-600">
+                            {stat.title}
+                          </CardTitle>
+                          <stat.icon className="w-4 h-4 text-gray-400" />
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl text-gray-900">{stat.value}</div>
+                          <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                            {stat.trend === "up" && <ArrowUpRight className="w-3 h-3 text-green-600" />}
+                            {stat.change}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
 
               {/* Recent Activity */}
               <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
                 <Card className="bg-white border-gray-200">
                   <CardHeader>
-                    <CardTitle className="text-gray-900">Próximamente</CardTitle>
+                    <CardTitle className="text-gray-900">Actividad Reciente</CardTitle>
                     <CardDescription className="text-gray-500">
-                      Actividad reciente de tus negociaciones
+                      Tus negociaciones más recientes
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="py-12 text-center">
                     <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500">
-                      Ve a la pestaña de Negociaciones para gestionar tus ofertas
+                      {dashboardData?.recentActivity?.message || "No tienes actividad reciente aún."}
                     </p>
-                    <Button
-                      onClick={() => setActiveTab("negotiations")}
-                      variant="outline"
-                      className="mt-4 border-gray-300 text-gray-700 hover:bg-gray-100"
-                    >
-                      Ver Negociaciones
-                    </Button>
+                    {dashboardData?.recentActivity?.message && (
+                      <Button
+                        onClick={() => setActiveTab("negotiations")}
+                        variant="outline"
+                        className="mt-4 border-gray-300 text-gray-700 hover:bg-gray-100"
+                      >
+                        Ver Negociaciones
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -493,30 +596,41 @@ export default function Dashboard({ user, onLogout, onNavigate, onUpdateUser }: 
                       Con más interacción
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {myListings.map((listing) => (
-                      <div key={listing.id} className="flex items-center gap-4 pb-4 border-b border-gray-200 last:border-0 last:pb-0">
-                        <img 
-                          src={listing.image} 
-                          alt={listing.title}
-                          className="w-16 h-16 rounded-lg object-cover"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 truncate">{listing.title}</p>
-                          <div className="flex items-center gap-3 mt-1">
-                            <span className="text-xs text-purple-600">{listing.price}</span>
-                            <span className="text-xs text-gray-500 flex items-center gap-1">
-                              <Eye className="w-3 h-3" />
-                              {listing.views}
-                            </span>
-                            <span className="text-xs text-gray-500 flex items-center gap-1">
-                              <MessageSquare className="w-3 h-3" />
-                              {listing.offers}
-                            </span>
-                          </div>
-                        </div>
+                  <CardContent>
+                    {!dashboardData?.hasData || dashboardData?.featuredListings?.message ? (
+                      <div className="py-12 text-center">
+                        <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-500">
+                          {dashboardData?.featuredListings?.message || "No tienes publicaciones aún."}
+                        </p>
                       </div>
-                    ))}
+                    ) : dashboardData?.featuredListings?.data && Array.isArray(dashboardData.featuredListings.data) ? (
+                      <div className="space-y-4">
+                        {dashboardData.featuredListings.data.map((listing: any) => (
+                          <div key={listing.id} className="flex items-center gap-4 pb-4 border-b border-gray-200 last:border-0 last:pb-0">
+                            <img 
+                              src={listing.image || listing.images?.[0] || "https://via.placeholder.com/64"} 
+                              alt={listing.title}
+                              className="w-16 h-16 rounded-lg object-cover"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-gray-900 truncate">{listing.title}</p>
+                              <div className="flex items-center gap-3 mt-1">
+                                <span className="text-xs text-purple-600">{listing.price}</span>
+                                <span className="text-xs text-gray-500 flex items-center gap-1">
+                                  <Eye className="w-3 h-3" />
+                                  {listing.views || 0}
+                                </span>
+                                <span className="text-xs text-gray-500 flex items-center gap-1">
+                                  <MessageSquare className="w-3 h-3" />
+                                  {listing.offers || 0}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
                   </CardContent>
                 </Card>
               </div>
@@ -570,11 +684,7 @@ export default function Dashboard({ user, onLogout, onNavigate, onUpdateUser }: 
 
           {/* Settings Tab */}
           {activeTab === "settings" && (
-            <div className="text-center py-12">
-              <Settings className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Panel de configuración próximamente</p>
-            </div>
-            // <SettingsPanel user={user} onUpdateUser={onUpdateUser} />
+            <SettingsPanel user={user} onUpdateUser={onUpdateUser} />
           )}
 
           {/* Packages Tab */}
@@ -593,6 +703,8 @@ export default function Dashboard({ user, onLogout, onNavigate, onUpdateUser }: 
               <p className="text-gray-500">Panel de especificaciones próximamente</p>
             </div>
             // <SpecificationsPanel />
+          )}
+            </>
           )}
         </div>
       </main>

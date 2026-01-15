@@ -18,6 +18,14 @@ export const API_ENDPOINTS = {
     GOOGLE: '/api/auth/google',
     FACEBOOK: '/api/auth/facebook',
   },
+  DASHBOARD: '/api/dashboard',
+  USER: {
+    PROFILE: '/api/user/profile',
+    AVATAR: '/api/user/avatar',
+    PASSWORD: '/api/user/password',
+    ACCOUNT: '/api/user/account',
+    NOTIFICATIONS: '/api/user/notifications',
+  },
 };
 
 // Helper function to build full URL

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Watch, Gem, Palette, Gamepad2, Smartphone, PopularIcon } from "../lib/icons";
 import { getApiUrl, API_ENDPOINTS } from "@/lib/api-config";
+import { motion } from "framer-motion";
 
 // Tipos para la respuesta de la API
 interface Category {
@@ -87,7 +88,7 @@ export default function Categories() {
 
   if (loading) {
     return (
-      <div className="bg-gray-50 py-24 relative overflow-hidden">
+      <div className="py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="inline-block px-4 py-2 bg-blue-100 border border-blue-200 rounded-full mb-4">
@@ -108,7 +109,7 @@ export default function Categories() {
 
   if (error) {
     return (
-      <div className="bg-gray-50 py-24 relative overflow-hidden">
+      <div className="py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-red-600">Error: {error}</p>
@@ -119,7 +120,7 @@ export default function Categories() {
   }
 
   return (
-    <div className="bg-gray-50 py-24 relative overflow-hidden">;
+    <div className="py-24 relative overflow-hidden">;
       {/* Decorative background */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-20 left-20 w-96 h-96 bg-purple-200 rounded-full blur-3xl"></div>
@@ -127,19 +128,43 @@ export default function Categories() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="text-center mb-16">
-          <div className="inline-block px-4 py-2 bg-blue-100 border border-blue-200 rounded-full mb-4">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
+        >
+          <motion.div 
+            className="inline-block px-4 py-2 bg-blue-100 border border-blue-200 rounded-full mb-4"
+            initial={{ scale: 0.8, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <span className="text-sm text-[#0047FF]">Categorías Populares</span>
-          </div>
+          </motion.div>
           <h2 className="text-gray-900 mb-4">
             ¿Qué estás buscando <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0047FF] to-[#0066FF]">hoy</span>?
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg">
             Objetos únicos de alto valor. Desde joyas exclusivas hasta tecnología premium.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+          variants={{
+            visible: {
+              transition: {
+                staggerChildren: 0.12
+              }
+            }
+          }}
+        >
           {categories.map((category, index) => {
             const IconComponent = iconMap[category.icon] || Gem;
             const image = categoryImages[category.slug] || categoryImages["objetos-unicos"];
@@ -147,9 +172,22 @@ export default function Categories() {
             const isTrending = category.active_listings > 0;
 
             return (
-              <div
+              <motion.div
                 key={category.id}
                 className="group relative h-72 rounded-2xl overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                variants={{
+                  hidden: { opacity: 0, y: 60, scale: 0.9 },
+                  visible: { 
+                    opacity: 1, 
+                    y: 0, 
+                    scale: 1,
+                    transition: {
+                      duration: 0.7,
+                      ease: [0.25, 0.4, 0.25, 1]
+                    }
+                  }
+                }}
+                whileHover={{ y: -8, scale: 1.02, transition: { duration: 0.3 } }}
               >
                 {/* Background image */}
                 <img
@@ -199,10 +237,10 @@ export default function Categories() {
 
                 {/* Hover border effect */}
                 <div className="absolute inset-0 border-2 border-transparent group-hover:border-white/40 rounded-2xl transition-colors duration-300"></div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

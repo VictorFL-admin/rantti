@@ -1,217 +1,179 @@
-import { Badge } from "./ui/badge";
+"use client";
+
+import { TrendingUp, Clock, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
-import { Card } from "./ui/card";
-import { TrendingUp, TrendingDown, MapPin, Clock, Heart, Zap } from "lucide-react";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { motion } from "framer-motion";
 
-type Page = 'home' | 'login' | 'register' | 'dashboard' | 'product-specs';
-
-interface FeaturedListingsProps {
-  onNavigate?: (page: Page) => void;
+interface ActiveNegotiationsProps {
+  onNavigate: (page: 'home' | 'login' | 'register' | 'dashboard') => void;
 }
 
-export default function FeaturedListings({ onNavigate }: FeaturedListingsProps) {
-  const listings = [
+export default function ActiveNegotiations({ onNavigate }: ActiveNegotiationsProps) {
+  const negotiations = [
     {
       id: 1,
-      title: "Rolex Submariner Oro Blanco",
-      category: "Relojes de Lujo",
-      location: "Ciudad de México",
-      image: "https://images.unsplash.com/photo-1670177257750-9b47927f68eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjB3YXRjaHxlbnwxfHx8fDE3NjIxMDExOTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      initialPrice: 1250000,
-      currentOffer: 1180000,
-      totalOffers: 8,
-      timeLeft: "2 días",
-      hot: true
+      product: "Rolex Submariner 2023",
+      category: "⌚ Relojes",
+      initialPrice: "S/ 45,000",
+      currentOffer: "S/ 42,500",
+      status: "Negociando",
+      timeAgo: "Hace 5 min",
     },
     {
       id: 2,
-      title: "Collar de Diamantes 18K",
-      category: "Joyas Exclusivas",
-      location: "Monterrey, N.L.",
-      image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-      initialPrice: 850000,
-      currentOffer: 880000,
-      totalOffers: 12,
-      timeLeft: "5 días",
-      hot: false
+      product: "Anillo Diamante 2.5ct",
+      category: "💎 Joyas",
+      initialPrice: "S/ 28,000",
+      currentOffer: "S/ 26,000",
+      status: "Negociando",
+      timeAgo: "Hace 12 min",
     },
     {
       id: 3,
-      title: "MacBook Pro M3 Max 16\"",
-      category: "Tech Premium",
-      location: "Guadalajara, Jal.",
-      image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-      initialPrice: 95000,
-      currentOffer: 92000,
-      totalOffers: 15,
-      timeLeft: "1 día",
-      hot: true
+      product: "MacBook Pro M3 Max",
+      category: "📱 Tech Premium",
+      initialPrice: "S/ 12,500",
+      currentOffer: "S/ 11,800",
+      status: "Negociando",
+      timeAgo: "Hace 23 min",
     },
-    {
-      id: 4,
-      title: "Pintura Original Frida Kahlo",
-      category: "Arte & Coleccionables",
-      location: "Ciudad de México",
-      image: "https://images.unsplash.com/photo-1561214115-f2f134cc4912?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-      initialPrice: 3200000,
-      currentOffer: 3000000,
-      totalOffers: 6,
-      timeLeft: "3 días",
-      hot: false
-    },
-    {
-      id: 5,
-      title: "Nintendo 64 Gold Edition",
-      category: "Consolas Retro",
-      location: "Puebla, Pue.",
-      image: "https://images.unsplash.com/photo-1486401899868-0e435ed85128?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-      initialPrice: 45000,
-      currentOffer: 43000,
-      totalOffers: 4,
-      timeLeft: "7 días",
-      hot: false
-    },
-    {
-      id: 6,
-      title: "Violín Stradivarius 1721",
-      category: "Objetos Únicos",
-      location: "San Miguel de Allende",
-      image: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-      initialPrice: 8500000,
-      currentOffer: 8200000,
-      totalOffers: 9,
-      timeLeft: "4 días",
-      hot: false
-    }
   ];
 
-  const formatPrice = (price: number) => {
-    return `$${(price / 1000000).toFixed(2)}M`;
-  };
-
   return (
-    <div className="bg-gray-50 py-24 relative overflow-hidden">
-      {/* Decorative background */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-purple-200 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-200 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="text-center mb-16">
-          <div className="inline-block px-4 py-2 bg-blue-100 border border-blue-200 rounded-full mb-4">
-            <span className="text-sm text-[#0047FF] flex items-center gap-1">
-              Negociaciones Activas
-            </span>
-          </div>
+    <section id="negociaciones" className="py-20 bg-gradient-to-b from-gray-50 to-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div 
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
+        >
+          <motion.div 
+            className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-full mb-4"
+            initial={{ scale: 0.8, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm text-green-700 font-['Poppins',sans-serif]">Ahora mismo</span>
+          </motion.div>
           <h2 className="text-gray-900 mb-4">
-            Los mejores <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0047FF] to-[#0066FF]">deals</span> en vivo
+            Negociaciones <span className="text-[#0047FF]">activas</span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-            Únete a las negociaciones más candentes. ¡Estos precios no durarán mucho!
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg font-['Poppins',sans-serif]">
+            Otros usuarios ya están publicando y negociando ahora
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listings.slice(0, 3).map((listing) => (
-            <Card key={listing.id} className="bg-white border-gray-200 overflow-hidden hover:border-blue-300 hover:shadow-xl transition-all duration-300 group relative">
-              {/* Hot badge */}
-              {listing.hot && (
-                <div className="absolute top-4 left-4 z-10">
-                  <div className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-full animate-pulse shadow-lg">
-                    <Zap className="w-3 h-3 text-white fill-white" />
-                    <span className="text-xs text-white">HOT</span>
-                  </div>
+        {/* Negotiations Grid */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{
+            visible: {
+              transition: {
+                staggerChildren: 0.15
+              }
+            }
+          }}
+        >
+          {negotiations.map((negotiation, index) => (
+            <motion.div
+              key={negotiation.id}
+              className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300"
+              variants={{
+                hidden: { opacity: 0, y: 50, scale: 0.95 },
+                visible: { 
+                  opacity: 1, 
+                  y: 0, 
+                  scale: 1,
+                  transition: {
+                    duration: 0.6,
+                    ease: [0.25, 0.4, 0.25, 1]
+                  }
+                }
+              }}
+              whileHover={{ y: -5, transition: { duration: 0.3 } }}
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <p className="text-xs text-gray-500 font-['Poppins',sans-serif] mb-1">
+                    {negotiation.category}
+                  </p>
+                  <h3 className="text-gray-900 font-['Poppins',sans-serif] font-semibold text-base">
+                    {negotiation.product}
+                  </h3>
                 </div>
-              )}
-
-              {/* Image */}
-              <div className="relative h-52 overflow-hidden">
-                <ImageWithFallback
-                  src={listing.image}
-                  alt={listing.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-40"></div>
-
-                {/* Top badges */}
-                <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
-                  <Badge className="bg-white/90 backdrop-blur-sm text-gray-900 border-0">
-                    {listing.category}
-                  </Badge>
-                  <Badge className={`border-0 backdrop-blur-sm ${listing.totalOffers > 5 ? 'bg-green-500/90' : 'bg-blue-500/90'} text-white`}>
-                    {listing.totalOffers} ofertas
-                  </Badge>
-                </div>
-
-                {/* Bottom info */}
-                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                  <Badge className="bg-white/90 backdrop-blur-sm text-gray-900 border-0 flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {listing.timeLeft}
-                  </Badge>
-                  <button className="w-9 h-9 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full flex items-center justify-center transition-all group-hover:scale-110">
-                    <Heart className="w-4 h-4 text-gray-700" />
-                  </button>
+                <div className="flex items-center gap-1 px-2 py-1 bg-green-50 border border-green-200 rounded-full">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-green-700 font-['Poppins',sans-serif]">
+                    {negotiation.status}
+                  </span>
                 </div>
               </div>
 
-              {/* Content */}
-              <div className="p-5">
-                <h3 className="text-gray-900 mb-2 text-lg group-hover:text-[#0047FF] transition-colors">
-                  {listing.title}
-                </h3>
-                
-                <div className="flex items-center gap-1 text-sm text-gray-500 mb-4">
-                  <MapPin className="w-4 h-4" />
-                  {listing.location}
+              {/* Pricing */}
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500 font-['Poppins',sans-serif]">
+                    Precio inicial:
+                  </span>
+                  <span className="text-sm text-gray-400 line-through font-['Poppins',sans-serif]">
+                    {negotiation.initialPrice}
+                  </span>
                 </div>
-
-                {/* Price negotiation section */}
-                <div className="bg-gradient-to-br from-[#0047FF]/5 to-[#0047FF]/10 rounded-xl p-4 mb-4 border border-[#0047FF]/20">
-                  <div className="space-y-3">
-                    {/* Initial price */}
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-gray-500">Precio inicial</span>
-                      <span className="text-sm text-gray-500 line-through">{formatPrice(listing.initialPrice)}</span>
-                    </div>
-
-                    {/* Current offer */}
-                    <div className="flex justify-between items-center bg-white rounded-lg p-2 border border-[#0047FF]/30 shadow-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-[#0047FF]">Mejor oferta</span>
-                        {listing.currentOffer > listing.initialPrice ? (
-                          <TrendingUp className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <TrendingDown className="w-4 h-4 text-orange-500" />
-                        )}
-                      </div>
-                      <span className="text-lg text-[#0047FF]">{formatPrice(listing.currentOffer)}</span>
-                    </div>
-                  </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-700 font-['Poppins',sans-serif] font-medium">
+                    Oferta actual:
+                  </span>
+                  <span className="text-lg text-[#0047FF] font-['Poppins',sans-serif] font-bold">
+                    {negotiation.currentOffer}
+                  </span>
                 </div>
-
-                <Button className="w-full bg-[#0047FF] hover:bg-[#0039CC] shadow-lg hover:shadow-xl transition-all group-hover:scale-105" onClick={() => onNavigate?.('product-specs')}>
-                  Ver Publicación
-                </Button>
               </div>
-            </Card>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-1.5 text-gray-500">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span className="text-xs font-['Poppins',sans-serif]">
+                    {negotiation.timeAgo}
+                  </span>
+                </div>
+                <TrendingUp className="w-4 h-4 text-green-500" />
+              </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        <div className="text-center mt-12">
-          <Button size="lg" className="bg-[#0047FF] hover:bg-[#0039CC] shadow-lg hover:shadow-xl px-8 py-6">
-            Ver todas las negociaciones
-            <TrendingUp className="w-5 h-5 ml-2" />
-          </Button>
-          <p className="text-sm text-gray-500 mt-4">
-            Se actualizan cada 5 minutos con nuevas ofertas
-          </p>
-        </div>
+        {/* CTA */}
+        <motion.div 
+          className="text-center"
+          initial={{ opacity: 0, y: 50, scale: 0.95 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
+        >
+          <div className="inline-block p-8 bg-white border-2 border-[#0047FF] rounded-2xl shadow-lg">
+            <p className="text-lg text-gray-900 mb-4 font-['Poppins',sans-serif]">
+              ¿Tienes algo similar? <span className="text-[#0047FF] font-semibold">Publícalo ahora</span>
+            </p>
+            <Button
+              onClick={() => onNavigate('register')}
+              className="bg-[#0047FF] hover:bg-[#0039CC] text-white px-8 py-6 text-base font-['Poppins',sans-serif] shadow-lg shadow-[#0047FF]/30 hover:shadow-xl hover:shadow-[#0047FF]/50 transition-all rounded-xl group/btn"
+            >
+              Publica algo similar
+              <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+            </Button>
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </section>
   );
 }

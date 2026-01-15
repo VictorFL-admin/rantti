@@ -7,10 +7,14 @@ import HowItWorks from "./HowItWorks";
 import Categories from "./Categories";
 import FeaturedListings from "./FeaturedListings";
 import BenefitsBlocks from "./BenefitsBlocks";
+import Services from "./Services";
+import FinalCTA from "./FinalCTA";
 import Footer from "./Footer";
 import LoginPage from "./LoginPage";
 import RegisterPage from "./RegisterPage";
 import ForgotPasswordPage from "./ForgotPasswordPage";
+import TermsAndConditions from "./TermsAndConditions";
+import PrivacyPolicy from "./PrivacyPolicy";
 import Dashboard from "./Dashboard";
 import { logout, getStoredUser, isAuthenticated } from "@/lib/auth";
 
@@ -27,10 +31,12 @@ export default function HeroClient() {
     if (pathname === '/login') return 'login';
     if (pathname === '/register') return 'register';
     if (pathname === '/forgot-password') return 'forgot-password';
+    if (pathname === '/terminos-y-condiciones') return 'terms';
+    if (pathname === '/politica-de-privacidad') return 'privacy';
     return 'home';
   };
   
-  const [currentPage, setCurrentPage] = useState<'home' | 'login' | 'register' | 'dashboard' | 'forgot-password'>(getPageFromPath());
+  const [currentPage, setCurrentPage] = useState<'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'terms' | 'privacy'>(getPageFromPath());
 
   // Sincronizar currentPage con cambios en la URL
   useEffect(() => {
@@ -68,13 +74,13 @@ export default function HeroClient() {
   }, [pathname, router]);
 
   // Función para manejar navegación
-  const handleNavigate = (page: 'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'product-specs') => {
+  const handleNavigate = (page: 'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'terms' | 'privacy' | 'product-specs') => {
     if (page === 'product-specs') {
       console.log('Navegando a detalles del producto');
       // Aquí implementarías la navegación a la página de producto
       return;
     }
-    setCurrentPage(page as 'home' | 'login' | 'register' | 'dashboard' | 'forgot-password');
+    setCurrentPage(page as 'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'terms' | 'privacy');
     
     // Cambiar la URL usando router
     const paths = {
@@ -82,7 +88,9 @@ export default function HeroClient() {
       'login': '/login',
       'register': '/register',
       'dashboard': '/dashboard',
-      'forgot-password': '/forgot-password'
+      'forgot-password': '/forgot-password',
+      'terms': '/terminos-y-condiciones',
+      'privacy': '/politica-de-privacidad'
     };
     router.push(paths[page]);
     
@@ -179,6 +187,24 @@ export default function HeroClient() {
     );
   }
 
+  if (currentPage === 'terms') {
+    return (
+      <>
+        <TermsAndConditions onNavigate={handleNavigate} />
+        <Footer />
+      </>
+    );
+  }
+
+  if (currentPage === 'privacy') {
+    return (
+      <>
+        <PrivacyPolicy onNavigate={handleNavigate} />
+        <Footer />
+      </>
+    );
+  }
+
   if (currentPage === 'dashboard') {
     // Si no hay usuario aún, mostrar loading mientras el useEffect carga desde localStorage
     if (!user) {
@@ -213,24 +239,32 @@ export default function HeroClient() {
         onNavigate={handleNavigate} 
         onLogout={handleLogout} 
       />
+
+      {/* Sección Categorías Populares */}
+      <div id="categorias">
+        <Categories />
+      </div>
+
+      {/* Sección Servicios */}
+      <Services />
       
       {/* Sección Cómo Funciona */}
       <div id="como-funciona">
         <HowItWorks onNavigate={handleNavigate} />
       </div>
       
-      {/* Sección Categorías Populares */}
-      <div id="categorias">
-        <Categories />
-      </div>
       
       {/* Sección Negociaciones Activas */}
       <div id="negociaciones-activas">
         <FeaturedListings onNavigate={handleNavigate} />
       </div>
+    
       
       {/* Sección Beneficios */}
       <BenefitsBlocks onNavigate={handleNavigate} />
+      
+      {/* CTA Final */}
+      <FinalCTA onNavigate={handleNavigate} />
       
       {/* Footer */}
       <Footer />

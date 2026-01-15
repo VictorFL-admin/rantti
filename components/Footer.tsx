@@ -78,16 +78,16 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Soporte */}
+          {/* Legal */}
           <div>
-            <h4 className="text-gray-900 mb-4">Soporte</h4>
+            <h4 className="text-gray-900 mb-4">Legal</h4>
             <ul className="space-y-2">
+              <li><a href="/terminos-y-condiciones" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Términos y Condiciones</a></li>
+              <li><a href="/politica-de-privacidad" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Política de Privacidad</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Política de Cambios y Devoluciones</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Libro de Reclamaciones</a></li>
               <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Centro de Ayuda</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Términos de Uso</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Privacidad</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Política de Cookies</a></li>
               <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Seguridad</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Denuncias</a></li>
             </ul>
           </div>
         </div>

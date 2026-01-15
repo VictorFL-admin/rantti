@@ -1,6 +1,9 @@
+"use client";
+
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Check, Search, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface BenefitsBlocksProps {
   onNavigate: (page: 'login' | 'register') => void;
@@ -8,7 +11,7 @@ interface BenefitsBlocksProps {
 
 export default function BenefitsBlocks({ onNavigate }: BenefitsBlocksProps) {
   return (
-    <div className="bg-white py-24 relative overflow-hidden">
+    <div className="py-24 relative overflow-hidden">
       {/* Decorative elements - siguiendo el patrón */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-10 left-10 w-64 h-64 bg-purple-200 rounded-full blur-3xl"></div>
@@ -17,10 +20,22 @@ export default function BenefitsBlocks({ onNavigate }: BenefitsBlocksProps) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Header siguiendo el patrón */}
-        <div className="text-center mb-16">
-          <div className="inline-block px-4 py-2 bg-blue-100 border border-blue-200 rounded-full mb-4">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
+        >
+          <motion.div 
+            className="inline-block px-4 py-2 bg-blue-100 border border-blue-200 rounded-full mb-4"
+            initial={{ scale: 0.8, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <span className="text-sm text-[#0047FF]">Beneficios Reales</span>
-          </div>
+          </motion.div>
           <h2 className="text-gray-900 mb-4">
             ¿Por qué elegir <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0047FF] to-[#0066FF]">Rantti</span>?
           </h2>
@@ -29,8 +44,30 @@ export default function BenefitsBlocks({ onNavigate }: BenefitsBlocksProps) {
           </p>
           
           {/* Key Benefits */}
-          <div className="space-y-6 max-w-3xl mx-auto text-left">
-            <div className="flex items-start gap-3">
+          <motion.div 
+            className="space-y-6 max-w-3xl mx-auto text-left"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.15
+                }
+              }
+            }}
+          >
+            <motion.div 
+              className="flex items-start gap-3"
+              variants={{
+                hidden: { opacity: 0, x: -30 },
+                visible: { 
+                  opacity: 1, 
+                  x: 0,
+                  transition: { duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }
+                }
+              }}
+            >
               <div className="w-2 h-2 bg-[#0047FF] rounded-full mt-2 flex-shrink-0" />
               <div>
                 <h3 className="text-base md:text-lg text-gray-900 mb-1">
@@ -40,9 +77,19 @@ export default function BenefitsBlocks({ onNavigate }: BenefitsBlocksProps) {
                   El precio lo decide el trato, no un algoritmo.
                 </p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex items-start gap-3">
+            <motion.div 
+              className="flex items-start gap-3"
+              variants={{
+                hidden: { opacity: 0, x: -30 },
+                visible: { 
+                  opacity: 1, 
+                  x: 0,
+                  transition: { duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }
+                }
+              }}
+            >
               <div className="w-2 h-2 bg-[#0047FF] rounded-full mt-2 flex-shrink-0" />
               <div>
                 <h3 className="text-base md:text-lg text-gray-900 mb-1">
@@ -52,9 +99,19 @@ export default function BenefitsBlocks({ onNavigate }: BenefitsBlocksProps) {
                   Hablas directo con quien vende.
                 </p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex items-start gap-3">
+            <motion.div 
+              className="flex items-start gap-3"
+              variants={{
+                hidden: { opacity: 0, x: -30 },
+                visible: { 
+                  opacity: 1, 
+                  x: 0,
+                  transition: { duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }
+                }
+              }}
+            >
               <div className="w-2 h-2 bg-[#0047FF] rounded-full mt-2 flex-shrink-0" />
               <div>
                 <h3 className="text-base md:text-lg text-gray-900 mb-1">
@@ -64,14 +121,41 @@ export default function BenefitsBlocks({ onNavigate }: BenefitsBlocksProps) {
                   Nada de intermediarios, comisiones ocultas o letras chicas.
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
 
         {/* Two Column Cards */}
-        <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
+        <motion.div 
+          className="grid md:grid-cols-2 gap-6 lg:gap-8"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{
+            visible: {
+              transition: {
+                staggerChildren: 0.2
+              }
+            }
+          }}
+        >
           {/* Buyer Card */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-8 md:p-10 hover:border-blue-300 hover:shadow-xl transition-all duration-300 group">
+          <motion.div 
+            className="bg-white border border-gray-200 rounded-2xl p-8 md:p-10 hover:border-blue-300 hover:shadow-xl transition-all duration-300 group"
+            variants={{
+              hidden: { opacity: 0, y: 60, scale: 0.95 },
+              visible: { 
+                opacity: 1, 
+                y: 0, 
+                scale: 1,
+                transition: {
+                  duration: 0.7,
+                  ease: [0.25, 0.4, 0.25, 1]
+                }
+              }
+            }}
+            whileHover={{ y: -5, transition: { duration: 0.3 } }}
+          >
             <div className="space-y-6">
               <div>
                 <h3 className="text-gray-900 mb-2">
@@ -111,10 +195,25 @@ export default function BenefitsBlocks({ onNavigate }: BenefitsBlocksProps) {
                 </Button>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Seller Card */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-8 md:p-10 hover:border-blue-300 hover:shadow-xl transition-all duration-300 group">
+          <motion.div 
+            className="bg-white border border-gray-200 rounded-2xl p-8 md:p-10 hover:border-blue-300 hover:shadow-xl transition-all duration-300 group"
+            variants={{
+              hidden: { opacity: 0, y: 60, scale: 0.95 },
+              visible: { 
+                opacity: 1, 
+                y: 0, 
+                scale: 1,
+                transition: {
+                  duration: 0.7,
+                  ease: [0.25, 0.4, 0.25, 1]
+                }
+              }
+            }}
+            whileHover={{ y: -5, transition: { duration: 0.3 } }}
+          >
             <div className="space-y-6">
               <div>
                 <h3 className="text-gray-900 mb-2">
@@ -154,8 +253,8 @@ export default function BenefitsBlocks({ onNavigate }: BenefitsBlocksProps) {
                 </Button>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );
