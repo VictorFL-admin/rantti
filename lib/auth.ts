@@ -37,6 +37,7 @@ export interface AuthResponse {
   error?: {
     message: string;
     code: string;
+    errors?: { [key: string]: string[] }; // Errores de validación por campo
   };
 }
 
@@ -66,11 +67,26 @@ export async function register(userData: RegisterData): Promise<AuthResponse> {
 
     // Si la respuesta HTTP no es exitosa pero tenemos data, devolver el error del backend
     if (!response.ok) {
+      // Extraer los errores específicos si existen
+      let errorMessage = data.error?.message || data.message || "Error al crear la cuenta";
+      
+      // Si hay errores de validación específicos, construir un mensaje más detallado
+      if (data.error?.errors) {
+        const errorMessages: string[] = [];
+        Object.values(data.error.errors).forEach(fieldErrors => {
+          errorMessages.push(...fieldErrors);
+        });
+        if (errorMessages.length > 0) {
+          errorMessage = errorMessages.join('. ');
+        }
+      }
+
       return {
         success: false,
         error: {
-          message: data.error?.message || data.message || "Error al crear la cuenta",
+          message: errorMessage,
           code: data.error?.code || "REGISTER_ERROR",
+          errors: data.error?.errors,
         },
       };
     }
@@ -131,11 +147,26 @@ export async function login(credentials: LoginData): Promise<AuthResponse> {
 
     // Si la respuesta HTTP no es exitosa pero tenemos data, devolver el error del backend
     if (!response.ok) {
+      // Extraer los errores específicos si existen
+      let errorMessage = data.error?.message || data.message || "Credenciales incorrectas";
+      
+      // Si hay errores de validación específicos, construir un mensaje más detallado
+      if (data.error?.errors) {
+        const errorMessages: string[] = [];
+        Object.values(data.error.errors).forEach(fieldErrors => {
+          errorMessages.push(...fieldErrors);
+        });
+        if (errorMessages.length > 0) {
+          errorMessage = errorMessages.join('. ');
+        }
+      }
+
       return {
         success: false,
         error: {
-          message: data.error?.message || data.message || "Credenciales incorrectas",
+          message: errorMessage,
           code: data.error?.code || "LOGIN_ERROR",
+          errors: data.error?.errors,
         },
       };
     }
