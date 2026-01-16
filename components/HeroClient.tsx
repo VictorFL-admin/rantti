@@ -13,12 +13,18 @@ import Footer from "./Footer";
 import LoginPage from "./LoginPage";
 import RegisterPage from "./RegisterPage";
 import ForgotPasswordPage from "./ForgotPasswordPage";
+import ResetPasswordPage from "./ResetPasswordPage";
 import TermsAndConditions from "./TermsAndConditions";
 import PrivacyPolicy from "./PrivacyPolicy";
 import Dashboard from "./Dashboard";
 import { logout, getStoredUser, isAuthenticated } from "@/lib/auth";
 
-export default function HeroClient() {
+interface HeroClientProps {
+  resetPasswordToken?: string;
+  resetPasswordEmail?: string;
+}
+
+export default function HeroClient({ resetPasswordToken, resetPasswordEmail }: HeroClientProps = { resetPasswordToken: undefined, resetPasswordEmail: undefined }) {
   const router = useRouter();
   const pathname = usePathname();
   
@@ -31,12 +37,13 @@ export default function HeroClient() {
     if (pathname === '/login') return 'login';
     if (pathname === '/register') return 'register';
     if (pathname === '/forgot-password') return 'forgot-password';
+    if (pathname === '/reset-password') return 'reset-password';
     if (pathname === '/terminos-y-condiciones') return 'terms';
     if (pathname === '/politica-de-privacidad') return 'privacy';
     return 'home';
   };
   
-  const [currentPage, setCurrentPage] = useState<'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'terms' | 'privacy'>(getPageFromPath());
+  const [currentPage, setCurrentPage] = useState<'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'reset-password' | 'terms' | 'privacy'>(getPageFromPath());
 
   // Sincronizar currentPage con cambios en la URL
   useEffect(() => {
@@ -74,13 +81,13 @@ export default function HeroClient() {
   }, [pathname, router]);
 
   // Función para manejar navegación
-  const handleNavigate = (page: 'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'terms' | 'privacy' | 'product-specs') => {
+  const handleNavigate = (page: 'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'reset-password' | 'terms' | 'privacy' | 'product-specs') => {
     if (page === 'product-specs') {
       console.log('Navegando a detalles del producto');
       // Aquí implementarías la navegación a la página de producto
       return;
     }
-    setCurrentPage(page as 'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'terms' | 'privacy');
+    setCurrentPage(page as 'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'reset-password' | 'terms' | 'privacy');
     
     // Cambiar la URL usando router
     const paths = {
@@ -89,6 +96,7 @@ export default function HeroClient() {
       'register': '/register',
       'dashboard': '/dashboard',
       'forgot-password': '/forgot-password',
+      'reset-password': '/reset-password',
       'terms': '/terminos-y-condiciones',
       'privacy': '/politica-de-privacidad'
     };
@@ -183,6 +191,18 @@ export default function HeroClient() {
         onNavigate={handleNavigate}
         user={user}
         onLogout={handleLogout}
+      />
+    );
+  }
+
+  if (currentPage === 'reset-password') {
+    return (
+      <ResetPasswordPage 
+        onNavigate={handleNavigate}
+        user={user}
+        onLogout={handleLogout}
+        token={resetPasswordToken}
+        email={resetPasswordEmail}
       />
     );
   }

@@ -1,8 +1,10 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Mail, Menu, LogOut, Package } from "lucide-react";
+import { Lock, Menu, LogOut, Package, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { SearchIcon } from "@/lib/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "./ui/sheet";
@@ -11,44 +13,78 @@ import Footer from "./Footer";
 import { logoImage } from "@/lib/images";
 import { API_ENDPOINTS, getApiUrl } from "@/lib/api-config";
 
-interface ForgotPasswordPageProps {
+interface ResetPasswordPageProps {
   onNavigate: (page: 'home' | 'login' | 'register' | 'dashboard') => void;
-  onResetSuccess?: () => void;
   user?: { email: string; name: string; avatar?: string } | null;
   onLogout?: () => void;
+  token?: string;
+  email?: string;
 }
 
-export default function ForgotPasswordPage({ onNavigate, onResetSuccess, user = null, onLogout }: ForgotPasswordPageProps) {
-  const [email, setEmail] = useState("");
-  const [emailSent, setEmailSent] = useState(false);
+export default function ResetPasswordPage({ onNavigate, user = null, onLogout, token, email }: ResetPasswordPageProps) {
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [tokenValid, setTokenValid] = useState(true);
+
+  useEffect(() => {
+    if (!token || !email) {
+      setTokenValid(false);
+      setError("No se proporcionó un token o email válido");
+    }
+  }, [token, email]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    
+    if (!token || !email) {
+      setError("Token o email no válido");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError("Las contraseñas no coinciden");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres");
+      return;
+    }
 
     setIsLoading(true);
     setError("");
 
     try {
-      const response = await fetch(getApiUrl(API_ENDPOINTS.AUTH.FORGOT_PASSWORD), {
+      const response = await fetch(getApiUrl(API_ENDPOINTS.AUTH.RESET_PASSWORD), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ 
+          token,
+          email,
+          newPassword 
+        }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setEmailSent(true);
-        if (onResetSuccess) {
-          onResetSuccess();
-        }
+        setSuccess(true);
+        // Redirigir al login después de 3 segundos
+        setTimeout(() => {
+          onNavigate('login');
+        }, 3000);
       } else {
-        setError(data.error || 'Error al procesar la solicitud');
+        setError(data.error || 'Error al restablecer la contraseña');
+        if (data.error?.includes('expirado') || data.error?.includes('inválido')) {
+          setTokenValid(false);
+        }
       }
     } catch (err) {
       setError('Error al conectar con el servidor');
@@ -252,15 +288,80 @@ export default function ForgotPasswordPage({ onNavigate, onResetSuccess, user = 
         <div className="relative w-full max-w-md">
           {/* Card */}
           <div className="bg-white/80 backdrop-blur-xl border border-gray-200 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all">
-            {!emailSent ? (
+            {success ? (
+              <>
+                {/* Success state */}
+                <div className="flex justify-center mb-6">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                    <CheckCircle2 className="w-8 h-8 text-green-600" />
+                  </div>
+                </div>
+
+                <div className="text-center mb-8">
+                  <h1 className="text-3xl text-gray-900 mb-2">
+                    ¡Contraseña actualizada! ✓
+                  </h1>
+                  <p className="text-gray-600 mb-4">
+                    Tu contraseña ha sido restablecida exitosamente
+                  </p>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                  <p className="text-sm text-gray-700 text-center">
+                    Redirigiendo al login en unos segundos...
+                  </p>
+                </div>
+
+                <Button 
+                  onClick={() => onNavigate('login')}
+                  className="w-full h-12 bg-[#0047FF] hover:bg-[#0039CC] shadow-lg hover:shadow-xl hover:shadow-[#0047FF]/30 transition-all"
+                >
+                  Ir al login ahora
+                </Button>
+              </>
+            ) : !tokenValid ? (
+              <>
+                {/* Invalid token state */}
+                <div className="text-center mb-8">
+                  <h1 className="text-3xl text-gray-900 mb-2">
+                    Enlace inválido o expirado
+                  </h1>
+                  <p className="text-gray-600">
+                    El enlace de recuperación no es válido o ha expirado
+                  </p>
+                </div>
+
+                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                  <p className="text-sm text-gray-700">
+                    Por favor, solicita un nuevo enlace de recuperación desde la página de login.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <Button 
+                    onClick={() => onNavigate('home')}
+                    className="w-full h-12 bg-[#0047FF] hover:bg-[#0039CC] shadow-lg hover:shadow-xl hover:shadow-[#0047FF]/30 transition-all"
+                  >
+                    Volver al inicio
+                  </Button>
+                  <Button 
+                    onClick={() => onNavigate('login')}
+                    variant="outline"
+                    className="w-full h-12 border-gray-300 hover:bg-gray-50"
+                  >
+                    Ir al login
+                  </Button>
+                </div>
+              </>
+            ) : (
               <>
                 {/* Header */}
                 <div className="text-center mb-8">
                   <h1 className="text-3xl text-gray-900 mb-2">
-                    ¿Olvidaste tu contraseña?
+                    Crear nueva contraseña
                   </h1>
                   <p className="text-gray-600">
-                    No te preocupes, te enviaremos instrucciones para recuperarla
+                    Ingresa tu nueva contraseña para tu cuenta de Rantti
                   </p>
                 </div>
 
@@ -273,25 +374,66 @@ export default function ForgotPasswordPage({ onNavigate, onResetSuccess, user = 
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-gray-900 flex items-center gap-1">
-                      Correo electrónico
+                    <Label htmlFor="newPassword" className="text-gray-900 flex items-center gap-1">
+                      Nueva contraseña
                     </Label>
                     <div className="relative group">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-[#0047FF] transition-colors" />
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-[#0047FF] transition-colors" />
                       <Input
-                        id="email"
-                        type="email"
-                        placeholder="tu@email.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 h-12 focus:ring-2 focus:ring-[#0047FF] focus:border-[#0047FF] transition-all"
+                        id="newPassword"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="pl-10 pr-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 h-12 focus:ring-2 focus:ring-[#0047FF] focus:border-[#0047FF] transition-all"
                         required
                         disabled={isLoading}
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
-                      Ingresa el correo asociado a tu cuenta de Rantti
+                      Mínimo 8 caracteres
                     </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword" className="text-gray-900 flex items-center gap-1">
+                      Confirmar contraseña
+                    </Label>
+                    <div className="relative group">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-[#0047FF] transition-colors" />
+                      <Input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="pl-10 pr-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 h-12 focus:ring-2 focus:ring-[#0047FF] focus:border-[#0047FF] transition-all"
+                        required
+                        disabled={isLoading}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <Button 
@@ -299,64 +441,19 @@ export default function ForgotPasswordPage({ onNavigate, onResetSuccess, user = 
                     className="w-full h-12 bg-[#0047FF] hover:bg-[#0039CC] shadow-lg hover:shadow-xl hover:shadow-[#0047FF]/30 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Enviando...' : 'Enviar enlace de recuperación'}
+                    {isLoading ? 'Actualizando...' : 'Restablecer contraseña'}
                   </Button>
-                </form>
-              </>
-            ) : (
-              <>
-                {/* Success state */}
-                <div className="flex justify-center mb-6">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                    <Mail className="w-8 h-8 text-green-600" />
+
+                  <div className="text-center">
+                    <button 
+                      type="button"
+                      onClick={() => onNavigate('login')}
+                      className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors"
+                    >
+                      Volver al login
+                    </button>
                   </div>
-                </div>
-
-                <div className="text-center mb-8">
-                  <h1 className="text-3xl text-gray-900 mb-2">
-                    ¡Correo enviado! ✉️
-                  </h1>
-                  <p className="text-gray-600 mb-4">
-                    Hemos enviado un enlace de recuperación a:
-                  </p>
-                  <p className="text-[#0047FF] mb-6">
-                    {email}
-                  </p>
-                </div>
-
-                {/* Instructions */}
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-                  <h3 className="text-sm text-gray-900 mb-2">
-                    Próximos pasos:
-                  </h3>
-                  <ul className="space-y-2 text-sm text-gray-700">
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#0047FF] shrink-0">1.</span>
-                      <span>Revisa tu bandeja de entrada y spam</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#0047FF] shrink-0">2.</span>
-                      <span>Haz clic en el enlace de recuperación</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#0047FF] shrink-0">3.</span>
-                      <span>Crea tu nueva contraseña</span>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Actions */}
-                <div className="space-y-3">
-                  <button 
-                    onClick={() => {
-                      setEmailSent(false);
-                      setError("");
-                    }}
-                    className="w-full text-sm text-gray-600 hover:text-[#0047FF] transition-colors cursor-pointer"
-                  >
-                    ¿No recibiste el correo? Reenviar
-                  </button>
-                </div>
+                </form>
               </>
             )}
           </div>

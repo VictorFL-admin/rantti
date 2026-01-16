@@ -17,6 +17,8 @@ export const API_ENDPOINTS = {
     USER: '/api/auth/user',
     GOOGLE: '/api/auth/google',
     FACEBOOK: '/api/auth/facebook',
+    FORGOT_PASSWORD: '/api/auth/forgot-password',
+    RESET_PASSWORD: '/api/auth/reset-password',
   },
   DASHBOARD: '/api/dashboard',
   USER: {
