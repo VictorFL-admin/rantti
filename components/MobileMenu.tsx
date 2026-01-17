@@ -30,7 +30,7 @@ export default function MobileMenu({ user, onNavigate, onLogout }: MobileMenuPro
           <Menu className="w-5 h-5 text-gray-700" />
         </button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[280px] bg-white border-gray-200 text-gray-900 p-0 z-[150]">
+      <SheetContent side="right" className="w-[280px] bg-white border-gray-200 text-gray-900 p-0">
         <SheetTitle className="sr-only">Menú de Navegación</SheetTitle>
         <SheetDescription className="sr-only">
           Accede a todas las opciones de navegación y configuración de tu cuenta

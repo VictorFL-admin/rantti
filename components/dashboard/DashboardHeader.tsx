@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, LogOut } from "lucide-react";
+import { Bell, Search, LogOut, Menu } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   DropdownMenu,
@@ -19,12 +19,14 @@ interface DashboardHeaderProps {
   };
   onLogout: () => void;
   onNavigate: (page: 'home' | 'login' | 'register' | 'dashboard') => void;
+  onOpenMobileMenu?: () => void;
 }
 
 export default function DashboardHeader({
   user,
   onLogout,
   onNavigate,
+  onOpenMobileMenu,
 }: DashboardHeaderProps) {
   const getInitials = (name: string) => {
     return name
@@ -41,7 +43,22 @@ export default function DashboardHeader({
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
-      <div className="h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <div className="h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+        {/* Mobile Menu Button */}
+        {onOpenMobileMenu && (
+          <button
+            onClick={() => {
+              console.log('🍔 Botón hamburguesa clickeado');
+              onOpenMobileMenu();
+            }}
+            className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-gray-100 transition-colors active:bg-gray-200"
+            aria-label="Abrir menú"
+            type="button"
+          >
+            <Menu className="w-5 h-5 text-gray-700" />
+          </button>
+        )}
+        
         {/* Search Bar */}
         <div className="flex-1 max-w-md">
           <div className="relative">

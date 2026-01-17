@@ -296,6 +296,8 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
         }}
         onNavigate={onNavigate}
         onLogout={onLogout}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
       />
 
       {/* Main Content */}
@@ -305,14 +307,16 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {/* Mobile Menu Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden text-gray-600 hover:text-gray-900"
-                onClick={() => setMobileMenuOpen(true)}
+              <button
+                className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-gray-100 transition-colors"
+                onClick={() => {
+                  console.log('🍔 Menú móvil abriendo desde Dashboard');
+                  setMobileMenuOpen(true);
+                }}
+                type="button"
               >
-                <Menu className="w-6 h-6" />
-              </Button>
+                <Menu className="w-6 h-6 text-gray-700" />
+              </button>
               
               <div>
                 <h1 className="text-xl md:text-2xl text-gray-900">

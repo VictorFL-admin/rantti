@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import DashboardSidebar from "./DashboardSidebar";
 import DashboardHeader from "./DashboardHeader";
 
@@ -27,6 +27,13 @@ export default function DashboardLayout({
   currentSection,
   onSectionChange,
 }: DashboardLayoutProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleOpenMenu = () => {
+    console.log('📱 Abriendo menú móvil');
+    setMobileMenuOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar - Fixed en desktop */}
@@ -35,15 +42,18 @@ export default function DashboardLayout({
         currentSection={currentSection}
         onSectionChange={onSectionChange}
         onNavigate={onNavigate}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:ml-64">
+      <div className="flex-1 flex flex-col md:ml-64">
         {/* Header */}
         <DashboardHeader
           user={user}
           onLogout={onLogout}
           onNavigate={onNavigate}
+          onOpenMobileMenu={handleOpenMenu}
         />
 
         {/* Content */}

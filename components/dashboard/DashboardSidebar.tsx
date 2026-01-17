@@ -31,6 +31,8 @@ interface DashboardSidebarProps {
   onSectionChange: (section: string) => void;
   onNavigate: (page: 'home' | 'login' | 'register' | 'dashboard') => void;
   onLogout?: () => void;
+  mobileMenuOpen?: boolean;
+  setMobileMenuOpen?: (open: boolean) => void;
 }
 
 export default function DashboardSidebar({
@@ -39,8 +41,15 @@ export default function DashboardSidebar({
   onSectionChange,
   onNavigate,
   onLogout,
+  mobileMenuOpen = false,
+  setMobileMenuOpen,
 }: DashboardSidebarProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const handleSetMobileMenuOpen = (open: boolean) => {
+    console.log('📋 Sheet estado cambiando a:', open);
+    if (setMobileMenuOpen) {
+      setMobileMenuOpen(open);
+    }
+  };
 
   const getInitials = (name: string) => {
     return name
@@ -237,7 +246,7 @@ export default function DashboardSidebar({
       </aside>
 
       {/* Mobile Sidebar - Sheet/Drawer */}
-      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+      <Sheet open={mobileMenuOpen} onOpenChange={handleSetMobileMenuOpen}>
         <SheetContent side="left" className="w-64 bg-white border-gray-200 p-0">
           <VisuallyHidden>
             <SheetTitle>Menú de Navegación</SheetTitle>
@@ -246,7 +255,7 @@ export default function DashboardSidebar({
             </SheetDescription>
           </VisuallyHidden>
           <div className="flex flex-col h-full">
-            <SidebarContent onItemClick={() => setMobileMenuOpen(false)} />
+            <SidebarContent onItemClick={() => handleSetMobileMenuOpen(false)} />
           </div>
         </SheetContent>
       </Sheet>
