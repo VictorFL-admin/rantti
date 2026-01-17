@@ -51,7 +51,7 @@ import DashboardSidebar from "./dashboard/DashboardSidebar";
 interface DashboardProps {
   user: { email: string; name: string; avatar?: string };
   onLogout: () => void;
-  onNavigate: (page: 'home') => void;
+  onNavigate: (page: 'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'reset-password' | 'terms' | 'privacy' | 'product-specs') => void;
   onUpdateUser: (updates: { name?: string; avatar?: string }) => void;
 }
 

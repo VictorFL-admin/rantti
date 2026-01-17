@@ -29,8 +29,18 @@ export default function ConfiguracionPage() {
     router.push('/');
   };
 
-  const handleNavigate = (page: 'home') => {
-    router.push('/');
+  const handleNavigate = (page: 'home' | 'login' | 'register' | 'dashboard' | 'forgot-password' | 'reset-password' | 'terms' | 'privacy' | 'product-specs') => {
+    const paths: Record<string, string> = {
+      'home': '/',
+      'login': '/login',
+      'register': '/register',
+      'dashboard': '/dashboard',
+      'forgot-password': '/forgot-password',
+      'reset-password': '/reset-password',
+      'terms': '/terminos-y-condiciones',
+      'privacy': '/politica-de-privacidad',
+    };
+    router.push(paths[page] || '/');
   };
 
   const handleUpdateUser = (updates: { name?: string; avatar?: string }) => {
