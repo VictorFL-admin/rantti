@@ -1,4 +1,32 @@
 // Cliente API centralizado con manejo automático de autenticación
+import { clearSessionData } from "./session-manager";
+
+// Callback para manejar sesión expirada (será establecido por el componente principal)
+let onSessionExpiredCallback: (() => void) | null = null;
+
+/**
+ * Establece el callback para cuando la sesión expire
+ */
+export function setSessionExpiredCallback(callback: () => void): void {
+  onSessionExpiredCallback = callback;
+}
+
+/**
+ * Maneja errores 401 (token expirado/inválido)
+ */
+function handleUnauthorized(): void {
+  console.error('🔒 Token expirado o inválido - cerrando sesión');
+  
+  // Limpiar datos
+  removeAuthToken();
+  localStorage.removeItem('user');
+  clearSessionData();
+  
+  // Llamar al callback si existe
+  if (onSessionExpiredCallback) {
+    onSessionExpiredCallback();
+  }
+}
 
 /**
  * Obtiene el token de autenticación del localStorage
@@ -42,40 +70,68 @@ export function getAuthHeaders(): HeadersInit {
  * Realiza una petición GET autenticada
  */
 export async function apiGet(url: string): Promise<Response> {
-  return fetch(url, {
+  const response = await fetch(url, {
     method: 'GET',
     headers: getAuthHeaders(),
   });
+  
+  // Detectar token expirado
+  if (response.status === 401) {
+    handleUnauthorized();
+  }
+  
+  return response;
 }
 
 /**
  * Realiza una petición POST autenticada
  */
 export async function apiPost(url: string, body: any): Promise<Response> {
-  return fetch(url, {
+  const response = await fetch(url, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify(body),
   });
+  
+  // Detectar token expirado
+  if (response.status === 401) {
+    handleUnauthorized();
+  }
+  
+  return response;
 }
 
 /**
  * Realiza una petición PUT autenticada
  */
 export async function apiPut(url: string, body: any): Promise<Response> {
-  return fetch(url, {
+  const response = await fetch(url, {
     method: 'PUT',
     headers: getAuthHeaders(),
     body: JSON.stringify(body),
   });
+  
+  // Detectar token expirado
+  if (response.status === 401) {
+    handleUnauthorized();
+  }
+  
+  return response;
 }
 
 /**
  * Realiza una petición DELETE autenticada
  */
 export async function apiDelete(url: string): Promise<Response> {
-  return fetch(url, {
+  const response = await fetch(url, {
     method: 'DELETE',
     headers: getAuthHeaders(),
   });
+  
+  // Detectar token expirado
+  if (response.status === 401) {
+    handleUnauthorized();
+  }
+  
+  return response;
 }

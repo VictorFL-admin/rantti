@@ -1,4 +1,5 @@
 import { getApiUrl, API_ENDPOINTS } from "./api-config";
+import { clearSessionData } from "./session-manager";
 
 // Tipos
 export interface RegisterData {
@@ -22,6 +23,7 @@ export interface User {
   phone: string;
   role: string;
   created_at: string;
+  avatar?: string;
 }
 
 export interface AuthResponse {
@@ -219,16 +221,18 @@ export async function logout(): Promise<AuthResponse> {
 
     const data: AuthResponse = await response.json();
 
-    // Limpiar localStorage
+    // Limpiar localStorage y datos de sesión
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user");
+    clearSessionData();
 
     return data;
   } catch (error) {
     console.error("Error en logout:", error);
-    // Limpiar localStorage aunque haya error
+    // Limpiar localStorage y datos de sesión aunque haya error
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user");
+    clearSessionData();
     
     return {
       success: false,

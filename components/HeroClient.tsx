@@ -18,6 +18,9 @@ import TermsAndConditions from "./TermsAndConditions";
 import PrivacyPolicy from "./PrivacyPolicy";
 import Dashboard from "./Dashboard";
 import { logout, getStoredUser, isAuthenticated } from "@/lib/auth";
+import { startSessionMonitoring, stopSessionMonitoring, isSessionExpired } from "@/lib/session-manager";
+import { setSessionExpiredCallback } from "@/lib/api-client";
+import { toast } from "sonner";
 
 interface HeroClientProps {
   resetPasswordToken?: string;
@@ -53,12 +56,42 @@ export default function HeroClient({ resetPasswordToken, resetPasswordEmail }: H
   // Cargar usuario desde localStorage al montar el componente
   useEffect(() => {
     if (isAuthenticated()) {
+      // Verificar si la sesión ya expiró
+      if (isSessionExpired()) {
+        console.log('⏱️ Sesión expirada - redirigiendo a login');
+        handleLogout();
+        toast.error('Sesión expirada', {
+          description: 'Tu sesión ha expirado por inactividad. Por favor, inicia sesión nuevamente.',
+        });
+        return;
+      }
+
       const storedUser = getStoredUser();
       if (storedUser) {
         setUser({
           name: storedUser.name,
           email: storedUser.email,
           avatar: storedUser.avatar || "",
+        });
+        
+        // Iniciar monitoreo de sesión
+        startSessionMonitoring(() => {
+          console.log('⏱️ Sesión expirada por inactividad');
+          toast.error('Sesión expirada', {
+            description: 'Tu sesión ha expirado por inactividad. Por favor, inicia sesión nuevamente.',
+          });
+          handleLogout();
+        });
+        
+        // Configurar callback para tokens expirados del backend
+        setSessionExpiredCallback(() => {
+          console.log('🔒 Token del backend expirado');
+          toast.error('Sesión inválida', {
+            description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+          });
+          setUser(null);
+          setCurrentPage('login');
+          router.push('/login');
         });
         
         // Si está autenticado y la URL es /dashboard, mantener en dashboard
@@ -71,12 +104,22 @@ export default function HeroClient({ resetPasswordToken, resetPasswordEmail }: H
         }
       }
     } else {
+      // Detener monitoreo si no está autenticado
+      stopSessionMonitoring();
+      
       // Si no está autenticado y está intentando acceder a dashboard, redirigir a home
       if (pathname === '/dashboard') {
         setCurrentPage('home');
         router.push('/');
       }
     }
+    
+    // Cleanup al desmontar
+    return () => {
+      if (!isAuthenticated()) {
+        stopSessionMonitoring();
+      }
+    };
   }, [pathname, router]);
 
   // Función para manejar navegación
@@ -108,6 +151,9 @@ export default function HeroClient({ resetPasswordToken, resetPasswordEmail }: H
   // Función para manejar logout
   const handleLogout = async () => {
     try {
+      // Detener monitoreo de sesión
+      stopSessionMonitoring();
+      
       await logout();
       setUser(null);
       setCurrentPage('home');
@@ -116,6 +162,7 @@ export default function HeroClient({ resetPasswordToken, resetPasswordEmail }: H
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
       // Limpiar estado local aunque falle
+      stopSessionMonitoring();
       setUser(null);
       setCurrentPage('home');
       router.push('/');

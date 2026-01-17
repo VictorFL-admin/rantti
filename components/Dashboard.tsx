@@ -78,6 +78,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(initialUser);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
   // Sync activeTab with URL changes
   useEffect(() => {
@@ -97,11 +98,19 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
     return name.split(" ")[0];
   };
 
-  // Fetch user profile data - SOLO UNA VEZ al montar
+  // Fetch user profile data - SOLO UNA VEZ al montar y solo si falta el avatar
   useEffect(() => {
+    // Si ya tenemos avatar en initialUser, no hacer fetch
+    if (initialUser.avatar && initialUser.avatar !== "") {
+      setProfileLoaded(true);
+      setLoadingProfile(false);
+      return;
+    }
+    
     if (profileLoaded) return; // Evitar llamadas múltiples
     
     const fetchUserProfile = async () => {
+      setLoadingProfile(true);
       try {
         const response = await apiGet(getApiUrl(API_ENDPOINTS.USER.PROFILE));
         
@@ -118,16 +127,31 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           setUser(updatedUser);
           setProfileLoaded(true);
           
+          // Actualizar localStorage con el avatar para futuras sesiones
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            try {
+              const parsedUser = JSON.parse(storedUser);
+              parsedUser.avatar = userProfile.avatar || "";
+              localStorage.setItem('user', JSON.stringify(parsedUser));
+              console.log('✅ Avatar actualizado en localStorage');
+            } catch (e) {
+              console.error('Error actualizando localStorage:', e);
+            }
+          }
+          
           // Actualizar también en el componente padre si es necesario
           onUpdateUser(updatedUser);
         }
       } catch (error) {
         console.error('Error al cargar perfil:', error);
+      } finally {
+        setLoadingProfile(false);
       }
     };
 
     fetchUserProfile();
-  }, [profileLoaded, onUpdateUser]);
+  }, [profileLoaded, onUpdateUser, initialUser.avatar]);
 
   // Fetch dashboard data
   useEffect(() => {
@@ -243,6 +267,18 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
       image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400"
     }
   ];
+
+  // Mostrar loader solo si estamos cargando el perfil por primera vez
+  if (loadingProfile) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0047FF] mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando perfil...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
