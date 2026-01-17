@@ -58,17 +58,16 @@ export default function HeroClient({ resetPasswordToken, resetPasswordEmail }: H
         setUser({
           name: storedUser.name,
           email: storedUser.email,
-          avatar: "",
+          avatar: storedUser.avatar || "",
         });
         
         // Si está autenticado y la URL es /dashboard, mantener en dashboard
         if (pathname === '/dashboard') {
           setCurrentPage('dashboard');
         }
-        // Si está autenticado pero en home, enviar a dashboard
+        // Permitir que el usuario vea home aunque esté autenticado (no redirigir automáticamente)
         else if (pathname === '/') {
-          setCurrentPage('dashboard');
-          router.push('/dashboard');
+          setCurrentPage('home');
         }
       }
     } else {
@@ -133,7 +132,7 @@ export default function HeroClient({ resetPasswordToken, resetPasswordEmail }: H
       const newUser = {
         name: storedUser.name,
         email: storedUser.email,
-        avatar: "",
+        avatar: storedUser.avatar || "",
       };
       setUser(newUser);
       console.log('🔹 Usuario establecido:', newUser);
@@ -152,7 +151,7 @@ export default function HeroClient({ resetPasswordToken, resetPasswordEmail }: H
       const newUser = {
         name: storedUser.name,
         email: storedUser.email,
-        avatar: "",
+        avatar: storedUser.avatar || "",
       };
       setUser(newUser);
       // Navegar al dashboard

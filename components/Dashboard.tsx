@@ -46,6 +46,7 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog";
 import SettingsPanel from "./SettingsPanel";
+import DashboardSidebar from "./dashboard/DashboardSidebar";
 
 interface DashboardProps {
   user: { email: string; name: string; avatar?: string };
@@ -76,6 +77,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(initialUser);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   // Sync activeTab with URL changes
   useEffect(() => {
@@ -95,8 +97,10 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
     return name.split(" ")[0];
   };
 
-  // Fetch user profile data
+  // Fetch user profile data - SOLO UNA VEZ al montar
   useEffect(() => {
+    if (profileLoaded) return; // Evitar llamadas múltiples
+    
     const fetchUserProfile = async () => {
       try {
         const response = await apiGet(getApiUrl(API_ENDPOINTS.USER.PROFILE));
@@ -105,11 +109,17 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           const data = await response.json();
           const userProfile = data.user;
           
-          setUser({
+          const updatedUser = {
             name: userProfile.name || "",
             email: userProfile.email || "",
             avatar: userProfile.avatar || "",
-          });
+          };
+          
+          setUser(updatedUser);
+          setProfileLoaded(true);
+          
+          // Actualizar también en el componente padre si es necesario
+          onUpdateUser(updatedUser);
         }
       } catch (error) {
         console.error('Error al cargar perfil:', error);
@@ -117,7 +127,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
     };
 
     fetchUserProfile();
-  }, []);
+  }, [profileLoaded, onUpdateUser]);
 
   // Fetch dashboard data
   useEffect(() => {
@@ -234,228 +244,23 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
     }
   ];
 
-  // Sidebar content component para reutilizar en desktop y mobile
-  const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => (
-    <>
-      {/* Logo */}
-      <div className="p-6 border-b border-gray-200">
-        <button 
-          onClick={() => {
-            onNavigate('home');
-            onItemClick?.();
-          }}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-        >
-          <div className="w-8 h-8 bg-[#0047FF] rounded-lg flex items-center justify-center">
-            <span className="text-lg font-bold text-white">R</span>
-          </div>
-          <span className="text-xl font-semibold text-gray-900">Rantti</span>
-        </button>
-      </div>
-
-      {/* User Profile */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <Avatar className="w-12 h-12">
-            <AvatarImage src={user.avatar || ""} />
-            <AvatarFallback className="bg-[#0047FF] text-white">
-              {getInitials(user.name)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm text-gray-900 truncate">{getFirstName(user.name)}</p>
-            <p className="text-xs text-gray-500 truncate">{user.email}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
-        <Button
-          variant={activeTab === "overview" ? "default" : "ghost"}
-          className={activeTab === "overview" 
-            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-          }
-          onClick={() => {
-            router.push('/dashboard');
-            onItemClick?.();
-          }}
-        >
-          <LayoutDashboard className="w-5 h-5 mr-3" />
-          Dashboard
-        </Button>
-        <Button
-          variant={activeTab === "listings" ? "default" : "ghost"}
-          className={activeTab === "listings" 
-            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
-          }
-          disabled
-          onClick={() => {
-            // setActiveTab("listings");
-            // onItemClick?.();
-          }}
-        >
-          <Package className="w-5 h-5 mr-3" />
-          Mis Publicaciones
-        </Button>
-        <Button
-          variant={activeTab === "negotiations" ? "default" : "ghost"}
-          className={activeTab === "negotiations" 
-            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
-          }
-          disabled
-          onClick={() => {
-            // setActiveTab("negotiations");
-            // onItemClick?.();
-          }}
-        >
-          <MessageSquare className="w-5 h-5 mr-3" />
-          Negociaciones
-        </Button>
-        <Button
-          variant={activeTab === "chats" ? "default" : "ghost"}
-          className={activeTab === "chats" 
-            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
-          }
-          disabled
-          onClick={() => {
-            // setActiveTab("chats");
-            // onItemClick?.();
-          }}
-        >
-          <MessageCircle className="w-5 h-5 mr-3" />
-          Chats
-        </Button>
-        <Button
-          variant={activeTab === "notifications" ? "default" : "ghost"}
-          className={activeTab === "notifications" 
-            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
-          }
-          disabled
-          onClick={() => {
-            // setActiveTab("notifications");
-            // onItemClick?.();
-          }}
-        >
-          <Bell className="w-5 h-5 mr-3" />
-          Notificaciones
-        </Button>
-        <Button
-          variant={activeTab === "payments" ? "default" : "ghost"}
-          className={activeTab === "payments" 
-            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
-          }
-          disabled
-          onClick={() => {
-            // setActiveTab("payments");
-            // onItemClick?.();
-          }}
-        >
-          <CreditCard className="w-5 h-5 mr-3" />
-          Pagos
-        </Button>
-        <Button
-          variant={activeTab === "packages" ? "default" : "ghost"}
-          className={activeTab === "packages" 
-            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
-          }
-          disabled
-          onClick={() => {
-            // setActiveTab("packages");
-            // onItemClick?.();
-          }}
-        >
-          <Box className="w-5 h-5 mr-3" />
-          Paquetes
-        </Button>
-        <Button
-          variant={activeTab === "specifications" ? "default" : "ghost"}
-          className={activeTab === "specifications" 
-            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 opacity-50 cursor-not-allowed"
-          }
-          disabled
-          onClick={() => {
-            // setActiveTab("specifications");
-            // onItemClick?.();
-          }}
-        >
-          <FileText className="w-5 h-5 mr-3" />
-          Especificaciones
-        </Button>
-        <Button
-          variant={activeTab === "settings" ? "default" : "ghost"}
-          className={activeTab === "settings" 
-            ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
-            : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-          }
-          onClick={() => {
-            router.push('/configuracion');
-            onItemClick?.();
-          }}
-        >
-          <Settings className="w-5 h-5 mr-3" />
-          Configuración
-        </Button>
-      </nav>
-
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-200 space-y-2">
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-gray-600 hover:text-gray-900"
-          onClick={() => {
-            onNavigate('home');
-            onItemClick?.();
-          }}
-        >
-          <ArrowDownRight className="w-5 h-5 mr-3" />
-          Ir al Marketplace
-        </Button>
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-          onClick={() => {
-            onLogout();
-            onItemClick?.();
-          }}
-        >
-          <LogOut className="w-5 h-5 mr-3" />
-          Cerrar Sesión
-        </Button>
-      </div>
-    </>
-  );
-
-
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Desktop Sidebar - Hidden on mobile */}
-      <aside className="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col">
-        <SidebarContent />
-      </aside>
-
-      {/* Mobile Sidebar - Sheet/Drawer */}
-      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side="left" className="w-64 bg-white border-gray-200 p-0">
-          <VisuallyHidden>
-            <SheetTitle>Menú de Navegación</SheetTitle>
-            <SheetDescription>
-              Navega por el dashboard de Rantti
-            </SheetDescription>
-          </VisuallyHidden>
-          <div className="flex flex-col h-full">
-            <SidebarContent onItemClick={() => setMobileMenuOpen(false)} />
-          </div>
-        </SheetContent>
-      </Sheet>
+      {/* Desktop & Mobile Sidebar */}
+      <DashboardSidebar
+        user={user}
+        currentSection={activeTab}
+        onSectionChange={(section) => {
+          setActiveTab(section);
+          if (section === 'overview') {
+            router.push('/dashboard');
+          } else if (section === 'settings') {
+            router.push('/configuracion');
+          }
+        }}
+        onNavigate={onNavigate}
+        onLogout={onLogout}
+      />
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">

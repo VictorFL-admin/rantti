@@ -58,18 +58,19 @@ export default function DashboardSidebar({
   const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => (
     <>
       {/* Logo */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200 flex justify-center">
         <button 
           onClick={() => {
             onNavigate('home');
             onItemClick?.();
           }}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
         >
-          <div className="w-8 h-8 bg-[#0047FF] rounded-lg flex items-center justify-center">
-            <span className="text-lg font-bold text-white">R</span>
-          </div>
-          <span className="text-xl font-semibold text-gray-900">Rantti</span>
+          <img 
+            src="/images/logo_rantti.png" 
+            alt="Rantti Logo" 
+            className="w-auto h-8 object-contain"
+          />
         </button>
       </div>
 
