@@ -23,6 +23,7 @@ interface RegisterPageProps {
 export default function RegisterPage({ onRegisterSuccess, onNavigate, user = null, onLogout }: RegisterPageProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -57,6 +58,7 @@ export default function RegisterPage({ onRegisterSuccess, onNavigate, user = nul
       const response = await register({
         name,
         email,
+        username: username || "",
         password,
         password_confirmation: confirmPassword,
         phone: phone || "",
@@ -409,6 +411,23 @@ export default function RegisterPage({ onRegisterSuccess, onNavigate, user = nul
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 h-11 focus:ring-2 focus:ring-[#0047FF] focus:border-[#0047FF] transition-all"
                       required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-gray-700">
+                    Nombre de usuario (opcional)
+                  </Label>
+                  <div className="relative group">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#0047FF] transition-colors" />
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="juanperez123"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 h-11 focus:ring-2 focus:ring-[#0047FF] focus:border-[#0047FF] transition-all"
                     />
                   </div>
                 </div>

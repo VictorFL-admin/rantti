@@ -29,6 +29,7 @@ interface SettingsPanelProps {
 export default function SettingsPanel({ user, onUpdateUser }: SettingsPanelProps) {
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
+  const [username, setUsername] = useState("");
   const [avatarPreview, setAvatarPreview] = useState(user.avatar || "");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -55,6 +56,22 @@ export default function SettingsPanel({ user, onUpdateUser }: SettingsPanelProps
     setEmail(user.email);
     setAvatarPreview(user.avatar || "");
   }, [user]);
+
+  // Cargar username del perfil
+  useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const response = await apiGet(getApiUrl(API_ENDPOINTS.USER.PROFILE));
+        if (response.ok) {
+          const data = await response.json();
+          setUsername(data.user?.username || "");
+        }
+      } catch (error) {
+        console.error('Error al cargar username:', error);
+      }
+    };
+    fetchUsername();
+  }, []);
 
   // Cargar notificaciones al montar el componente
   useEffect(() => {
@@ -154,7 +171,8 @@ export default function SettingsPanel({ user, onUpdateUser }: SettingsPanelProps
     try {
       setIsLoading(true);
       const response = await apiPut(getApiUrl(API_ENDPOINTS.USER.PROFILE), { 
-        name
+        name,
+        username: username || ""
       });
 
       if (response.ok) {
@@ -288,6 +306,20 @@ export default function SettingsPanel({ user, onUpdateUser }: SettingsPanelProps
               />
               <p className="text-xs text-gray-500">
                 Solo se mostrará tu primer nombre en el perfil público
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-gray-700">Nombre de usuario (opcional)</Label>
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="juanperez123"
+                className="bg-gray-50 border-gray-300 text-gray-900 focus:border-[#0047FF] focus:ring-[#0047FF]"
+              />
+              <p className="text-xs text-gray-500">
+                Usa solo letras, números y guiones bajos
               </p>
             </div>
 

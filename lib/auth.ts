@@ -5,6 +5,7 @@ import { clearSessionData } from "./session-manager";
 export interface RegisterData {
   name: string;
   email: string;
+  username?: string;
   password: string;
   password_confirmation: string;
   phone: string;
