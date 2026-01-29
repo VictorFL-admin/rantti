@@ -25,9 +25,9 @@ export default function Footer() {
                 <Mail className="w-4 h-4" />
                 soporte@gmail.com
               </a>
-              <a href="tel:+51999999999" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#0047FF] transition-colors">
+              <a href="tel:+51936151017" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#0047FF] transition-colors">
                 <Phone className="w-4 h-4" />
-                +51 999 999 999
+                +51 936 151 017
               </a>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <MapPin className="w-4 h-4" />
@@ -37,17 +37,14 @@ export default function Footer() {
 
             {/* Social */}
             <div className="flex gap-3">
-              <a href="#" className="w-10 h-10 bg-gray-100 hover:bg-[#0047FF] rounded-lg flex items-center justify-center text-gray-600 hover:text-white transition-all">
+              <a 
+                href="https://www.facebook.com/share/1757t7fP9n/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                aria-label="Síguenos en Facebook"
+                className="w-10 h-10 bg-gray-100 hover:bg-[#0047FF] rounded-lg flex items-center justify-center text-gray-600 hover:text-white transition-all"
+              >
                 <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-gray-100 hover:bg-[#0047FF] rounded-lg flex items-center justify-center text-gray-600 hover:text-white transition-all">
-                <Twitter className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-gray-100 hover:bg-[#0047FF] rounded-lg flex items-center justify-center text-gray-600 hover:text-white transition-all">
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-gray-100 hover:bg-[#0047FF] rounded-lg flex items-center justify-center text-gray-600 hover:text-white transition-all">
-                <Linkedin className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -95,7 +92,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="pt-8 text-center">
           <p className="text-sm text-gray-600">
-            © 2025 Rantti. Todos los derechos reservados.
+            © 2026 Rantti. Todos los derechos reservados.
           </p>
         </div>
       </div>

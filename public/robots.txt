@@ -1,0 +1,21 @@
+# Robots.txt para Rantti
+# Permitir acceso a todos los buscadores
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /configuracion/
+Disallow: /auth/
+
+# Crawl-delay para bots más agresivos
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /configuracion/
+Disallow: /auth/
+Crawl-delay: 0
+
+# Sitemap
+Sitemap: https://rantti.com/sitemap.xml

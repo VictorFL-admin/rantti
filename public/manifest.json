@@ -1,0 +1,28 @@
+{
+  "name": "Rantti - Marketplace de Objetos Únicos",
+  "short_name": "Rantti",
+  "description": "Tu plataforma de confianza para negociar objetos únicos de alto valor. Sin intermediarios, sin complicaciones.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0047FF",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/LOGO-BLANCO-RANTTI.ico",
+      "sizes": "192x192",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/LOGO-BLANCO-RANTTI.ico",
+      "sizes": "512x512",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "lifestyle", "business"],
+  "screenshots": [],
+  "lang": "es-PE",
+  "dir": "ltr"
+}
