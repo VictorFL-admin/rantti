@@ -438,7 +438,7 @@ export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
   </nav>
 
   {/* HERO CONTENT */}
-  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 lg:py-32">
+  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 sm:py-16 lg:py-32">
     {/* LAYOUT CON DIVISIÓN CLARA - 2 COLUMNAS */}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center">
       
@@ -452,53 +452,17 @@ export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full">
           <Sparkles className="w-4 h-4 text-[#0047FF]" />
-          <span className="text-sm text-[#0047FF] font-['Poppins',sans-serif]">Negocia sin intermediarios</span>
+          <span className="text-sm text-[#0047FF] font-['Poppins',sans-serif]">Compra y vende al precio justo.</span>
         </div>
 
         {/* Título Principal */}
         <div className="space-y-6">
           <p className="text-2xl text-gray-700 font-['Poppins',sans-serif] leading-relaxed font-semibold">
-            El marketplace donde publicas gratis tus artículos exclusivos y negocias directamente con compradores reales.
+            Negocia libremente. El pago se acuerda entre las partes.
           </p>
-        </div>
-
-        {/* División visual */}
-        <div className="h-px bg-gradient-to-r from-gray-300 via-gray-200 to-transparent"></div>
-
-        {/* Beneficios clave */}
-        <div className="space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center shrink-0 mt-0.5">
-              <svg className="w-3.5 h-3.5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900 font-['Poppins',sans-serif]">Negociación Directa</h3>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center shrink-0 mt-0.5">
-              <svg className="w-3.5 h-3.5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900 font-['Poppins',sans-serif]">Pago Seguro</h3>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center shrink-0 mt-0.5">
-              <svg className="w-3.5 h-3.5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900 font-['Poppins',sans-serif]">Artículos Exclusivos</h3>
-            </div>
-          </div>
+          <p className="text-gray-700 font-['Poppins',sans-serif]">
+            Un marketplace donde compradores y vendedores acuerdan el precio en minutos, sin intermediarios ni complicaciones.
+          </p>
         </div>
 
         {/* CTAs */}

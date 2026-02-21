@@ -21,9 +21,9 @@ export default function Footer() {
             
             {/* Contact info */}
             <div className="space-y-3 mb-6">
-              <a href="mailto:soporte@gmail.com" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#0047FF] transition-colors">
+              <a href="mailto:rantti.soporte@gmail.com" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#0047FF] transition-colors">
                 <Mail className="w-4 h-4" />
-                soporte@gmail.com
+                rantti.soporte@gmail.com
               </a>
               <a href="tel:+51936151017" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#0047FF] transition-colors">
                 <Phone className="w-4 h-4" />
@@ -49,16 +49,18 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Marketplace - Solo Objetos Únicos */}
+          {/* Marketplace */}
           <div>
             <h4 className="text-gray-900 mb-4">Marketplace</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Joyas Exclusivas</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Relojes de Lujo</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Arte & Coleccionables</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Consolas Retro</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Tech Premium</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Objetos Únicos</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Ropa y accesorios</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Tecnología</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Hogar y jardín</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Vehículos</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Bebés y niños</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Entretenimiento</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Mascotas</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-[#0047FF] transition-colors">Deportes y aire libre</a></li>
             </ul>
           </div>
 
