@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Watch, Gem, Palette, Gamepad2, Smartphone, PopularIcon } from "../lib/icons";
-import { getApiUrl, API_ENDPOINTS } from "@/lib/api-config";
 import { motion } from "framer-motion";
+import { ComponentType } from "react";
 
-// Tipos para la respuesta de la API
+// Tipos para las categorías
 interface Category {
   id: number;
   name: string;
@@ -14,15 +13,13 @@ interface Category {
   icon: string;
 }
 
-interface ApiResponse {
-  success: boolean;
-  data: {
-    categories: Category[];
-  };
+interface CategoriesClientProps {
+  categories: Category[];
+  error?: string | null;
 }
 
 // Mapeo de íconos por emoji
-const iconMap: { [key: string]: any } = {
+const iconMap: { [key: string]: ComponentType<{ className?: string }> } = {
   "💎": Gem,
   "⌚": Watch,
   "📦": Watch,
@@ -32,7 +29,7 @@ const iconMap: { [key: string]: any } = {
   "✨": Gem,
 };
 
-// Imágenes por categoría (puedes personalizarlas según el slug)
+// Imágenes por categoría
 const categoryImages: { [key: string]: string } = {
   "joyas-exclusivas": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
   "relojes-de-lujo": "https://images.unsplash.com/photo-1670177257750-9b47927f68eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjB3YXRjaHxlbnwxfHx8fDE3NjIxMDExOTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
@@ -52,61 +49,7 @@ const categoryGradients: { [key: string]: string } = {
   "objetos-unicos": "from-yellow-500/80 to-orange-500/80",
 };
 
-export default function Categories() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        const url = getApiUrl(API_ENDPOINTS.CATEGORIES.FEATURED);
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-
-        const data: ApiResponse = await response.json();
-        
-        if (data.success && data.data.categories) {
-          setCategories(data.data.categories);
-        } else {
-          throw new Error('Formato de respuesta inválido');
-        }
-      } catch (err) {
-        console.error('Error fetching categories:', err);
-        setError(err instanceof Error ? err.message : 'Error al cargar categorías');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="py-24 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="inline-block px-4 py-2 bg-blue-100 border border-blue-200 rounded-full mb-4">
-              <span className="text-sm text-[#0047FF]">Categorías Populares</span>
-            </div>
-            <h2 className="text-gray-900 mb-4">
-              ¿Qué estás buscando <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0047FF] to-[#0066FF]">hoy</span>?
-            </h2>
-            <p className="text-gray-600 mb-8">Cargando categorías...</p>
-            <div className="flex justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0047FF]"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+export default function CategoriesClient({ categories, error }: CategoriesClientProps) {
   if (error) {
     return (
       <div className="py-24 relative overflow-hidden">
@@ -119,8 +62,12 @@ export default function Categories() {
     );
   }
 
+  if (!categories || categories.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="py-24 relative overflow-hidden">;
+    <div className="py-24 relative overflow-hidden">
       {/* Decorative background */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-20 left-20 w-96 h-96 bg-purple-200 rounded-full blur-3xl"></div>
@@ -165,7 +112,7 @@ export default function Categories() {
             }
           }}
         >
-          {categories.map((category, index) => {
+          {categories.map((category) => {
             const IconComponent = iconMap[category.icon] || Gem;
             const image = categoryImages[category.slug] || categoryImages["objetos-unicos"];
             const gradient = categoryGradients[category.slug] || "from-blue-500/80 to-cyan-500/80";

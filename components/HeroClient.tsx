@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Hero from "./Hero";
 import HowItWorks from "./HowItWorks";
-import Categories from "./Categories";
+import CategoriesClient from "./CategoriesClient";
 import FeaturedListings from "./FeaturedListings";
 import BenefitsBlocks from "./BenefitsBlocks";
 import Services from "./Services";
@@ -22,12 +22,22 @@ import { startSessionMonitoring, stopSessionMonitoring, isSessionExpired } from 
 import { setSessionExpiredCallback } from "@/lib/api-client";
 import { toast } from "sonner";
 
+// Tipos para las categorías
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  active_listings: number;
+  icon: string;
+}
+
 interface HeroClientProps {
   resetPasswordToken?: string;
   resetPasswordEmail?: string;
+  categories?: Category[];
 }
 
-export default function HeroClient({ resetPasswordToken, resetPasswordEmail }: HeroClientProps = { resetPasswordToken: undefined, resetPasswordEmail: undefined }) {
+export default function HeroClient({ resetPasswordToken, resetPasswordEmail, categories = [] }: HeroClientProps = { resetPasswordToken: undefined, resetPasswordEmail: undefined, categories: [] }) {
   const router = useRouter();
   const pathname = usePathname();
   
@@ -308,7 +318,7 @@ export default function HeroClient({ resetPasswordToken, resetPasswordEmail }: H
 
       {/* Sección Categorías Populares */}
       <div id="categorias">
-        <Categories />
+        <CategoriesClient categories={categories} />
       </div>
 
       {/* Sección Servicios */}
