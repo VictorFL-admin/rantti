@@ -105,6 +105,10 @@ export async function register(userData: RegisterData): Promise<AuthResponse> {
       if (user) {
         localStorage.setItem("user", JSON.stringify(user));
       }
+      // Inicializar timestamps de sesión
+      const now = Date.now().toString();
+      localStorage.setItem("login_time", now);
+      localStorage.setItem("last_activity", now);
     }
 
     return data;
@@ -187,6 +191,11 @@ export async function login(credentials: LoginData): Promise<AuthResponse> {
         localStorage.setItem("user", JSON.stringify(user));
         console.log('🔵 Usuario guardado en localStorage:', user);
       }
+      // Inicializar timestamps de sesión
+      const now = Date.now().toString();
+      localStorage.setItem("login_time", now);
+      localStorage.setItem("last_activity", now);
+      console.log('🔵 Timestamps de sesión inicializados');
     } else {
       console.log('🔵 Login falló - success:', data.success);
     }

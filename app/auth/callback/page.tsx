@@ -18,6 +18,11 @@ function AuthCallbackContent() {
         localStorage.setItem("auth_token", token);
         localStorage.setItem("user", userStr);
 
+        // Inicializar timestamps de sesión
+        const now = Date.now().toString();
+        localStorage.setItem("login_time", now);
+        localStorage.setItem("last_activity", now);
+
         // Redirigir al dashboard después de autenticación exitosa
         setTimeout(() => {
           router.push("/dashboard");

@@ -1,9 +1,6 @@
 // API Configuration
-const isDevelopment = process.env.NODE_ENV === 'development';
-
-export const API_BASE_URL = isDevelopment 
-  ? process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
-  : process.env.NEXT_PUBLIC_API_PROD_URL || 'https://api.rantti.com';
+// Ahora usamos rutas relativas - Next.js redirige automáticamente al backend
+export const API_BASE_URL = '';
 
 // API Endpoints
 export const API_ENDPOINTS = {

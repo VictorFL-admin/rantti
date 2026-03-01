@@ -33,6 +33,13 @@ export function isSessionExpired(): boolean {
   
   const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
   const loginTime = localStorage.getItem(LOGIN_TIME_KEY);
+  const authToken = localStorage.getItem('auth_token');
+  
+  // Si no hay token pero sí hay datos de sesión antiguos, limpiarlos
+  if (!authToken && (lastActivity || loginTime)) {
+    clearSessionData();
+    return false;
+  }
   
   if (!lastActivity || !loginTime) return false;
   
