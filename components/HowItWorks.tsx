@@ -4,15 +4,28 @@ import { UploadSellIcon, OffersSellIcon, NegotiateSellIcon, CloseDealSellIcon, S
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import type { HomePageData } from "@/sanity/lib/types";
 
 interface HowItWorksProps {
   onNavigate: (page: 'home' | 'login' | 'register' | 'dashboard') => void;
+  data?: HomePageData['howItWorks'];
 }
 
-export default function HowItWorks({ onNavigate }: HowItWorksProps) {
+export default function HowItWorks({ onNavigate, data }: HowItWorksProps) {
   const [activeTab, setActiveTab] = useState<'vender' | 'comprar'>('vender');
 
-  const stepsVender = [
+  const iconMap = {
+    uploadSell: UploadSellIcon,
+    offersSell: OffersSellIcon,
+    negotiateSell: NegotiateSellIcon,
+    closeDealSell: CloseDealSellIcon,
+    searchBuy: SearchBuyIcon,
+    trendingBuy: TrendingBuyIcon,
+    negotiateBuy: NegotiateBuyIcon,
+    closeDealBuy: CloseDealBuyIcon,
+  };
+
+  const defaultStepsVender = [
     {
       icon: UploadSellIcon,
       title: "1. Publica tu bien",
@@ -39,7 +52,7 @@ export default function HowItWorks({ onNavigate }: HowItWorksProps) {
     }
   ];
 
-  const stepsComprar = [
+  const defaultStepsComprar = [
     {
       icon: SearchBuyIcon,
       title: "1. Encuentra lo que buscas",
@@ -66,6 +79,21 @@ export default function HowItWorks({ onNavigate }: HowItWorksProps) {
     }
   ];
 
+  // Usar datos de Sanity si están disponibles
+  const stepsVender = data?.sellSteps?.length ? data.sellSteps.map((step, i) => ({
+    icon: iconMap[('uploadSell' in iconMap ? ['uploadSell', 'offersSell', 'negotiateSell', 'closeDealSell'][i] : 'uploadSell') as keyof typeof iconMap] || UploadSellIcon,
+    title: step.title,
+    description: step.description,
+    color: "from-[#0047FF] to-[#0066FF]"
+  })) : defaultStepsVender;
+
+  const stepsComprar = data?.buySteps?.length ? data.buySteps.map((step, i) => ({
+    icon: iconMap[(['searchBuy', 'trendingBuy', 'negotiateBuy', 'closeDealBuy'][i]) as keyof typeof iconMap] || SearchBuyIcon,
+    title: step.title,
+    description: step.description,
+    color: "from-[#0047FF] to-[#0066FF]"
+  })) : defaultStepsComprar;
+
   const steps = activeTab === 'vender' ? stepsVender : stepsComprar;
 
   return (
@@ -91,13 +119,13 @@ export default function HowItWorks({ onNavigate }: HowItWorksProps) {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <span className="text-sm text-[#0047FF]">Proceso Simple</span>
+            <span className="text-sm text-[#0047FF]">{data?.badge || "Proceso Simple"}</span>
           </motion.div>
           <h2 className="text-gray-900 mb-4">
-            ¿Cómo funciona? <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0047FF] to-[#0066FF]">Super fácil</span>
+            {data?.title || "¿Cómo funciona?"} <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0047FF] to-[#0066FF]">{data?.titleHighlight || "Super fácil"}</span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg mb-8">
-            Solo 4 pasos para comprar o vender. Sin complicaciones, sin letra chica.
+            {data?.subtitle || "Solo 4 pasos para comprar o vender. Sin complicaciones, sin letra chica."}
           </p>
 
           {/* Toggle Buttons */}
@@ -110,7 +138,7 @@ export default function HowItWorks({ onNavigate }: HowItWorksProps) {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Cómo Vender
+              {data?.sellButtonText || "Cómo Vender"}
             </button>
             <button
               onClick={() => setActiveTab('comprar')}
@@ -120,7 +148,7 @@ export default function HowItWorks({ onNavigate }: HowItWorksProps) {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Cómo Comprar
+              {data?.buyButtonText || "Cómo Comprar"}
             </button>
           </div>
         </motion.div>

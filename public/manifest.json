@@ -9,13 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/images/LOGO-BLANCO-RANTTI.ico",
+      "src": "/images/LOGO-AZUL-RANTTI.ico",
       "sizes": "192x192",
       "type": "image/x-icon",
       "purpose": "any maskable"
     },
     {
-      "src": "/images/LOGO-BLANCO-RANTTI.ico",
+      "src": "/images/LOGO-AZUL-RANTTI.ico",
       "sizes": "512x512",
       "type": "image/x-icon",
       "purpose": "any maskable"

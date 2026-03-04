@@ -1,14 +1,19 @@
 "use client";
 
-import { ArrowRight, Sparkles, Clock } from "lucide-react";
+import React from "react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "./ui/button";
 import { motion } from "framer-motion";
+import type { HomePageData } from "@/sanity/lib/types";
 
 interface FinalCTAProps {
   onNavigate: (page: 'home' | 'login' | 'register' | 'dashboard') => void;
+  data?: HomePageData['finalCta'];
 }
 
-export default function FinalCTA({ onNavigate }: FinalCTAProps) {
+export default function FinalCTA({ onNavigate, data }: FinalCTAProps) {
+  const defaultFeatures = ["Solo 1 minuto", "100% Gratis", "Sin comisiones"];
+  const features = data?.features?.length ? data.features : defaultFeatures;
   return (
     <section className="py-20 bg-gradient-to-br from-[#0047FF] to-[#0066FF] relative overflow-hidden">
       {/* Decorative elements */}
@@ -33,7 +38,7 @@ export default function FinalCTA({ onNavigate }: FinalCTAProps) {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <Sparkles className="w-4 h-4 text-white" />
-          <span className="text-sm text-white font-['Poppins',sans-serif]">Comienza ahora</span>
+          <span className="text-sm text-white font-['Poppins',sans-serif]">{data?.badge || "Comienza ahora"}</span>
         </motion.div>
 
         {/* Heading */}
@@ -44,7 +49,7 @@ export default function FinalCTA({ onNavigate }: FinalCTAProps) {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          Publica en 1 minuto
+          {data?.title || "Publica en 1 minuto"}
         </motion.h2>
 
         {/* Subheading */}
@@ -55,7 +60,7 @@ export default function FinalCTA({ onNavigate }: FinalCTAProps) {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          Es <span className="font-bold underline decoration-2 underline-offset-4">gratis</span>
+          {data?.subtitle || "Es gratis"}
         </motion.p>
 
         {/* Description */}
@@ -66,7 +71,7 @@ export default function FinalCTA({ onNavigate }: FinalCTAProps) {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
-          Únete a cientos de personas que ya están negociando artículos exclusivos de forma directa, rápida y sin comisiones.
+          {data?.description || "Únete a cientos de personas que ya están negociando artículos exclusivos de forma directa, rápida y sin comisiones."}
         </motion.p>
 
         {/* Features list */}
@@ -84,50 +89,25 @@ export default function FinalCTA({ onNavigate }: FinalCTAProps) {
             }
           }}
         >
-          <motion.div 
-            className="flex items-center gap-2 text-white"
-            variants={{
-              hidden: { opacity: 0, scale: 0.8 },
-              visible: { 
-                opacity: 1, 
-                scale: 1,
-                transition: { duration: 0.4 }
-              }
-            }}
-          >
-            <Clock className="w-5 h-5" />
-            <span className="font-['Poppins',sans-serif]">Solo 1 minuto</span>
-          </motion.div>
-          <div className="hidden sm:block w-1 h-1 bg-white/50 rounded-full"></div>
-          <motion.div 
-            className="flex items-center gap-2 text-white"
-            variants={{
-              hidden: { opacity: 0, scale: 0.8 },
-              visible: { 
-                opacity: 1, 
-                scale: 1,
-                transition: { duration: 0.4 }
-              }
-            }}
-          >
-            <Sparkles className="w-5 h-5" />
-            <span className="font-['Poppins',sans-serif]">100% Gratis</span>
-          </motion.div>
-          <div className="hidden sm:block w-1 h-1 bg-white/50 rounded-full"></div>
-          <motion.div 
-            className="flex items-center gap-2 text-white"
-            variants={{
-              hidden: { opacity: 0, scale: 0.8 },
-              visible: { 
-                opacity: 1, 
-                scale: 1,
-                transition: { duration: 0.4 }
-              }
-            }}
-          >
-            <ArrowRight className="w-5 h-5" />
-            <span className="font-['Poppins',sans-serif]">Sin comisiones</span>
-          </motion.div>
+          {features.map((feature, index) => (
+            <React.Fragment key={index}>
+              {index > 0 && <div className="hidden sm:block w-1 h-1 bg-white/50 rounded-full"></div>}
+              <motion.div 
+                className="flex items-center gap-2 text-white"
+                variants={{
+                  hidden: { opacity: 0, scale: 0.8 },
+                  visible: { 
+                    opacity: 1, 
+                    scale: 1,
+                    transition: { duration: 0.4 }
+                  }
+                }}
+              >
+                <Sparkles className="w-5 h-5" />
+                <span className="font-['Poppins',sans-serif]">{feature}</span>
+              </motion.div>
+            </React.Fragment>
+          ))}
         </motion.div>
 
         {/* CTA Button */}
@@ -141,7 +121,7 @@ export default function FinalCTA({ onNavigate }: FinalCTAProps) {
             onClick={() => onNavigate('register')}
             className="bg-white text-[#0047FF] hover:bg-gray-100 px-10 py-7 text-lg font-['Poppins',sans-serif] font-semibold shadow-2xl hover:shadow-3xl transition-all rounded-xl group/btn"
           >
-            Publicar Gratis
+            {data?.buttonText || "Publicar Gratis"}
             <ArrowRight className="w-6 h-6 ml-2 group-hover/btn:translate-x-1 transition-transform" />
           </Button>
         </motion.div>
@@ -154,7 +134,7 @@ export default function FinalCTA({ onNavigate }: FinalCTAProps) {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 1 }}
         >
-          No necesitas tarjeta de crédito • Activa tu cuenta en segundos
+          {data?.trustText || "No necesitas tarjeta de crédito • Activa tu cuenta en segundos"}
         </motion.p>
       </motion.div>
     </section>

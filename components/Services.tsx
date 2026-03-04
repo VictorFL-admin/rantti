@@ -1,9 +1,24 @@
 "use client";
 
-import { Check, Star } from "lucide-react";
+import { Check } from "lucide-react";
 import { motion } from "framer-motion";
+import type { HomePageData } from "@/sanity/lib/types";
 
-export default function Services() {
+interface ServicesProps {
+  data?: HomePageData['services'];
+}
+
+export default function Services({ data }: ServicesProps) {
+  // Beneficios por defecto
+  const defaultBenefits = [
+    "Aparece primero en los resultados.",
+    "Tiene mayor visibilidad frente a productos similares.",
+    "Recibe más mensajes y ofertas.",
+    "Se vende más rápido."
+  ];
+
+  const benefits = data?.benefits?.length ? data.benefits : defaultBenefits;
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -56,7 +71,7 @@ export default function Services() {
             variants={itemVariants}
           >
             <div className="bg-[#dbeafe] border border-[#bedbff] text-[#0047ff] px-6 py-2.5 rounded-full font-['Poppins',sans-serif] text-sm font-medium">
-              Servicios
+              {data?.badge || "Servicios"}
             </div>
           </motion.div>
 
@@ -65,7 +80,7 @@ export default function Services() {
             className="text-gray-900 mb-6"
             variants={itemVariants}
           >
-            Servicios opcionales para vender{" "}
+            {data?.title || "Servicios opcionales para vender"}{" "}
             <span className="bg-gradient-to-r from-[#0047ff] to-[#0066ff] bg-clip-text text-transparent">
               más rápido.
             </span>
@@ -76,12 +91,8 @@ export default function Services() {
             className="max-w-3xl mx-auto"
             variants={itemVariants}
           >
-            <p className="font-['Poppins',sans-serif] text-base sm:text-lg text-gray-600 mb-1">
-              Publicar y negociar en Rantti es gratis.
-            </p>
             <p className="font-['Poppins',sans-serif] text-base sm:text-lg text-gray-600">
-              Estos servicios te ayudan a{" "}
-              <span className="font-semibold text-gray-900">tener más visibilidad y cerrar tratos antes.</span>
+              {data?.description || "Publicar y negociar en Rantti es gratis. Estos servicios te ayudan a tener más visibilidad y cerrar tratos antes."}
             </p>
           </motion.div>
         </motion.div>
@@ -139,7 +150,7 @@ export default function Services() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            Destaca tu Publicación
+            {data?.highlightTitle || "Destaca tu Publicación"}
           </motion.h3>
 
           {/* Subtitle */}
@@ -150,7 +161,7 @@ export default function Services() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            (Vende más rápido destacando tu publicación)
+            {data?.highlightSubtitle || "(Vende más rápido destacando tu publicación)"}
           </motion.p>
 
           {/* Description */}
@@ -161,7 +172,7 @@ export default function Services() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            Haz que tu producto aparezca primero y reciba más ofertas reales.
+            {data?.highlightDescription || "Haz que tu producto aparezca primero y reciba más ofertas reales."}
           </motion.p>
           
           <motion.p 
@@ -207,69 +218,24 @@ export default function Services() {
               }
             }}
           >
-            <motion.div 
-              className="flex items-start gap-3 group"
-              variants={checkItemVariants}
-            >
+            {benefits.map((benefit, index) => (
               <motion.div 
-                className="flex-shrink-0 w-5 h-5 rounded-full bg-[#0047ff] flex items-center justify-center mt-0.5"
-                whileHover={{ scale: 1.2, rotate: 360 }}
-                transition={{ duration: 0.4 }}
+                key={index}
+                className="flex items-start gap-3 group"
+                variants={checkItemVariants}
               >
-                <Check className="w-3 h-3 text-white stroke-[3]" />
+                <motion.div 
+                  className="flex-shrink-0 w-5 h-5 rounded-full bg-[#0047ff] flex items-center justify-center mt-0.5"
+                  whileHover={{ scale: 1.2, rotate: 360 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <Check className="w-3 h-3 text-white stroke-[3]" />
+                </motion.div>
+                <p className="font-['Poppins',sans-serif] text-sm sm:text-base text-gray-700">
+                  {benefit}
+                </p>
               </motion.div>
-              <p className="font-['Poppins',sans-serif] text-sm sm:text-base text-gray-700">
-                Aparece <span className="font-semibold text-gray-900">primero</span> en los resultados.
-              </p>
-            </motion.div>
-
-            <motion.div 
-              className="flex items-start gap-3 group"
-              variants={checkItemVariants}
-            >
-              <motion.div 
-                className="flex-shrink-0 w-5 h-5 rounded-full bg-[#0047ff] flex items-center justify-center mt-0.5"
-                whileHover={{ scale: 1.2, rotate: 360 }}
-                transition={{ duration: 0.4 }}
-              >
-                <Check className="w-3 h-3 text-white stroke-[3]" />
-              </motion.div>
-              <p className="font-['Poppins',sans-serif] text-sm sm:text-base text-gray-700">
-                Tiene <span className="font-semibold text-gray-900">mayor visibilidad</span> frente a productos similares.
-              </p>
-            </motion.div>
-
-            <motion.div 
-              className="flex items-start gap-3 group"
-              variants={checkItemVariants}
-            >
-              <motion.div 
-                className="flex-shrink-0 w-5 h-5 rounded-full bg-[#0047ff] flex items-center justify-center mt-0.5"
-                whileHover={{ scale: 1.2, rotate: 360 }}
-                transition={{ duration: 0.4 }}
-              >
-                <Check className="w-3 h-3 text-white stroke-[3]" />
-              </motion.div>
-              <p className="font-['Poppins',sans-serif] text-sm sm:text-base text-gray-700">
-                Recibe <span className="font-semibold text-gray-900">más mensajes y ofertas.</span>
-              </p>
-            </motion.div>
-
-            <motion.div 
-              className="flex items-start gap-3 group"
-              variants={checkItemVariants}
-            >
-              <motion.div 
-                className="flex-shrink-0 w-5 h-5 rounded-full bg-[#0047ff] flex items-center justify-center mt-0.5"
-                whileHover={{ scale: 1.2, rotate: 360 }}
-                transition={{ duration: 0.4 }}
-              >
-                <Check className="w-3 h-3 text-white stroke-[3]" />
-              </motion.div>
-              <p className="font-['Poppins',sans-serif] text-sm sm:text-base text-gray-700">
-                Se vende <span className="font-semibold text-gray-900">más rápido.</span>
-              </p>
-            </motion.div>
+            ))}
           </motion.div>
         </div>
 

@@ -29,5 +29,11 @@ export const API_ENDPOINTS = {
 
 // Helper function to build full URL
 export const getApiUrl = (endpoint: string) => {
+  // En el servidor, necesitamos URL absoluta
+  if (typeof window === 'undefined') {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    return `${baseUrl}${endpoint}`;
+  }
+  // En el cliente, URL relativa funciona bien
   return `${API_BASE_URL}${endpoint}`;
 };

@@ -4,12 +4,30 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Check, Search, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
+import type { HomePageData } from "@/sanity/lib/types";
 
 interface BenefitsBlocksProps {
   onNavigate: (page: 'login' | 'register') => void;
+  data?: HomePageData['benefits'];
 }
 
-export default function BenefitsBlocks({ onNavigate }: BenefitsBlocksProps) {
+export default function BenefitsBlocks({ onNavigate, data }: BenefitsBlocksProps) {
+  const defaultBenefits = [
+    {
+      title: "Precio real, no inflado",
+      description: "El precio lo decide el trato, no un algoritmo."
+    },
+    {
+      title: "Más rápido que tiendas",
+      description: "Hablas directo con quien vende."
+    },
+    {
+      title: "Trato entre personas",
+      description: "Nada de intermediarios, comisiones ocultas o letras chicas."
+    }
+  ];
+
+  const benefits = data?.benefitsList?.length ? data.benefitsList : defaultBenefits;
   return (
     <div className="py-24 relative overflow-hidden">
       {/* Decorative elements - siguiendo el patrón */}
@@ -34,13 +52,13 @@ export default function BenefitsBlocks({ onNavigate }: BenefitsBlocksProps) {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <span className="text-sm text-[#0047FF]">Beneficios Reales</span>
+            <span className="text-sm text-[#0047FF]">{data?.badge || "Beneficios Reales"}</span>
           </motion.div>
           <h2 className="text-gray-900 mb-4">
-            ¿Por qué elegir <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0047FF] to-[#0066FF]">Rantti</span>?
+            {data?.title || "¿Por qué elegir"} <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0047FF] to-[#0066FF]">Rantti</span>?
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg mb-12">
-            Negociaciones directas, precios justos y tratos entre personas.
+            {data?.subtitle || "Negociaciones directas, precios justos y tratos entre personas."}
           </p>
           
           {/* Key Benefits */}
@@ -57,71 +75,30 @@ export default function BenefitsBlocks({ onNavigate }: BenefitsBlocksProps) {
               }
             }}
           >
-            <motion.div 
-              className="flex items-start gap-3"
-              variants={{
-                hidden: { opacity: 0, x: -30 },
-                visible: { 
-                  opacity: 1, 
-                  x: 0,
-                  transition: { duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }
-                }
-              }}
-            >
-              <div className="w-2 h-2 bg-[#0047FF] rounded-full mt-2 flex-shrink-0" />
-              <div>
-                <h3 className="text-base md:text-lg text-gray-900 mb-1">
-                  Precio real, no inflado
-                </h3>
-                <p className="text-gray-600 text-sm md:text-base">
-                  El precio lo decide el trato, no un algoritmo.
-                </p>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              className="flex items-start gap-3"
-              variants={{
-                hidden: { opacity: 0, x: -30 },
-                visible: { 
-                  opacity: 1, 
-                  x: 0,
-                  transition: { duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }
-                }
-              }}
-            >
-              <div className="w-2 h-2 bg-[#0047FF] rounded-full mt-2 flex-shrink-0" />
-              <div>
-                <h3 className="text-base md:text-lg text-gray-900 mb-1">
-                  Más rápido que tiendas
-                </h3>
-                <p className="text-gray-600 text-sm md:text-base">
-                  Hablas directo con quien vende.
-                </p>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              className="flex items-start gap-3"
-              variants={{
-                hidden: { opacity: 0, x: -30 },
-                visible: { 
-                  opacity: 1, 
-                  x: 0,
-                  transition: { duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }
-                }
-              }}
-            >
-              <div className="w-2 h-2 bg-[#0047FF] rounded-full mt-2 flex-shrink-0" />
-              <div>
-                <h3 className="text-base md:text-lg text-gray-900 mb-1">
-                  Trato entre personas
-                </h3>
-                <p className="text-gray-600 text-sm md:text-base">
-                  Nada de intermediarios, comisiones ocultas o letras chicas.
-                </p>
-              </div>
-            </motion.div>
+            {benefits.map((benefit, index) => (
+              <motion.div 
+                key={index}
+                className="flex items-start gap-3"
+                variants={{
+                  hidden: { opacity: 0, x: -30 },
+                  visible: { 
+                    opacity: 1, 
+                    x: 0,
+                    transition: { duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }
+                  }
+                }}
+              >
+                <div className="w-2 h-2 bg-[#0047FF] rounded-full mt-2 flex-shrink-0" />
+                <div>
+                  <h3 className="text-base md:text-lg text-gray-900 mb-1">
+                    {benefit.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm md:text-base">
+                    {benefit.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </motion.div>
         </motion.div>
 

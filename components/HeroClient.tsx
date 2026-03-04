@@ -21,6 +21,7 @@ import { logout, getStoredUser, isAuthenticated } from "@/lib/auth";
 import { startSessionMonitoring, stopSessionMonitoring, isSessionExpired } from "@/lib/session-manager";
 import { setSessionExpiredCallback } from "@/lib/api-client";
 import { toast } from "sonner";
+import type { HomePageData } from "@/sanity/lib/types";
 
 // Tipos para las categorías
 interface Category {
@@ -35,9 +36,20 @@ interface HeroClientProps {
   resetPasswordToken?: string;
   resetPasswordEmail?: string;
   categories?: Category[];
+  sanityData?: HomePageData | null;
 }
 
-export default function HeroClient({ resetPasswordToken, resetPasswordEmail, categories = [] }: HeroClientProps = { resetPasswordToken: undefined, resetPasswordEmail: undefined, categories: [] }) {
+export default function HeroClient({ 
+  resetPasswordToken, 
+  resetPasswordEmail, 
+  categories = [],
+  sanityData = null
+}: HeroClientProps = { 
+  resetPasswordToken: undefined, 
+  resetPasswordEmail: undefined, 
+  categories: [],
+  sanityData: null
+}) {
   const router = useRouter();
   const pathname = usePathname();
   
@@ -313,7 +325,8 @@ export default function HeroClient({ resetPasswordToken, resetPasswordEmail, cat
       <Hero 
         user={user} 
         onNavigate={handleNavigate} 
-        onLogout={handleLogout} 
+        onLogout={handleLogout}
+        data={sanityData?.hero}
       />
 
       {/* Sección Categorías Populares */}
@@ -322,11 +335,14 @@ export default function HeroClient({ resetPasswordToken, resetPasswordEmail, cat
       </div>
 
       {/* Sección Servicios */}
-      <Services />
+      <Services data={sanityData?.services} />
       
       {/* Sección Cómo Funciona */}
       <div id="como-funciona">
-        <HowItWorks onNavigate={handleNavigate} />
+        <HowItWorks 
+          onNavigate={handleNavigate}
+          data={sanityData?.howItWorks}
+        />
       </div>
       
       
@@ -337,10 +353,16 @@ export default function HeroClient({ resetPasswordToken, resetPasswordEmail, cat
     
       
       {/* Sección Beneficios */}
-      <BenefitsBlocks onNavigate={handleNavigate} />
+      <BenefitsBlocks 
+        onNavigate={handleNavigate}
+        data={sanityData?.benefits}
+      />
       
       {/* CTA Final */}
-      <FinalCTA onNavigate={handleNavigate} />
+      <FinalCTA 
+        onNavigate={handleNavigate}
+        data={sanityData?.finalCta}
+      />
       
       {/* Footer */}
       <Footer />

@@ -12,14 +12,16 @@ import {
   CarouselItem,
 } from "./ui/carousel";
 import type { CarouselApi } from "./ui/carousel";
+import type { HomePageData } from "@/sanity/lib/types";
 
 interface HeroProps {
   user: { email: string; name: string; avatar?: string } | null;
   onNavigate: (page: 'home' | 'login' | 'register' | 'dashboard') => void;
   onLogout: () => void;
+  data?: HomePageData['hero'];
 }
 
-export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
+export default function Hero({ user, onNavigate, onLogout, data }: HeroProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [scrolled, setScrolled] = useState(false);
@@ -452,16 +454,18 @@ export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full">
           <Sparkles className="w-4 h-4 text-[#0047FF]" />
-          <span className="text-sm text-[#0047FF] font-['Poppins',sans-serif]">Compra y vende al precio justo.</span>
+          <span className="text-sm text-[#0047FF] font-['Poppins',sans-serif]">
+            {data?.badge || "Compra y vende al precio justo."}
+          </span>
         </div>
 
         {/* Título Principal */}
         <div className="space-y-6">
           <p className="text-2xl text-gray-700 font-['Poppins',sans-serif] leading-relaxed font-semibold">
-            Negocia libremente. El pago se acuerda entre las partes.
+            {data?.title || "Negocia libremente. El pago se acuerda entre las partes."}
           </p>
           <p className="text-gray-700 font-['Poppins',sans-serif]">
-            Un marketplace donde compradores y vendedores acuerdan el precio en minutos, sin intermediarios ni complicaciones.
+            {data?.subtitle || "Un marketplace donde compradores y vendedores acuerdan el precio en minutos, sin intermediarios ni complicaciones."}
           </p>
         </div>
 
@@ -471,12 +475,12 @@ export default function Hero({ user, onNavigate, onLogout }: HeroProps) {
             onClick={() => user ? onNavigate('dashboard') : onNavigate('login')}
             className="bg-[#0047FF] hover:bg-[#0039CC] text-white px-8 py-6 text-base font-['Poppins',sans-serif] shadow-lg shadow-[#0047FF]/30 hover:shadow-xl hover:shadow-[#0047FF]/50 transition-all rounded-xl group/btn"
           >
-            Publicar Gratis
+            {data?.primaryButton || "Publicar Gratis"}
             <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" />
           </Button>
           
           <button className="inline-flex items-center justify-center bg-white border-2 border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 px-8 py-6 h-[52px] text-base font-['Poppins',sans-serif] rounded-xl transition-all font-medium">
-            Explorar
+            {data?.secondaryButton || "Explorar"}
           </button>
         </div>
       </motion.div>

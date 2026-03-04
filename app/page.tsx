@@ -1,5 +1,6 @@
 import HeroClient from "@/components/HeroClient";
 import { getApiUrl, API_ENDPOINTS } from "@/lib/api-config";
+import { getHomePageData } from "@/sanity/lib/queries";
 
 // Tipos para la respuesta de la API
 interface Category {
@@ -33,7 +34,11 @@ async function fetchCategories(): Promise<Category[]> {
     clearTimeout(timeoutId);
     
     if (!response.ok) {
-      console.error(`Error fetching categories: ${response.status}`);
+      // Silenciar error si el endpoint no existe aún (404) o error del servidor (500)
+      // En producción, las categorías son opcionales para el home
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`Categories API not available: ${response.status}`);
+      }
       return [];
     }
 
@@ -54,11 +59,18 @@ async function fetchCategories(): Promise<Category[]> {
 }
 
 export default async function Home() {
-  const categories = await fetchCategories();
+  // Obtener datos de Sanity y categorías del backend en paralelo
+  const [sanityData, categories] = await Promise.all([
+    getHomePageData(),
+    fetchCategories()
+  ]);
 
   return (
     <main className="min-h-screen bg-white">
-      <HeroClient categories={categories} />
+      <HeroClient 
+        categories={categories} 
+        sanityData={sanityData}
+      />
     </main>
   );
 }

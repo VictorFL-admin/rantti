@@ -71,9 +71,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/images/LOGO-BLANCO-RANTTI.ico",
-    shortcut: "/images/LOGO-BLANCO-RANTTI.ico",
-    apple: "/images/LOGO-BLANCO-RANTTI.ico",
+    icon: "/images/LOGO-AZUL-RANTTI.ico",
+    shortcut: "/images/LOGO-AZUL-RANTTI.ico",
+    apple: "/images/LOGO-AZUL-RANTTI.ico",
   },
   manifest: "/manifest.json",
   verification: {
