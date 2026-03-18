@@ -30,7 +30,9 @@ import {
   MessageCircle,
   Menu,
   Box,
-  FileText
+  FileText,
+  ShoppingCart,
+  ShoppingBag
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "./ui/sheet";
@@ -46,6 +48,7 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog";
 import SettingsPanel from "./SettingsPanel";
+import ChatsPanel from "./ChatsPanel";
 import DashboardSidebar from "./dashboard/DashboardSidebar";
 
 interface DashboardProps {
@@ -69,6 +72,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   const [createListingOpen, setCreateListingOpen] = useState(false);
   const [boostPublicationOpen, setBoostPublicationOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [limitReachedDialogOpen, setLimitReachedDialogOpen] = useState(false);
   const [selectedListingForBoost, setSelectedListingForBoost] = useState<{
     id: number;
@@ -298,6 +302,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
         onLogout={onLogout}
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
+        collapsed={sidebarCollapsed}
       />
 
       {/* Main Content */}
@@ -306,28 +311,33 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
         <header className="bg-white border-b border-gray-200 px-4 md:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {/* Mobile Menu Button */}
+              {/* Hamburger Button - Mobile & Desktop */}
               <button
-                className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-gray-100 transition-colors"
                 onClick={() => {
-                  console.log('🍔 Menú móvil abriendo desde Dashboard');
-                  setMobileMenuOpen(true);
+                  // En mobile abre el sheet, en desktop toggle el sidebar
+                  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                    console.log('🍔 Menú móvil abriendo desde Dashboard');
+                    setMobileMenuOpen(true);
+                  } else {
+                    setSidebarCollapsed(!sidebarCollapsed);
+                  }
                 }}
                 type="button"
+                title={sidebarCollapsed ? "Mostrar menú" : "Ocultar menú"}
               >
                 <Menu className="w-6 h-6 text-gray-700" />
               </button>
               
               <div>
                 <h1 className="text-xl md:text-2xl text-gray-900">
-                  {activeTab === "overview" && "Dashboard"}
-                  {activeTab === "listings" && "Mis Publicaciones"}
-                  {activeTab === "negotiations" && "Negociaciones"}
-                  {activeTab === "chats" && "Chats"}
+                  {activeTab === "overview" && "Explorar Hoy"}
                   {activeTab === "notifications" && "Notificaciones"}
-                  {activeTab === "payments" && "Pagos"}
-                  {activeTab === "packages" && "Paquetes"}
+                  {activeTab === "chats" && "Chats"}
                   {activeTab === "specifications" && "Especificaciones"}
+                  {activeTab === "negotiations" && "Compras"}
+                  {activeTab === "payments" && "Ventas"}
+                  {activeTab === "packages" && "Paquete"}
                   {activeTab === "settings" && "Configuración"}
                 </h1>
                 <p className="text-xs md:text-sm text-gray-500 hidden sm:block">
@@ -347,19 +357,6 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
               >
                 Ver Marketplace
               </Button>
-              
-              {/* Mostrar botón "Más Publicaciones" solo en la pestaña de Mis Publicaciones */}
-              {activeTab === "listings" && (
-                <Button 
-                  onClick={() => setLimitReachedDialogOpen(true)}
-                  variant="outline"
-                  className="border-[#0047FF] text-[#0047FF] hover:bg-[#0047FF]/5"
-                  size="sm"
-                >
-                  <Zap className="w-4 h-4 md:mr-2" />
-                  <span className="hidden md:inline">Más Publicaciones</span>
-                </Button>
-              )}
               
               <Button 
                 onClick={() => setCreateListingOpen(true)}
@@ -384,127 +381,234 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
               {/* Overview Tab */}
               {activeTab === "overview" && (
                 <div className="space-y-6">
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                    {stats.map((stat, index) => (
-                      <Card key={index} className="bg-white border-gray-200">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                          <CardTitle className="text-sm text-gray-600">
-                            {stat.title}
-                          </CardTitle>
-                          <stat.icon className="w-4 h-4 text-gray-400" />
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-2xl text-gray-900">{stat.value}</div>
-                          <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                            {stat.trend === "up" && <ArrowUpRight className="w-3 h-3 text-green-600" />}
-                            {stat.change}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-
-              {/* Recent Activity */}
-              <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
-                <Card className="bg-white border-gray-200">
-                  <CardHeader>
-                    <CardTitle className="text-gray-900">Actividad Reciente</CardTitle>
-                    <CardDescription className="text-gray-500">
-                      Tus negociaciones más recientes
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="py-12 text-center">
-                    <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500">
-                      {dashboardData?.recentActivity?.message || "No tienes actividad reciente aún."}
-                    </p>
-                    {dashboardData?.recentActivity?.message && (
-                      <Button
-                        onClick={() => setActiveTab("negotiations")}
-                        variant="outline"
-                        className="mt-4 border-gray-300 text-gray-700 hover:bg-gray-100"
-                      >
-                        Ver Negociaciones
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white border-gray-200">
-                  <CardHeader>
-                    <CardTitle className="text-gray-900">Publicaciones Destacadas</CardTitle>
-                    <CardDescription className="text-gray-500">
-                      Con más interacción
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {!dashboardData?.hasData || dashboardData?.featuredListings?.message ? (
-                      <div className="py-12 text-center">
-                        <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                        <p className="text-gray-500">
-                          {dashboardData?.featuredListings?.message || "No tienes publicaciones aún."}
+                  {/* Products Grid - Estilo Marketplace */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    {/* Product Card 1 */}
+                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
+                        <img
+                          src="https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=400&h=300&fit=crop"
+                          alt="Rolex Submariner"
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                          Rolex Submariner Date
+                        </h3>
+                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
+                          S/ 45,999
                         </p>
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <p className="font-['Poppins',sans-serif] text-xs">
+                            Lima - San Isidro
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Product Card 2 */}
+                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
+                        <img
+                          src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop"
+                          alt="Collar de Diamantes"
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
                       </div>
-                    ) : dashboardData?.featuredListings?.data && Array.isArray(dashboardData.featuredListings.data) ? (
-                      <div className="space-y-4">
-                        {dashboardData.featuredListings.data.map((listing: any) => (
-                          <div key={listing.id} className="flex items-center gap-4 pb-4 border-b border-gray-200 last:border-0 last:pb-0">
-                            <img 
-                              src={listing.image || listing.images?.[0] || "https://via.placeholder.com/64"} 
-                              alt={listing.title}
-                              className="w-16 h-16 rounded-lg object-cover"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm text-gray-900 truncate">{listing.title}</p>
-                              <div className="flex items-center gap-3 mt-1">
-                                <span className="text-xs text-purple-600">{listing.price}</span>
-                                <span className="text-xs text-gray-500 flex items-center gap-1">
-                                  <Eye className="w-3 h-3" />
-                                  {listing.views || 0}
-                                </span>
-                                <span className="text-xs text-gray-500 flex items-center gap-1">
-                                  <MessageSquare className="w-3 h-3" />
-                                  {listing.offers || 0}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                      <CardContent className="p-4">
+                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                          Collar de Diamantes 18K
+                        </h3>
+                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
+                          S/ 28,500
+                        </p>
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <p className="font-['Poppins',sans-serif] text-xs">
+                            Lima - Miraflores
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Product Card 3 */}
+                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
+                        <img
+                          src="https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&h=300&fit=crop"
+                          alt="MacBook Pro M3"
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
                       </div>
-                    ) : null}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          )}
+                      <CardContent className="p-4">
+                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                          MacBook Pro M3 Max 16"
+                        </h3>
+                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
+                          S/ 10,999
+                        </p>
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <p className="font-['Poppins',sans-serif] text-xs">
+                            Lima - Miraflores
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
 
-          {/* Listings Tab */}
-          {activeTab === "listings" && (
-            <div className="text-center py-12">
-              <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Panel de publicaciones próximamente</p>
-            </div>
-            // <MyListingsPanel />
-          )}
+                    {/* Product Card 4 */}
+                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
+                        <img
+                          src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400&h=300&fit=crop"
+                          alt="Pintura Original"
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                          Óleo Original Abstracto
+                        </h3>
+                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
+                          S/ 15,800
+                        </p>
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <p className="font-['Poppins',sans-serif] text-xs">
+                            Lima - Barranco
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
 
-          {/* Negotiations Tab - INTEGRACIÓN COMPLETA CON CULQI */}
-          {activeTab === "negotiations" && (
-            <div className="text-center py-12">
-              <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Panel de negociaciones próximamente</p>
-            </div>
-            // <NegotiationsPanel userId={1} userName={user.name} />
-          )}
+                    {/* Product Card 5 */}
+                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
+                        <img
+                          src="https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400&h=300&fit=crop"
+                          alt="Nintendo 64 Gold"
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                          Nintendo 64 Gold Edition
+                        </h3>
+                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
+                          S/ 3,200
+                        </p>
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <p className="font-['Poppins',sans-serif] text-xs">
+                            Lima - San Borja
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
 
-          {/* Chats Tab */}
-          {activeTab === "chats" && (
-            <div className="text-center py-12">
-              <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Panel de chats próximamente</p>
-            </div>
-            // <ChatsPanel />
-          )}
+                    {/* Product Card 6 */}
+                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
+                        <img
+                          src="https://images.unsplash.com/photo-1598887142487-3c854d51c512?w=400&h=300&fit=crop"
+                          alt="Anillo de Esmeraldas"
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                          Anillo de Esmeraldas Vintage
+                        </h3>
+                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
+                          S/ 18,900
+                        </p>
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <p className="font-['Poppins',sans-serif] text-xs">
+                            Lima - San Isidro
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Product Card 7 */}
+                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
+                        <img
+                          src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop"
+                          alt="Apple Watch Ultra"
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                          Apple Watch Ultra 2 Titanio
+                        </h3>
+                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
+                          S/ 3,899
+                        </p>
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <p className="font-['Poppins',sans-serif] text-xs">
+                            Lima - Miraflores
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Product Card 8 */}
+                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
+                        <img
+                          src="https://images.unsplash.com/photo-1578632292335-df3abbb0d586?w=400&h=300&fit=crop"
+                          alt="Cámara Leica"
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                          Leica M11 Edición Especial
+                        </h3>
+                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
+                          S/ 35,500
+                        </p>
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <p className="font-['Poppins',sans-serif] text-xs">
+                            Lima - San Isidro
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
 
           {/* Notifications Tab */}
           {activeTab === "notifications" && (
@@ -512,30 +616,11 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
               <Bell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">Panel de notificaciones próximamente</p>
             </div>
-            // <NotificationsPanel />
           )}
 
-          {/* Payments Tab */}
-          {activeTab === "payments" && (
-            <div className="text-center py-12">
-              <CreditCard className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Panel de pagos próximamente</p>
-            </div>
-            // <PaymentsPanel />
-          )}
-
-          {/* Settings Tab */}
-          {activeTab === "settings" && (
-            <SettingsPanel user={user} onUpdateUser={onUpdateUser} />
-          )}
-
-          {/* Packages Tab */}
-          {activeTab === "packages" && (
-            <div className="text-center py-12">
-              <Box className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Panel de paquetes próximamente</p>
-            </div>
-            // <PackagesPanel />
+          {/* Chats Tab */}
+          {activeTab === "chats" && (
+            <ChatsPanel />
           )}
 
           {/* Specifications Tab */}
@@ -544,7 +629,35 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
               <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">Panel de especificaciones próximamente</p>
             </div>
-            // <SpecificationsPanel />
+          )}
+
+          {/* Negotiations Tab (Compras) */}
+          {activeTab === "negotiations" && (
+            <div className="text-center py-12">
+              <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">Panel de compras próximamente</p>
+            </div>
+          )}
+
+          {/* Payments Tab (Ventas) */}
+          {activeTab === "payments" && (
+            <div className="text-center py-12">
+              <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">Panel de ventas próximamente</p>
+            </div>
+          )}
+
+          {/* Packages Tab */}
+          {activeTab === "packages" && (
+            <div className="text-center py-12">
+              <Box className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">Panel de paquete próximamente</p>
+            </div>
+          )}
+
+          {/* Settings Tab */}
+          {activeTab === "settings" && (
+            <SettingsPanel user={user} onUpdateUser={onUpdateUser} />
           )}
             </>
           )}
