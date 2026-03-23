@@ -844,7 +844,7 @@ export default function ChatsPanel() {
                               </span>
                             )}
                           </div>
-                          <p className="font-['Poppins',sans-serif] text-[13px] text-[#546A88] truncate">
+                          <p className="font-['Poppins',sans-serif] text-[13px] text-[#546A88] overflow-hidden text-ellipsis whitespace-nowrap max-w-full">
                             {chat.last_message_preview}
                           </p>
                         </div>
