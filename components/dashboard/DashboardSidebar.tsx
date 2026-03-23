@@ -39,6 +39,7 @@ interface DashboardSidebarProps {
   mobileMenuOpen?: boolean;
   setMobileMenuOpen?: (open: boolean) => void;
   collapsed?: boolean;
+  onOpenPerfilModal?: () => void;
 }
 
 export default function DashboardSidebar({
@@ -50,6 +51,7 @@ export default function DashboardSidebar({
   mobileMenuOpen = false,
   setMobileMenuOpen,
   collapsed = false,
+  onOpenPerfilModal,
 }: DashboardSidebarProps) {
   const [submenuView, setSubmenuView] = useState<'main' | 'compras' | 'ventas'>('main');
   const [comprasSubSection, setComprasSubSection] = useState('actividad-reciente');
@@ -170,9 +172,15 @@ export default function DashboardSidebar({
               Chats
             </Button>
             <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-400 hover:text-gray-400 hover:bg-transparent opacity-50 cursor-not-allowed"
-              disabled
+              variant={currentSection === "especificaciones" ? "default" : "ghost"}
+              className={currentSection === "especificaciones" 
+                ? "w-full justify-start bg-[#0047FF] hover:bg-[#0039CC] text-white" 
+                : "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              }
+              onClick={() => {
+                onSectionChange("especificaciones");
+                onItemClick?.();
+              }}
             >
               <FileText className="w-5 h-5 mr-3" />
               Especificaciones
@@ -227,7 +235,7 @@ export default function DashboardSidebar({
               variant="ghost"
               className="w-full justify-start text-gray-600 hover:text-gray-900"
               onClick={() => {
-                onNavigate('home');
+                onSectionChange('overview');
                 onItemClick?.();
               }}
             >
@@ -294,7 +302,7 @@ export default function DashboardSidebar({
               }
               onClick={() => {
                 setComprasSubSection("actividad-reciente");
-                onSectionChange("negotiations");
+                onSectionChange("actividad-reciente");
                 onItemClick?.();
               }}
             >
@@ -354,7 +362,7 @@ export default function DashboardSidebar({
               }
               onClick={() => {
                 setComprasSubSection("perfil-marketplace");
-                onSectionChange("negotiations");
+                onOpenPerfilModal?.();
                 onItemClick?.();
               }}
             >
@@ -426,7 +434,7 @@ export default function DashboardSidebar({
               }
               onClick={() => {
                 setVentasSubSection("panel-vendedores");
-                onSectionChange("payments");
+                onSectionChange("panel-vendedores");
                 onItemClick?.();
               }}
             >
@@ -441,7 +449,7 @@ export default function DashboardSidebar({
               }
               onClick={() => {
                 setVentasSubSection("tus-publicaciones");
-                onSectionChange("payments");
+                onSectionChange("tus-publicaciones");
                 onItemClick?.();
               }}
             >
@@ -471,7 +479,7 @@ export default function DashboardSidebar({
               }
               onClick={() => {
                 setVentasSubSection("estadisticas");
-                onSectionChange("payments");
+                onSectionChange("estadisticas");
                 onItemClick?.();
               }}
             >
@@ -486,7 +494,7 @@ export default function DashboardSidebar({
               }
               onClick={() => {
                 setVentasSubSection("perfil-marketplace");
-                onSectionChange("payments");
+                onOpenPerfilModal?.();
                 onItemClick?.();
               }}
             >

@@ -7,6 +7,9 @@ export const API_ENDPOINTS = {
   CATEGORIES: {
     FEATURED: '/api/public/categories/featured',
   },
+  LISTINGS: {
+    PUBLIC: '/api/public/listings',  // Para "Explorar Hoy" en Dashboard
+  },
   AUTH: {
     REGISTER: '/api/auth/register',
     LOGIN: '/api/auth/login',

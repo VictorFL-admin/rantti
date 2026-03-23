@@ -3,6 +3,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 import { API_ENDPOINTS, getApiUrl } from "@/lib/api-config";
 import { apiGet } from "@/lib/api-client";
+import { Listing, ListingsResponse } from "@/lib/types/listings";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
@@ -48,8 +49,15 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog";
 import SettingsPanel from "./SettingsPanel";
+import CreateListingDialog from "./CreateListingDialog";
 import ChatsPanel from "./ChatsPanel";
 import DashboardSidebar from "./dashboard/DashboardSidebar";
+import ProductSpecifications from "./ProductSpecifications";
+import ActividadRecienteContent from "./ActividadRecienteContent";
+import PerfilMarketplaceModal from "./PerfilMarketplaceModal";
+import PanelVendedoresContent from "./PanelVendedoresContent";
+import TusPublicacionesContent from "./TusPublicacionesContent";
+import EstadisticasContent from "./EstadisticasContent";
 
 interface DashboardProps {
   user: { email: string; name: string; avatar?: string };
@@ -74,6 +82,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [limitReachedDialogOpen, setLimitReachedDialogOpen] = useState(false);
+  const [perfilModalOpen, setPerfilModalOpen] = useState(false);
   const [selectedListingForBoost, setSelectedListingForBoost] = useState<{
     id: number;
     title: string;
@@ -83,6 +92,11 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   const [user, setUser] = useState(initialUser);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
+  
+  // Estados para "Explorar Hoy"
+  const [exploreTodayListings, setExploreTodayListings] = useState<Listing[]>([]);
+  const [loadingListings, setLoadingListings] = useState(false);
+  const [listingsError, setListingsError] = useState<string | null>(null);
 
   // Sync activeTab with URL changes
   useEffect(() => {
@@ -176,6 +190,42 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
     };
 
     fetchDashboardData();
+  }, []);
+
+  // Fetch "Explorar Hoy" listings
+  const fetchExploreTodayListings = async () => {
+    try {
+      setLoadingListings(true);
+      setListingsError(null);
+      
+      const response = await apiGet(
+        `${getApiUrl(API_ENDPOINTS.LISTINGS.PUBLIC)}?per_page=8&sort=recent`
+      );
+      
+      if (response.ok) {
+        const result: ListingsResponse = await response.json();
+        setExploreTodayListings(result.data.listings);
+      } else {
+        setListingsError('Error al cargar publicaciones');
+      }
+    } catch (error) {
+      console.error('Error al cargar listings de Explorar Hoy:', error);
+      setListingsError('Error al conectar con el servidor');
+    } finally {
+      setLoadingListings(false);
+    }
+  };
+
+  // Fetch listings on mount y polling cada 60 segundos
+  useEffect(() => {
+    fetchExploreTodayListings();
+    
+    // Polling cada 60 segundos
+    const interval = setInterval(() => {
+      fetchExploreTodayListings();
+    }, 60000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   // Preparar los stats desde la API
@@ -303,6 +353,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
         collapsed={sidebarCollapsed}
+        onOpenPerfilModal={() => setPerfilModalOpen(true)}
       />
 
       {/* Main Content */}
@@ -334,7 +385,11 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                   {activeTab === "overview" && "Explorar Hoy"}
                   {activeTab === "notifications" && "Notificaciones"}
                   {activeTab === "chats" && "Chats"}
-                  {activeTab === "specifications" && "Especificaciones"}
+                  {activeTab === "especificaciones" && "Especificaciones"}
+                  {activeTab === "actividad-reciente" && "Actividad Reciente"}
+                  {activeTab === "panel-vendedores" && "Panel de Vendedores"}
+                  {activeTab === "tus-publicaciones" && "Tus Publicaciones"}
+                  {activeTab === "estadisticas" && "Estadísticas"}
                   {activeTab === "negotiations" && "Compras"}
                   {activeTab === "payments" && "Ventas"}
                   {activeTab === "packages" && "Paquete"}
@@ -381,232 +436,85 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
               {/* Overview Tab */}
               {activeTab === "overview" && (
                 <div className="space-y-6">
-                  {/* Products Grid - Estilo Marketplace */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                    {/* Product Card 1 */}
-                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
-                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
-                        <img
-                          src="https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=400&h=300&fit=crop"
-                          alt="Rolex Submariner"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                          Rolex Submariner Date
-                        </h3>
-                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
-                          S/ 45,999
-                        </p>
-                        <div className="flex items-center gap-1 text-gray-500">
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          <p className="font-['Poppins',sans-serif] text-xs">
-                            Lima - San Isidro
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
+                  {/* Mensaje de Error */}
+                  {listingsError && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                      {listingsError}
+                    </div>
+                  )}
+                  
+                  {/* Loader de Listings */}
+                  {loadingListings && exploreTodayListings.length === 0 ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0047FF]"></div>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Products Grid - Estilo Marketplace */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                        {exploreTodayListings.length === 0 ? (
+                          <div className="col-span-full text-center py-12">
+                            <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                            <p className="text-gray-500">No hay publicaciones disponibles en este momento</p>
+                          </div>
+                        ) : (
+                          exploreTodayListings.map((listing) => (
+                            <Card 
+                              key={listing.id} 
+                              className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
+                            >
+                              <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
+                                <img
+                                  src={listing.image || '/images/placeholder.jpg'}
+                                  alt={listing.title}
+                                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = '/images/placeholder.jpg';
+                                  }}
+                                />
+                              </div>
+                              <CardContent className="p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Badge variant="secondary" className="text-xs">
+                                    {listing.category.name}
+                                  </Badge>
+                                  <Badge 
+                                    variant={listing.listing_type === 'VENTA' ? 'default' : 'secondary'}
+                                    className="text-xs"
+                                  >
+                                    {listing.listing_type}
+                                  </Badge>
+                                </div>
+                                <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                                  {listing.title}
+                                </h3>
+                                <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
+                                  {listing.currency} {listing.price.toLocaleString('es-PE')}
+                                </p>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-1 text-gray-500">
+                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <p className="font-['Poppins',sans-serif] text-xs">
+                                      {listing.location}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-1 text-gray-400">
+                                    <Eye className="w-3.5 h-3.5" />
+                                    <span className="text-xs">{listing.views}</span>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
 
-                    {/* Product Card 2 */}
-                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
-                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
-                        <img
-                          src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop"
-                          alt="Collar de Diamantes"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
+                          ))
+                        )}
                       </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                          Collar de Diamantes 18K
-                        </h3>
-                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
-                          S/ 28,500
-                        </p>
-                        <div className="flex items-center gap-1 text-gray-500">
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          <p className="font-['Poppins',sans-serif] text-xs">
-                            Lima - Miraflores
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Product Card 3 */}
-                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
-                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
-                        <img
-                          src="https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&h=300&fit=crop"
-                          alt="MacBook Pro M3"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                          MacBook Pro M3 Max 16"
-                        </h3>
-                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
-                          S/ 10,999
-                        </p>
-                        <div className="flex items-center gap-1 text-gray-500">
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          <p className="font-['Poppins',sans-serif] text-xs">
-                            Lima - Miraflores
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Product Card 4 */}
-                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
-                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
-                        <img
-                          src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400&h=300&fit=crop"
-                          alt="Pintura Original"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                          Óleo Original Abstracto
-                        </h3>
-                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
-                          S/ 15,800
-                        </p>
-                        <div className="flex items-center gap-1 text-gray-500">
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          <p className="font-['Poppins',sans-serif] text-xs">
-                            Lima - Barranco
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Product Card 5 */}
-                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
-                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
-                        <img
-                          src="https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400&h=300&fit=crop"
-                          alt="Nintendo 64 Gold"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                          Nintendo 64 Gold Edition
-                        </h3>
-                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
-                          S/ 3,200
-                        </p>
-                        <div className="flex items-center gap-1 text-gray-500">
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          <p className="font-['Poppins',sans-serif] text-xs">
-                            Lima - San Borja
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Product Card 6 */}
-                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
-                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
-                        <img
-                          src="https://images.unsplash.com/photo-1598887142487-3c854d51c512?w=400&h=300&fit=crop"
-                          alt="Anillo de Esmeraldas"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                          Anillo de Esmeraldas Vintage
-                        </h3>
-                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
-                          S/ 18,900
-                        </p>
-                        <div className="flex items-center gap-1 text-gray-500">
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          <p className="font-['Poppins',sans-serif] text-xs">
-                            Lima - San Isidro
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Product Card 7 */}
-                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
-                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
-                        <img
-                          src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop"
-                          alt="Apple Watch Ultra"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                          Apple Watch Ultra 2 Titanio
-                        </h3>
-                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
-                          S/ 3,899
-                        </p>
-                        <div className="flex items-center gap-1 text-gray-500">
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          <p className="font-['Poppins',sans-serif] text-xs">
-                            Lima - Miraflores
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Product Card 8 */}
-                    <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
-                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
-                        <img
-                          src="https://images.unsplash.com/photo-1578632292335-df3abbb0d586?w=400&h=300&fit=crop"
-                          alt="Cámara Leica"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                          Leica M11 Edición Especial
-                        </h3>
-                        <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
-                          S/ 35,500
-                        </p>
-                        <div className="flex items-center gap-1 text-gray-500">
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          <p className="font-['Poppins',sans-serif] text-xs">
-                            Lima - San Isidro
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -624,11 +532,28 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           )}
 
           {/* Specifications Tab */}
-          {activeTab === "specifications" && (
-            <div className="text-center py-12">
-              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Panel de especificaciones próximamente</p>
-            </div>
+          {activeTab === "especificaciones" && (
+            <ProductSpecifications />
+          )}
+
+          {/* Actividad Reciente Tab */}
+          {activeTab === "actividad-reciente" && (
+            <ActividadRecienteContent user={user} onOpenPerfilModal={() => setPerfilModalOpen(true)} />
+          )}
+
+          {/* Panel de Vendedores Tab */}
+          {activeTab === "panel-vendedores" && (
+            <PanelVendedoresContent />
+          )}
+
+          {/* Tus Publicaciones Tab */}
+          {activeTab === "tus-publicaciones" && (
+            <TusPublicacionesContent />
+          )}
+
+          {/* Estadísticas Tab */}
+          {activeTab === "estadisticas" && (
+            <EstadisticasContent />
           )}
 
           {/* Negotiations Tab (Compras) */}
@@ -665,7 +590,14 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
       </main>
 
       {/* Create Listing Dialog */}
-      {/* <CreateListingDialog open={createListingOpen} onOpenChange={setCreateListingOpen} /> */}
+      <CreateListingDialog open={createListingOpen} onOpenChange={setCreateListingOpen} />
+      
+      {/* Perfil Marketplace Modal */}
+      <PerfilMarketplaceModal 
+        open={perfilModalOpen}
+        onOpenChange={setPerfilModalOpen}
+        user={user}
+      />
       
       {/* Boost Publication Dialog */}
       {/* selectedListingForBoost && (

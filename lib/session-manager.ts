@@ -1,15 +1,13 @@
 /**
  * Session Manager
- * Maneja la expiración automática de sesión por inactividad y tiempo absoluto
+ * Maneja SOLO la detección de inactividad del usuario en el frontend.
+ * La expiración del token la controla el BACKEND (Laravel Sanctum).
  */
 
-const INACTIVITY_TIMEOUT = 60 * 60 * 1000; // 1 hora en milisegundos
-const ABSOLUTE_TIMEOUT = 60 * 60 * 1000; // 1 hora desde el login (igual que el backend)
+const INACTIVITY_TIMEOUT = 60 * 60 * 1000; // 1 hora de inactividad en milisegundos
 const LAST_ACTIVITY_KEY = 'last_activity';
-const LOGIN_TIME_KEY = 'login_time';
 
 let inactivityTimer: NodeJS.Timeout | null = null;
-let absoluteTimer: NodeJS.Timeout | null = null;
 let onSessionExpired: (() => void) | null = null;
 
 /**
@@ -26,38 +24,30 @@ export function updateActivity(): void {
 }
 
 /**
- * Verifica si la sesión ha expirado por inactividad o tiempo absoluto
+ * Verifica si la sesión ha expirado por inactividad del usuario
+ * NOTA: El backend controla la expiración real del token
  */
 export function isSessionExpired(): boolean {
   if (typeof window === 'undefined') return false;
   
   const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
-  const loginTime = localStorage.getItem(LOGIN_TIME_KEY);
   const authToken = localStorage.getItem('auth_token');
   
   // Si no hay token pero sí hay datos de sesión antiguos, limpiarlos
-  if (!authToken && (lastActivity || loginTime)) {
+  if (!authToken && lastActivity) {
     clearSessionData();
     return false;
   }
   
-  if (!lastActivity || !loginTime) return false;
+  if (!lastActivity) return false;
   
   const lastActivityTime = parseInt(lastActivity, 10);
-  const loginTimestamp = parseInt(loginTime, 10);
   const now = Date.now();
   
-  // Verificar expiración por inactividad
+  // Verificar expiración por INACTIVIDAD solamente
   const timeSinceLastActivity = now - lastActivityTime;
   if (timeSinceLastActivity > INACTIVITY_TIMEOUT) {
-    console.log('⏱️ Sesión expirada por INACTIVIDAD');
-    return true;
-  }
-  
-  // Verificar expiración por tiempo absoluto desde el login
-  const timeSinceLogin = now - loginTimestamp;
-  if (timeSinceLogin > ABSOLUTE_TIMEOUT) {
-    console.log('⏱️ Sesión expirada por TIEMPO ABSOLUTO (60 min desde login)');
+    console.log('⏱️ Usuario inactivo por más de 1 hora');
     return true;
   }
   
@@ -82,40 +72,22 @@ function resetInactivityTimer(): void {
 
 /**
  * Inicia el monitoreo de actividad del usuario
+ * SOLO detecta inactividad en el frontend. El backend controla la expiración real.
  */
 export function startSessionMonitoring(onExpired: () => void): void {
   if (typeof window === 'undefined') return;
   
   onSessionExpired = onExpired;
   
-  // Verificar si ya expiró al iniciar
+  // Verificar si ya expiró por inactividad al iniciar
   if (isSessionExpired()) {
-    console.log('⏱️ Sesión ya estaba expirada');
+    console.log('⏱️ Usuario estaba inactivo');
     onExpired();
     return;
   }
   
-  // Establecer timestamp de login si no existe
-  if (!localStorage.getItem(LOGIN_TIME_KEY)) {
-    const now = Date.now().toString();
-    localStorage.setItem(LOGIN_TIME_KEY, now);
-  }
-  
   // Actualizar actividad inicial
   updateActivity();
-  
-  // Timer absoluto: expira después de 60 minutos desde el login
-  const loginTime = parseInt(localStorage.getItem(LOGIN_TIME_KEY) || Date.now().toString(), 10);
-  const timeUntilAbsoluteExpiration = ABSOLUTE_TIMEOUT - (Date.now() - loginTime);
-  
-  if (timeUntilAbsoluteExpiration > 0) {
-    absoluteTimer = setTimeout(() => {
-      console.log('⏱️ Sesión expirada por tiempo absoluto (60 min desde login)');
-      if (onSessionExpired) {
-        onSessionExpired();
-      }
-    }, timeUntilAbsoluteExpiration);
-  }
   
   // Eventos que indican actividad del usuario
   const events = [
@@ -158,14 +130,8 @@ export function stopSessionMonitoring(): void {
     inactivityTimer = null;
   }
   
-  if (absoluteTimer) {
-    clearTimeout(absoluteTimer);
-    absoluteTimer = null;
-  }
-  
   if (typeof window !== 'undefined') {
     localStorage.removeItem(LAST_ACTIVITY_KEY);
-    localStorage.removeItem(LOGIN_TIME_KEY);
     window.__sessionMonitoringActive = false;
   }
   
@@ -178,7 +144,6 @@ export function stopSessionMonitoring(): void {
 export function clearSessionData(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(LAST_ACTIVITY_KEY);
-  localStorage.removeItem(LOGIN_TIME_KEY);
 }
 
 // Declaración de tipos globales

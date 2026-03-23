@@ -1,270 +1,658 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card } from "./ui/card";
 import { Search, Send, Paperclip, Check, ChevronDown, ChevronUp, X, FileText } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
-
-// Tipos
-interface Message {
-  id: number;
-  sender_id: number;
-  content: string;
-  timestamp: string;
-  is_read: boolean;
-}
-
-interface Chat {
-  id: number;
-  user: {
-    id: number;
-    name: string;
-    initials: string;
-    online: boolean;
-  };
-  listing: {
-    id: number;
-    title: string;
-    price: string;
-    image: string;
-  };
-  last_message: string;
-  last_message_time: string;
-  unread_count: number;
-  messages: Message[];
-}
-
-// Mock data - Chats de COMPRA (cuando yo estoy comprando)
-const BUY_CHATS: Chat[] = [
-  {
-    id: 1,
-    user: {
-      id: 2,
-      name: "Carlos Méndez",
-      initials: "CM",
-      online: true
-    },
-    listing: {
-      id: 101,
-      title: "Rolex Submariner 2022",
-      price: "S/ 45,000",
-      image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=100"
-    },
-    last_message: "¿Cuándo podemos coordinar la entrega?",
-    last_message_time: "Hace 1h",
-    unread_count: 0,
-    messages: [
-      {
-        id: 1,
-        sender_id: 1,
-        content: "Hola, me interesa tu Rolex. ¿Está disponible aún?",
-        timestamp: "03:00 p.m.",
-        is_read: true
-      },
-      {
-        id: 2,
-        sender_id: 2,
-        content: "¡Hola! Sí, está disponible. ¿Te gustaría hacer una oferta?",
-        timestamp: "03:15 p.m.",
-        is_read: true
-      },
-      {
-        id: 3,
-        sender_id: 1,
-        content: "Me gustaría ofrecerte S/ 42,000. ¿Qué te parece?",
-        timestamp: "03:30 p.m.",
-        is_read: true
-      },
-      {
-        id: 4,
-        sender_id: 2,
-        content: "Gracias por tu oferta. Mi precio mínimo es S/ 44,000. Es un precio justo considerando que tiene solo 6 meses de uso.",
-        timestamp: "04:00 p.m.",
-        is_read: true
-      },
-      {
-        id: 5,
-        sender_id: 1,
-        content: "Me parece bien. Acepto S/ 44,000. ¿Cuándo podemos coordinar la entrega?",
-        timestamp: "04:30 p.m.",
-        is_read: false
-      }
-    ]
-  },
-  {
-    id: 2,
-    user: {
-      id: 3,
-      name: "María Gonzáles",
-      initials: "MG",
-      online: false
-    },
-    listing: {
-      id: 102,
-      title: "MacBook Pro M3 Max 16\"",
-      price: "S/ 10,999",
-      image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=100"
-    },
-    last_message: "¿Incluye cargador original?",
-    last_message_time: "Ayer",
-    unread_count: 0,
-    messages: []
-  },
-  {
-    id: 3,
-    user: {
-      id: 4,
-      name: "Jorge Ramírez",
-      initials: "JR",
-      online: true
-    },
-    listing: {
-      id: 103,
-      title: "Nintendo 64 Gold Edition",
-      price: "S/ 3,200",
-      image: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=100"
-    },
-    last_message: "¡Genial! Te espero mañana entonces",
-    last_message_time: "Hace 2h",
-    unread_count: 0,
-    messages: []
-  }
-];
-
-// Mock data - Chats de VENTA (cuando yo estoy vendiendo)
-const SELL_CHATS: Chat[] = [
-  {
-    id: 101,
-    user: {
-      id: 10,
-      name: "Luis Torres",
-      initials: "LT",
-      online: true
-    },
-    listing: {
-      id: 201,
-      title: "Collar de Diamantes 18K",
-      price: "S/ 28,500",
-      image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=100"
-    },
-    last_message: "¿Aceptas S/ 26,000?",
-    last_message_time: "Hace 30m",
-    unread_count: 2,
-    messages: [
-      {
-        id: 1,
-        sender_id: 10,
-        content: "Hola, me interesa tu collar de diamantes. ¿Tienes certificado de autenticidad?",
-        timestamp: "02:00 p.m.",
-        is_read: true
-      },
-      {
-        id: 2,
-        sender_id: 1,
-        content: "Sí, viene con certificado GIA completo y caja original.",
-        timestamp: "02:15 p.m.",
-        is_read: true
-      },
-      {
-        id: 3,
-        sender_id: 10,
-        content: "Perfecto. ¿Aceptas S/ 26,000?",
-        timestamp: "02:30 p.m.",
-        is_read: false
-      }
-    ]
-  },
-  {
-    id: 102,
-    user: {
-      id: 11,
-      name: "Patricia Ramos",
-      initials: "PR",
-      online: false
-    },
-    listing: {
-      id: 202,
-      title: "Apple Watch Ultra 2 Titanio",
-      price: "S/ 3,899",
-      image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=100"
-    },
-    last_message: "¿Está en garantía todavía?",
-    last_message_time: "Hace 3h",
-    unread_count: 1,
-    messages: []
-  },
-  {
-    id: 103,
-    user: {
-      id: 12,
-      name: "Roberto Silva",
-      initials: "RS",
-      online: true
-    },
-    listing: {
-      id: 203,
-      title: "Leica M11 Edición Especial",
-      price: "S/ 35,500",
-      image: "https://images.unsplash.com/photo-1578632292335-df3abbb0d586?w=100"
-    },
-    last_message: "Me interesa, ¿podemos vernos?",
-    last_message_time: "Ayer",
-    unread_count: 0,
-    messages: []
-  }
-];
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import * as ChatAPI from "@/lib/chat-api";
+import { getEcho } from "@/lib/echo";
+import { presenceService } from "@/lib/services/presence-service";
+import type { Conversation, Message as APIMessage } from "@/lib/chat-api";
 
 const FILTER_TAGS = [
-  { id: "all", label: "Todo", active: true },
-  { id: "pending_payment", label: "Pago pendiente", active: false },
-  { id: "paid", label: "Pagado", active: false },
-  { id: "pending_shipping", label: "Envío pendiente", active: false },
-  { id: "shipped", label: "Enviado", active: false },
-  { id: "cod", label: "Pago contra entrega", active: false }
+  { id: "todo", label: "Todo", value: "todo" },
+  { id: "pago_pendiente", label: "Pago pendiente", value: "pago_pendiente" },
+  { id: "pagado", label: "Pagado", value: "pagado" },
+  { id: "envio_pendiente", label: "Envío pendiente", value: "envio_pendiente" },
+  { id: "enviado", label: "Enviado", value: "enviado" },
+  { id: "pago_contra_entrega", label: "Pago contra entrega", value: "pago_contra_entrega" }
 ];
 
 export default function ChatsPanel() {
-  const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
+  // Estados del componente
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [newMessage, setNewMessage] = useState("");
-  const [activeTab, setActiveTab] = useState<"buy" | "sell">("buy");
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState<"comprar" | "vender">("comprar");
+  const [activeFilter, setActiveFilter] = useState<ChatAPI.FilterType>("todo");
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  
+  // Estado de presencia - usuarios online
+  const [onlineUserIds, setOnlineUserIds] = useState<Set<number>>(new Set());
+  const [error, setError] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  
+  // Estados de paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const currentUserId = 1;
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const prevMessagesLengthRef = useRef<number>(0);
+  const lastChatIdRef = useRef<number | null>(null);
 
-  // Cambiar chats al cambiar de tab
-  const currentChats = activeTab === "buy" ? BUY_CHATS : SELL_CHATS;
+  // ✅ Scroll inicial INSTANTÁNEO al abrir un chat + Auto-scroll con mensajes nuevos
+  useEffect(() => {
+    // Resetear cuando no hay chat seleccionado (ej: usuario presionó ESC)
+    if (!selectedChat) {
+      lastChatIdRef.current = null;
+      return;
+    }
 
-  // Resetear chat seleccionado al cambiar de tab
-  const handleTabChange = (tab: "buy" | "sell") => {
+    if (!selectedChat.messages) return;
+
+    const currentLength = selectedChat.messages.length;
+    const chatChanged = lastChatIdRef.current !== selectedChat.id;
+
+    // CASO 1: Chat nuevo seleccionado (scroll instantáneo al final)
+    if (chatChanged && currentLength > 0) {
+      // console.log('📜 Scroll inicial al chat:', selectedChat.id);
+      
+      // Scroll inmediato para evitar ver la parte superior
+      messagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+      
+      // Scroll de respaldo después del render para asegurar la posición
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+      });
+      
+      lastChatIdRef.current = selectedChat.id;
+      prevMessagesLengthRef.current = currentLength;
+    }
+    // CASO 2: Mensaje nuevo en el chat actual (scroll suave)
+    else if (!chatChanged && currentLength > prevMessagesLengthRef.current && prevMessagesLengthRef.current > 0) {
+      // console.log('📨 Nuevo mensaje detectado, haciendo auto-scroll');
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+      prevMessagesLengthRef.current = currentLength;
+    }
+    // CASO 3: Actualizar contador sin hacer scroll (cargar mensajes viejos)
+    else if (currentLength !== prevMessagesLengthRef.current) {
+      prevMessagesLengthRef.current = currentLength;
+    }
+  }, [selectedChat?.id, selectedChat?.messages?.length]); // Reacciona a cambio de chat O cantidad de mensajes
+
+  // Obtener ID del usuario actual
+  useEffect(() => {
+    const userDataString = localStorage.getItem('user');
+    if (userDataString) {
+      try {
+        const userData = JSON.parse(userDataString);
+        // console.log('👤 Current user ID:', userData.id);
+        setCurrentUserId(userData.id);
+      } catch (error) {
+        // console.error('❌ Error parsing user data:', error);
+      }
+    } else {
+      // console.warn('⚠️ No user data found in localStorage');
+    }
+  }, []);
+  
+  // Helper para generar iniciales
+  const getInitials = (name: string): string => {
+    if (!name) return '?';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  // Función para cargar conversaciones
+  const loadConversations = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const data = await ChatAPI.fetchConversations(activeTab, activeFilter === "todo" ? undefined : activeFilter);
+      
+      // Normalizar cada conversación para compatibilidad (sin aplicar estado online aquí)
+      const normalizedData = data.map(conv => {
+        const otherUser = conv.other_user ? {
+          id: conv.other_user.id,
+          name: (conv.other_user as any).full_name || conv.other_user.name,
+          // NO aplicar online aquí - se actualizará por presenceService
+          online: false,
+          avatar: (conv.other_user as any).avatar_url || conv.other_user.avatar,
+          initials: getInitials((conv.other_user as any).full_name || conv.other_user.name || '')
+        } : conv.user;
+        
+        return {
+          ...conv,
+          user: otherUser,
+          other_user: conv.other_user
+        };
+      });
+      
+      // console.log('📋 Loaded conversations (online status will be updated by presenceService):', normalizedData);
+      setConversations(normalizedData);
+      
+      // ✅ CRITICAL: Aplicar estado online inmediatamente después de cargar
+      const currentOnlineUserIds = presenceService.getOnlineUserIds();
+      // console.log('🔄 Applying current online status:', Array.from(currentOnlineUserIds));
+      
+      if (currentOnlineUserIds.size > 0) {
+        setConversations(prev => prev.map(conv => {
+          const userOnline = conv.user ? currentOnlineUserIds.has(conv.user.id) : false;
+          const otherUserOnline = conv.other_user ? currentOnlineUserIds.has(conv.other_user.id) : false;
+          
+          return {
+            ...conv,
+            user: conv.user ? {
+              ...conv.user,
+              online: userOnline,
+              is_online: userOnline
+            } : conv.user,
+            other_user: conv.other_user ? {
+              ...conv.other_user,
+              online: otherUserOnline,
+              is_online: otherUserOnline
+            } : conv.other_user
+          };
+        }));
+      }
+      
+      // Si había un chat seleccionado, actualizarlo sin crear dependencia circular
+      setSelectedChat(prev => {
+        if (!prev) return prev;
+        const updatedChat = normalizedData.find(c => c.id === prev.id);
+        if (!updatedChat) return prev;
+        
+        // Aplicar estado online al chat seleccionado también
+        const isOnline = currentOnlineUserIds.has(updatedChat.user?.id || 0);
+        return {
+          ...updatedChat,
+          user: updatedChat.user ? {
+            ...updatedChat.user,
+            online: isOnline,
+            is_online: isOnline
+          } : updatedChat.user
+        };
+      });
+    } catch (err) {
+      // console.error("Error loading conversations:", err);
+      setError("Error al cargar conversaciones");
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTab, activeFilter]); // ✅ REMOVIDO onlineUserIds - previene recargas desde backend que sobrescriben presencia
+
+  // Cargar conversaciones cuando cambie el tab o filtro
+  useEffect(() => {
+    loadConversations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, activeFilter]);
+
+  // � WebSocket para canal personal - actualizar lista en tiempo real
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const echo = getEcho();
+    if (!echo) {
+      // console.warn('⚠️ Echo not initialized for personal channel');
+      return;
+    }
+
+    // console.log(`📡 Subscribing to personal channel: user.${currentUserId}`);
+    const personalChannel = echo.private(`user.${currentUserId}`);
+
+    // Escuchar eventos globales en el canal personal
+    personalChannel.subscription.bind_global((eventName: string, data: any) => {
+      // console.log(`📬 Personal channel event: ${eventName}`, data);
+
+      // Actualizar lista cuando llega mensaje nuevo
+      if (eventName === 'MessageSent') {
+        // console.log('📬 New message notification for conversation:', data.conversation_id);
+        
+        setConversations(prev => prev.map(conv => {
+          if (conv.id === data.conversation_id) {
+            return {
+              ...conv,
+              last_message_preview: data.message_text,
+              last_message_at: data.created_at,
+              // Solo incrementar unread si el chat NO está abierto
+              unread_count: selectedChat?.id === data.conversation_id ? 0 : conv.unread_count + 1,
+              // ✅ CRITICAL: Preservar estado online del usuario
+              user: conv.user,
+              other_user: conv.other_user
+            };
+          }
+          return conv;
+        }));
+      }
+    });
+
+    // ✅ No hacer cleanup - el canal personal debe permanecer activo
+  }, [currentUserId, selectedChat?.id]);
+
+  // 🟢 Suscribirse al Presence Service (Redis HTTP polling)
+  useEffect(() => {
+    // console.log('🔵 ChatsPanel: Subscribing to Presence Service');
+    
+    // presenceService se auto-inicializa al importar si hay token
+    // No es necesario llamar .initialize() o .start() aquí
+
+    // Suscribirse a cambios de presencia
+    const unsubscribe = presenceService.subscribe((newOnlineUserIds) => {
+      // console.log('📡 Presence update received:', Array.from(newOnlineUserIds));
+      
+      // Actualizar estado local
+      setOnlineUserIds(newOnlineUserIds);
+      
+      // Actualizar conversaciones
+      setConversations(prev => {
+        if (prev.length === 0) return prev;
+        
+        return prev.map(conv => {
+          const userOnline = conv.user ? newOnlineUserIds.has(conv.user.id) : false;
+          const otherUserOnline = conv.other_user ? newOnlineUserIds.has(conv.other_user.id) : false;
+          
+          return {
+            ...conv,
+            user: conv.user ? {
+              ...conv.user,
+              online: userOnline,
+              is_online: userOnline
+            } : conv.user,
+            other_user: conv.other_user ? {
+              ...conv.other_user,
+              online: otherUserOnline,
+              is_online: otherUserOnline
+            } : conv.other_user
+          };
+        });
+      });
+
+      // Actualizar chat seleccionado
+      setSelectedChat(prev => {
+        if (!prev?.user) return prev;
+        const isOnline = newOnlineUserIds.has(prev.user.id);
+        return {
+          ...prev,
+          user: {
+            ...prev.user,
+            online: isOnline,
+            is_online: isOnline
+          }
+        };
+      });
+    });
+
+    // Cleanup: desuscribirse (pero NO detener el service)
+    return () => {
+      // console.log('🔵 ChatsPanel: Unsubscribing from Presence Service');
+      unsubscribe();
+    };
+  }, []);
+
+  // Configurar WebSocket cuando se selecciona un chat
+  useEffect(() => {
+    if (!selectedChat) return;
+
+    const echo = getEcho();
+    if (!echo) {
+      // console.warn("⚠️ Echo not initialized - WebSocket disabled");
+      return;
+    }
+
+    // Suscribirse al canal de la conversación
+    // console.log(`🔌 Subscribing to channel: conversation.${selectedChat.id}`);
+    const channel = echo.private(`conversation.${selectedChat.id}`);
+    
+    // Debug: Listener para todos los eventos
+    channel.subscription.bind_global((eventName: string, data: any) => {
+      // console.log(`🌐 WebSocket Event: ${eventName}`, data);
+      
+      // Si es MessageSent, procesarlo manualmente
+      if (eventName === 'MessageSent') {
+        // console.log('📨 Processing MessageSent from bind_global');
+        const message = data;
+        
+        // console.log('📨 Message data:', message);
+        // console.log('📨 Message sender_id:', message.sender_id);
+        // console.log('📨 Current user_id:', currentUserId);
+        
+        // Actualizar mensajes del chat seleccionado
+        setSelectedChat(prev => {
+          if (!prev || prev.id !== message.conversation_id) {
+            // console.log('⚠️ Not updating: conversation mismatch or no selected chat');
+            return prev;
+          }
+          
+          // Evitar duplicados si el mensaje ya existe
+          const messageExists = prev.messages?.some(m => m.id === message.id);
+          if (messageExists) {
+            // console.log('⚠️ Message already exists, skipping duplicate');
+            return prev;
+          }
+          
+          // console.log('✅ Adding message to chat');
+          return {
+            ...prev,
+            messages: [...(prev.messages || []), message]
+          };
+        });
+
+        // Si el mensaje NO es del usuario actual, marcarlo como leído automáticamente
+        if (message.sender_id !== currentUserId) {
+          // console.log('📖 Auto-marking message as read (chat is open)');
+          ChatAPI.markMessageAsRead(message.id).catch(err => 
+            {} // console.error('❌ Error auto-marking message as read:', err)
+          );
+        }
+
+        // Actualizar preview en la lista
+        setConversations(prev => prev.map(conv => 
+          conv.id === message.conversation_id
+            ? {
+                ...conv,
+                last_message_preview: message.message_text,
+                last_message_at: message.created_at,
+                // NO incrementar unread_count si el chat está abierto
+                unread_count: conv.id === selectedChat.id ? 0 : conv.unread_count + 1,
+                // ✅ Preservar estado online del usuario
+                user: conv.user,
+                other_user: conv.other_user
+              }
+            : conv
+        ));
+      }
+      
+      // Si es MessageRead, procesarlo también globalmente
+      if (eventName === 'MessageRead') {
+        // console.log('📖 Processing MessageRead from bind_global');
+        const { message_id, read_at } = data;
+        
+        // Convertir a número para asegurar comparación correcta
+        const messageIdNum = typeof message_id === 'string' ? parseInt(message_id, 10) : message_id;
+        
+        // console.log('📖 Message ID:', messageIdNum, '(type:', typeof messageIdNum, ')');
+        // console.log('📖 Read at:', read_at);
+        // console.log('📖 Current chat ID:', selectedChat?.id);
+        
+        // Actualizar read_at en los mensajes del chat seleccionado
+        setSelectedChat(prev => {
+          if (!prev) {
+            // console.log('⚠️ No chat selected');
+            return prev;
+          }
+          
+          const messageIndex = prev.messages?.findIndex(m => m.id === messageIdNum);
+          if (messageIndex === -1 || messageIndex === undefined) {
+            // console.log('⚠️ Message not in current chat, message_id:', messageIdNum);
+            // console.log('⚠️ Available message IDs:', prev.messages?.map(m => m.id));
+            return prev;
+          }
+          
+          // console.log('✅ Updating message read status at index:', messageIndex);
+          
+          // Crear nuevo array de mensajes con el mensaje actualizado
+          const updatedMessages = [...(prev.messages || [])];
+          updatedMessages[messageIndex] = {
+            ...updatedMessages[messageIndex],
+            read_at
+          };
+          
+          return {
+            ...prev,
+            messages: updatedMessages
+          };
+        });
+        
+        // Reducir unread_count en la lista de conversaciones
+        setConversations(prev => prev.map(conv => {
+          // Como estamos en el canal conversation.X, sabemos que es de esta conversación
+          if (conv.id === selectedChat.id) {
+            return {
+              ...conv,
+              unread_count: Math.max(0, conv.unread_count - 1)
+            };
+          }
+          return conv;
+        }));
+      }
+    });
+    
+    // Verificar si el canal se suscribió correctamente
+    channel.subscribed(() => {
+      // console.log('✅ Successfully subscribed to channel');
+    });
+    
+    channel.error((error: any) => {
+      // console.error('❌ Channel subscription error:', error);
+    });
+
+    // Marcar mensajes como leídos al abrir el chat
+    let isSubscribed = true;
+    ChatAPI.markAllMessagesAsRead(selectedChat.id)
+      .then(() => {
+        if (isSubscribed) {
+          // console.log(`✅ Messages marked as read for conversation ${selectedChat.id}`);
+          
+          // Actualizar unread_count a 0 en la lista de conversaciones
+          setConversations(prev => prev.map(conv =>
+            conv.id === selectedChat.id ? { ...conv, unread_count: 0 } : conv
+          ));
+        }
+      })
+      .catch(err => {
+        if (isSubscribed) {
+          // console.error('Error marking messages as read:', err);
+        }
+      });
+
+    // Limpiar suscripción al desmontar o cambiar de chat
+    return () => {
+      isSubscribed = false;
+      echo.leave(`conversation.${selectedChat.id}`);
+      // console.log(`🔌 Left conversation channel: ${selectedChat.id}`);
+    };
+  }, [selectedChat?.id]);
+
+  // ✅ No desconectar Echo - debe permanecer activo mientras el usuario esté en la app
+  // En producción no hay React Strict Mode, y en desarrollo necesitamos mantener la conexión
+  // useEffect(() => {
+  //   return () => {
+  //     disconnectEcho();
+  //   };
+  // }, []);
+
+  // Cargar mensajes de una conversación (página 1)
+  const loadMessages = async (conversationId: number) => {
+    try {
+      const { data: messages, conversation, last_page } = await ChatAPI.fetchMessages(conversationId, 1);
+      
+      setCurrentPage(1);
+      setLastPage(last_page);
+      
+      setSelectedChat(prev => {
+        if (!prev || prev.id !== conversationId) return prev;
+        
+        // ✅ CRITICAL: Preservar estado online al actualizar desde backend
+        const currentOnlineUserIds = presenceService.getOnlineUserIds();
+        // console.log(`🔄 loadMessages: Preserving online status for conversation ${conversationId}`, Array.from(currentOnlineUserIds));
+        
+        // Actualizar con la info del conversation que viene del backend
+        const updated = {
+          ...prev,
+          ...(conversation && { 
+            user: conversation.user ? {
+              ...conversation.user,
+              // ✅ Preservar estado online
+              online: currentOnlineUserIds.has(conversation.user.id),
+              is_online: currentOnlineUserIds.has(conversation.user.id)
+            } : prev.user,
+            other_user: conversation.other_user ? {
+              ...conversation.other_user,
+              // ✅ Preservar estado online
+              online: currentOnlineUserIds.has(conversation.other_user.id),
+              is_online: currentOnlineUserIds.has(conversation.other_user.id)
+            } : prev.other_user
+          }),
+          messages: Array.isArray(messages) ? messages : []
+        };
+        
+        // console.log(`✅ loadMessages: Updated chat - User ${updated.user?.id} online: ${updated.user?.online}`);
+        return updated;
+      });
+    } catch (err) {
+      // console.error("Error loading messages:", err);
+    }
+  };
+
+  // Cargar más mensajes (páginas anteriores)
+  const loadMoreMessages = async () => {
+    if (!selectedChat || loadingMoreMessages || currentPage >= lastPage) return;
+    
+    setLoadingMoreMessages(true);
+    const nextPage = currentPage + 1;
+    
+    try {
+      // Guardar scroll position antes de cargar
+      const container = messagesContainerRef.current;
+      const previousScrollHeight = container?.scrollHeight || 0;
+      
+      const { data: olderMessages } = await ChatAPI.fetchMessages(selectedChat.id, nextPage);
+      
+      setCurrentPage(nextPage);
+      
+      setSelectedChat(prev => {
+        if (!prev) return prev;
+        
+        // Agregar mensajes antiguos al inicio
+        const existingMessages = prev.messages || [];
+        const newMessages = [...olderMessages, ...existingMessages];
+        
+        return {
+          ...prev,
+          messages: newMessages
+        };
+      });
+      
+      // Restaurar posición de scroll después de agregar mensajes
+      setTimeout(() => {
+        if (container) {
+          const newScrollHeight = container.scrollHeight;
+          container.scrollTop = newScrollHeight - previousScrollHeight;
+        }
+      }, 50);
+      
+    } catch (err) {
+      // console.error("Error loading more messages:", err);
+    } finally {
+      setLoadingMoreMessages(false);
+    }
+  };
+
+  // Manejar selección de chat
+  const handleChatSelect = async (chat: Conversation) => {
+    // Normalizar el user para compatibilidad con other_user del backend
+    const normalizedChat: Conversation = {
+      ...chat,
+      user: chat.other_user ? {
+        id: chat.other_user.id,
+        name: (chat.other_user as any).full_name || chat.other_user.name,
+        // ✅ Aplicar estado online desde WebSocket, no desde backend
+        online: onlineUserIds.has(chat.other_user.id),
+        avatar: (chat.other_user as any).avatar_url || chat.other_user.avatar,
+        initials: getInitials((chat.other_user as any).full_name || chat.other_user.name || '')
+      } : chat.user || {
+        id: 0,
+        name: 'Usuario',
+        online: false,
+        initials: '?'
+      },
+      messages: Array.isArray(chat.messages) ? chat.messages : []
+    };
+    
+    // console.log(`💬 Chat selected - User ${normalizedChat.user.id} online: ${normalizedChat.user.online}`);
+    setSelectedChat(normalizedChat);
+    
+    // Cargar mensajes si no están cargados
+    if (!chat.messages || chat.messages.length === 0) {
+      await loadMessages(chat.id);
+    }
+  };
+
+  // Cambiar de tab
+  const handleTabChange = (tab: "comprar" | "vender") => {
     setActiveTab(tab);
     setSelectedChat(null);
   };
 
-  const handleSendMessage = () => {
+  // Enviar mensaje
+  const handleSendMessage = async () => {
     if ((!newMessage.trim() && !selectedFile) || !selectedChat) return;
     
-    if (selectedFile) {
-      console.log('Enviando PDF:', selectedFile.name);
-      console.log('Con mensaje:', newMessage);
-      // Aquí puedes agregar la lógica para enviar el archivo junto con el mensaje
-      // Por ejemplo: uploadFileWithMessage(selectedFile, newMessage)
-    } else {
-      console.log('Enviando mensaje:', newMessage);
+    try {
+      let attachmentUrl: string | undefined;
+      let attachmentType: string | undefined;
+
+       // Subir archivo si existe
+      if (selectedFile) {
+        // console.log('📤 Uploading file:', selectedFile.name);
+        const uploadResult = await ChatAPI.uploadAttachment(selectedFile);
+        attachmentUrl = uploadResult.url;
+        attachmentType = uploadResult.type;
+      }
+
+      // Enviar mensaje
+      // console.log('📤 Sending message...');
+      const sentMessage = await ChatAPI.sendMessage(
+        selectedChat.id,
+        newMessage.trim(),
+        attachmentUrl,
+        attachmentType
+      );
+      // console.log('✅ Message sent:', sentMessage);
+      // console.log('👤 Current user ID at send:', currentUserId);
+      // console.log('👤 Sender ID from response:', sentMessage.sender_id);
+
+      // El mensaje se agregará automáticamente cuando llegue por WebSocket
+      // No es necesario agregarlo aquí para evitar duplicados
+
+      // Actualizar preview en la lista
+      setConversations(prev => prev.map(conv =>
+        conv.id === selectedChat.id
+          ? {
+              ...conv,
+              last_message_preview: sentMessage.message_text,
+              last_message_at: sentMessage.created_at
+            }
+          : conv
+      ));
+
+      // Limpiar input
+      setNewMessage("");
+      setSelectedFile(null);
+    } catch (err) {
+      // console.error('❌ Error sending message:', err);
+      alert('Error al enviar mensaje');
     }
-    
-    setNewMessage("");
-    setSelectedFile(null);
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type === 'application/pdf') {
       setSelectedFile(file);
-      console.log('PDF seleccionado:', file.name);
+      // console.log('📎 PDF selected:', file.name);
       // Limpiar el input para permitir seleccionar el mismo archivo otra vez
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -313,9 +701,9 @@ export default function ChatsPanel() {
               {/* Tabs */}
               <div className="flex items-center gap-4 mb-3">
                 <button
-                  onClick={() => handleTabChange("buy")}
+                  onClick={() => handleTabChange("comprar")}
                   className={`flex-1 font-['Poppins',sans-serif] text-[14px] py-2 px-3 rounded-[8px] transition-colors ${
-                    activeTab === "buy"
+                    activeTab === "comprar"
                       ? "bg-[#0047FF] text-white"
                       : "bg-[#F5F5F7] text-[#546A88]"
                   }`}
@@ -323,9 +711,9 @@ export default function ChatsPanel() {
                   Comprar
                 </button>
                 <button
-                  onClick={() => handleTabChange("sell")}
+                  onClick={() => handleTabChange("vender")}
                   className={`flex-1 font-['Poppins',sans-serif] text-[14px] py-2 px-3 rounded-[8px] transition-colors ${
-                    activeTab === "sell"
+                    activeTab === "vender"
                       ? "bg-[#0047FF] text-white"
                       : "bg-[#F5F5F7] text-[#546A88]"
                   }`}
@@ -354,9 +742,9 @@ export default function ChatsPanel() {
                   {FILTER_TAGS.map((tag) => (
                     <button
                       key={tag.id}
-                      onClick={() => setActiveFilter(tag.id)}
+                      onClick={() => setActiveFilter(tag.value as ChatAPI.FilterType)}
                       className={`flex-shrink-0 px-3 py-1.5 rounded-[6px] border transition-colors ${
-                        activeFilter === tag.id
+                        activeFilter === tag.value
                           ? "bg-[#E8F0FE] border-[#0047FF] text-[#0047FF]"
                           : "bg-white border-[rgba(144,161,185,0.3)] text-[#546A88]"
                       }`}
@@ -384,58 +772,85 @@ export default function ChatsPanel() {
             {/* Chat List */}
             <ScrollArea className="flex-1">
               <div className="space-y-0">
-                {currentChats.map((chat) => (
-                  <button
-                    key={chat.id}
-                    onClick={() => setSelectedChat(chat)}
-                    className={`w-full p-4 flex items-start gap-3 transition-colors ${
-                      selectedChat?.id === chat.id
-                        ? "bg-[#E8F0FE]"
-                        : "hover:bg-[#F5F5F7]"
-                    }`}
-                  >
-                    {/* Avatar */}
-                    <div className="relative flex-shrink-0">
-                      <div className="w-[48px] h-[48px] bg-[#0047FF] rounded-full flex items-center justify-center">
-                        <span className="font-['Poppins',sans-serif] text-[16px] text-white font-medium">
-                          {chat.user.initials}
-                        </span>
-                      </div>
-                      {chat.user.online && (
-                        <div className="absolute bottom-0 right-0 w-[12px] h-[12px] bg-[#34C759] rounded-full border-2 border-white" />
-                      )}
-                      {chat.unread_count > 0 && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                          <span className="font-['Poppins',sans-serif] text-xs text-white font-medium">
-                            {chat.unread_count}
-                          </span>
+                {loading ? (
+                  <div className="flex items-center justify-center p-8">
+                    <p className="font-['Poppins',sans-serif] text-[14px] text-[#8E8E93]">
+                      Cargando conversaciones...
+                    </p>
+                  </div>
+                ) : error ? (
+                  <div className="flex items-center justify-center p-8">
+                    <p className="font-['Poppins',sans-serif] text-[14px] text-red-500">
+                      {error}
+                    </p>
+                  </div>
+                ) : conversations.length === 0 ? (
+                  <div className="flex items-center justify-center p-8">
+                    <p className="font-['Poppins',sans-serif] text-[14px] text-[#8E8E93]">
+                      No hay conversaciones
+                    </p>
+                  </div>
+                ) : (
+                  conversations
+                    .filter(chat => 
+                      searchQuery === "" ||
+                      chat.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      chat.listing.title.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map((chat) => (
+                      <button
+                        key={chat.id}
+                        onClick={() => handleChatSelect(chat)}
+                        className={`w-full p-4 flex items-start gap-3 transition-colors ${
+                          selectedChat?.id === chat.id
+                            ? "bg-[#E8F0FE]"
+                            : "hover:bg-[#F5F5F7]"
+                        }`}
+                      >
+                        {/* Avatar */}
+                        <div className="relative flex-shrink-0">
+                          <Avatar className="w-[48px] h-[48px]">
+                            <AvatarImage src={chat.user?.avatar || ''} alt={chat.user?.name || 'Usuario'} />
+                            <AvatarFallback className="bg-[#0047FF] text-white font-['Poppins',sans-serif] text-[16px] font-medium">
+                              {chat.user?.initials || '?'}
+                            </AvatarFallback>
+                          </Avatar>
+                          {chat.user?.online && (
+                            <div className="absolute bottom-0 right-0 w-[12px] h-[12px] bg-[#34C759] rounded-full border-2 border-white" />
+                          )}
+                          {chat.unread_count > 0 && (
+                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                              <span className="font-['Poppins',sans-serif] text-xs text-white font-medium">
+                                {chat.unread_count}
+                              </span>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
 
-                    {/* Content */}
-                    <div className="flex-1 text-left min-w-0">
-                      <div className="flex items-start justify-between mb-1">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-['Poppins',sans-serif] text-[15px] text-black font-medium truncate">
-                            {chat.user.name}
-                          </p>
-                          <p className="font-['Poppins',sans-serif] text-[12px] text-[#8E8E93] truncate">
-                            {chat.listing.title}
+                        {/* Content */}
+                        <div className="flex-1 text-left min-w-0">
+                          <div className="flex items-start justify-between mb-1">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-['Poppins',sans-serif] text-[15px] text-black font-medium truncate">
+                                {chat.user?.name || 'Usuario'}
+                              </p>
+                              <p className="font-['Poppins',sans-serif] text-[12px] text-[#8E8E93] truncate">
+                                {chat.listing.title}
+                              </p>
+                            </div>
+                            {chat.last_message_at && (
+                              <span className="font-['Poppins',sans-serif] text-[11px] text-[#8E8E93] whitespace-nowrap ml-2 flex-shrink-0">
+                                {new Date(chat.last_message_at).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            )}
+                          </div>
+                          <p className="font-['Poppins',sans-serif] text-[13px] text-[#546A88] truncate">
+                            {chat.last_message_preview}
                           </p>
                         </div>
-                        {chat.last_message_time && (
-                          <span className="font-['Poppins',sans-serif] text-[11px] text-[#8E8E93] whitespace-nowrap ml-2 flex-shrink-0">
-                            {chat.last_message_time}
-                          </span>
-                        )}
-                      </div>
-                      <p className="font-['Poppins',sans-serif] text-[13px] text-[#546A88] truncate">
-                        {chat.last_message}
-                      </p>
-                    </div>
-                  </button>
-                ))}
+                      </button>
+                    ))
+                )}
               </div>
             </ScrollArea>
           </div>
@@ -458,12 +873,13 @@ export default function ChatsPanel() {
 
                   {/* Avatar */}
                   <div className="relative flex-shrink-0">
-                    <div className="w-[40px] h-[40px] md:w-[48px] md:h-[48px] bg-[#0047FF] rounded-full flex items-center justify-center">
-                      <span className="font-['Poppins',sans-serif] text-[14px] md:text-[16px] text-white font-medium">
-                        {selectedChat.user.initials}
-                      </span>
-                    </div>
-                    {selectedChat.user.online && (
+                    <Avatar className="w-[40px] h-[40px] md:w-[48px] md:h-[48px]">
+                      <AvatarImage src={selectedChat.user?.avatar || ''} alt={selectedChat.user?.name || 'Usuario'} />
+                      <AvatarFallback className="bg-[#0047FF] text-white font-['Poppins',sans-serif] text-[14px] md:text-[16px] font-medium">
+                        {selectedChat.user?.initials || '?'}
+                      </AvatarFallback>
+                    </Avatar>
+                    {selectedChat.user?.online && (
                       <div className="absolute top-0 right-0 w-[10px] h-[10px] md:w-[12px] md:h-[12px] bg-[#34C759] rounded-full border-2 border-white" />
                     )}
                   </div>
@@ -471,10 +887,10 @@ export default function ChatsPanel() {
                   {/* User Info */}
                   <div className="flex-1 min-w-0">
                     <p className="font-['Poppins',sans-serif] text-[14px] md:text-[16px] lg:text-[17px] text-black font-medium truncate">
-                      {selectedChat.user.name}
+                      {selectedChat.user?.name || 'Usuario'}
                     </p>
                     <p className="font-['Poppins',sans-serif] text-[11px] md:text-[12px] lg:text-[13px] text-[#34C759]">
-                      {selectedChat.user.online ? "En línea" : "Desconectado"}
+                      {selectedChat.user?.online ? "En línea" : "Desconectado"}
                     </p>
                   </div>
                 </div>
@@ -499,11 +915,24 @@ export default function ChatsPanel() {
 
               {/* Messages */}
               <div className="flex-1 overflow-hidden relative">
-                <ScrollArea className="h-full px-3 md:px-4 lg:px-5 pb-3 md:pb-4">
-                {selectedChat.messages.length > 0 ? (
-                  <div className="space-y-2 md:space-y-3">
+                <ScrollArea className="h-full px-3 md:px-4 lg:px-5 pb-3 md:pb-4" ref={messagesContainerRef}>
+                {selectedChat.messages && selectedChat.messages.length > 0 ? (
+                  <div className="space-y-2 md:space-y-3 pt-4">
+                    {/* Botón Cargar más mensajes */}
+                    {currentPage < lastPage && (
+                      <div className="flex justify-center py-2">
+                        <button
+                          onClick={loadMoreMessages}
+                          disabled={loadingMoreMessages}
+                          className="px-4 py-2 text-sm font-['Poppins',sans-serif] text-[#0047FF] bg-white border border-[#E5E5EA] rounded-full hover:bg-[#F5F5F7] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {loadingMoreMessages ? 'Cargando...' : 'Cargar más mensajes'}
+                        </button>
+                      </div>
+                    )}
+                    
                     {selectedChat.messages.map((message) => {
-                      const isOwnMessage = message.sender_id === currentUserId;
+                      const isOwnMessage = currentUserId !== null && message.sender_id === currentUserId;
                       return (
                         <div key={message.id} className="space-y-1">
                           <div
@@ -523,8 +952,23 @@ export default function ChatsPanel() {
                                   isOwnMessage ? "text-white" : "text-black"
                                 }`}
                               >
-                                {message.content}
+                                {message.message_text}
                               </p>
+                              {message.attachment_url && (
+                                <div className="mt-2">
+                                  <a 
+                                    href={message.attachment_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`flex items-center gap-2 p-2 rounded-lg ${
+                                      isOwnMessage ? 'bg-white/10' : 'bg-black/5'
+                                    }`}
+                                  >
+                                    <FileText className="w-4 h-4" />
+                                    <span className="text-xs">Archivo adjunto</span>
+                                  </a>
+                                </div>
+                              )}
                             </div>
                           </div>
                           <div
@@ -533,19 +977,22 @@ export default function ChatsPanel() {
                             }`}
                           >
                             <p className="font-['Poppins',sans-serif] text-[10px] md:text-[11px] text-[#8E8E93]">
-                              {message.timestamp}
+                              {new Date(message.created_at).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}
                             </p>
                             {isOwnMessage && (
                               <div className="flex items-center">
-                                {message.is_read ? (
-                                  // Doble check para leído
+                                {message.read_at ? (
+                                  // Doble check azul para leído (como WhatsApp)
                                   <div className="flex -space-x-1">
-                                    <Check className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#34C759]" strokeWidth={2.5} />
-                                    <Check className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#34C759]" strokeWidth={2.5} />
+                                    <Check className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#0047FF]" strokeWidth={2.5} />
+                                    <Check className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#0047FF]" strokeWidth={2.5} />
                                   </div>
                                 ) : (
-                                  // Un solo check para enviado
-                                  <Check className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#8E8E93]" strokeWidth={2.5} />
+                                  // Check gris para enviado pero no leído
+                                  <div className="flex -space-x-1">
+                                    <Check className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#8E8E93]" strokeWidth={2.5} />
+                                    <Check className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#8E8E93]" strokeWidth={2.5} />
+                                  </div>
                                 )}
                               </div>
                             )}
@@ -553,6 +1000,8 @@ export default function ChatsPanel() {
                         </div>
                       );
                     })}
+                    {/* Elemento invisible para hacer scroll al final */}
+                    <div ref={messagesEndRef} />
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-full">

@@ -188,69 +188,69 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-900 border-slate-700 text-white sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-white border-gray-200 text-gray-900 w-[95vw] max-w-[600px] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Nueva Publicación</DialogTitle>
-          <DialogDescription className="text-slate-400">
+          <DialogTitle className="text-lg sm:text-xl">Nueva Publicación</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm text-gray-600">
             Elige si quieres vender o comprar un artículo.
           </DialogDescription>
         </DialogHeader>
 
         {/* TABS */}
-        <div className="flex gap-2 border-b border-slate-800 mb-6">
+        <div className="flex gap-1 sm:gap-2 border-b border-gray-200 mb-4 sm:mb-6">
           <button
             type="button"
             onClick={() => setActiveTab('sell')}
-            className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
+            className={`flex items-center gap-1.5 px-2 sm:px-3 py-2 border-b-2 transition-colors text-xs sm:text-sm ${
               activeTab === 'sell'
-                ? 'border-purple-500 text-white'
-                : 'border-transparent text-slate-400 hover:text-slate-300'
+                ? 'border-[#0047FF] text-gray-900 font-medium'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
           >
-            <Tag className="w-4 h-4" />
+            <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Quiero Vender
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('buy')}
-            className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
+            className={`flex items-center gap-1.5 px-2 sm:px-3 py-2 border-b-2 transition-colors text-xs sm:text-sm ${
               activeTab === 'buy'
-                ? 'border-purple-500 text-white'
-                : 'border-transparent text-slate-400 hover:text-slate-300'
+                ? 'border-[#0047FF] text-gray-900 font-medium'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
           >
-            <ShoppingBag className="w-4 h-4" />
+            <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Busco Comprar
           </button>
         </div>
 
         {/* FORMULARIO DE VENTA */}
         {activeTab === 'sell' && (
-          <form onSubmit={handleSellSubmit} className="space-y-5">
+          <form onSubmit={handleSellSubmit} className="space-y-3 sm:space-y-4">
             {/* Título */}
-            <div className="space-y-2">
-              <Label htmlFor="sell-title" className="text-slate-300">Título *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="sell-title" className="text-xs sm:text-sm text-gray-700">Título *</Label>
               <Input
                 id="sell-title"
                 placeholder="Ej: Rolex Submariner Oro Blanco 2023"
                 value={sellFormData.title}
                 onChange={(e) => setSellFormData({ ...sellFormData, title: e.target.value })}
-                className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400"
+                className="bg-gray-50 border-gray-300 text-sm text-gray-900 placeholder:text-gray-400 h-9"
                 required
               />
             </div>
 
             {/* Categoría */}
-            <div className="space-y-2">
-              <Label htmlFor="sell-category" className="text-slate-300">Categoría *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="sell-category" className="text-xs sm:text-sm text-gray-700">Categoría *</Label>
               <Select 
                 value={sellFormData.category_id} 
                 onValueChange={(value) => setSellFormData({ ...sellFormData, category_id: value })}
               >
-                <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                <SelectTrigger className="bg-gray-50 border-gray-300 text-sm text-gray-900 h-9 px-3">
                   <SelectValue placeholder="Selecciona una categoría..." />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                <SelectContent className="bg-white border-gray-200 text-sm text-gray-900">
                   {categories.map(cat => (
                     <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
                   ))}
@@ -259,10 +259,10 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
             </div>
 
             {/* Precio */}
-            <div className="space-y-2">
-              <Label htmlFor="sell-price" className="text-slate-300">Precio sugerido *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="sell-price" className="text-xs sm:text-sm text-gray-700">Precio sugerido *</Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">S/</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-600">S/</span>
                 <Input
                   id="sell-price"
                   type="number"
@@ -270,88 +270,110 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
                   placeholder="50000.00"
                   value={sellFormData.price_suggested}
                   onChange={(e) => setSellFormData({ ...sellFormData, price_suggested: e.target.value })}
-                  className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400 pl-10"
+                  className="bg-gray-50 border-gray-300 text-sm text-gray-900 placeholder:text-gray-400 pl-10 h-9"
                   required
                 />
               </div>
-              <p className="text-xs text-slate-400">Este precio es negociable</p>
+              <p className="text-[10px] sm:text-xs text-gray-500">Este precio es negociable</p>
             </div>
 
             {/* Ubicación */}
-            <div className="space-y-2">
-              <Label htmlFor="sell-location" className="text-slate-300">Ubicación</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="sell-location" className="text-xs sm:text-sm text-gray-700">Ubicación</Label>
               <Input
                 id="sell-location"
                 placeholder="Ej: Lima, Perú"
                 value={sellFormData.location_text}
                 onChange={(e) => setSellFormData({ ...sellFormData, location_text: e.target.value })}
-                className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400"
+                className="bg-gray-50 border-gray-300 text-sm text-gray-900 placeholder:text-gray-400 h-9"
               />
             </div>
 
             {/* Descripción */}
-            <div className="space-y-2">
-              <Label htmlFor="sell-description" className="text-slate-300">Descripción *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="sell-description" className="text-xs sm:text-sm text-gray-700">Descripción *</Label>
               <Textarea
                 id="sell-description"
                 placeholder="Describe tu artículo, características, estado, historial, etc."
                 value={sellFormData.description}
                 onChange={(e) => setSellFormData({ ...sellFormData, description: e.target.value })}
-                className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400 min-h-[120px]"
+                className="bg-gray-50 border-gray-300 text-sm text-gray-900 placeholder:text-gray-400 min-h-[90px] resize-none"
                 required
               />
             </div>
 
+            {/* Información de venta */}
+            <div className="border border-gray-300 rounded-lg p-2.5 sm:p-3">
+              <ul className="text-[10px] sm:text-xs text-gray-700 space-y-0.5">
+                <li>✓ No cobramos comisión por tu venta.</li>
+                <li>✓ Negociar siempre es gratis.</li>
+                <li>✓ El pago y la entrega se coordinan entre las partes.</li>
+              </ul>
+            </div>
+
             {/* Buttons */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+            <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
-                className="border-slate-700 text-slate-300 hover:bg-slate-800"
+                onClick={() => {
+                  alert("Borrador guardado. Puedes continuar editando más tarde");
+                  onOpenChange(false);
+                }}
+                className="border-gray-300 text-gray-700 hover:bg-gray-100 h-9 text-xs sm:text-sm order-2 sm:order-1"
               >
-                Cancelar
+                Guardar Borrador
               </Button>
-              <Button
-                type="submit"
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-              >
-                Publicar Venta
-              </Button>
+              <div className="flex gap-2 sm:gap-3 order-1 sm:order-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  className="border-gray-300 text-gray-700 hover:bg-gray-100 h-9 text-xs sm:text-sm flex-1 sm:flex-none"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-[#0047FF] hover:bg-[#0039CC] text-white h-9 text-xs sm:text-sm flex-1 sm:flex-none"
+                >
+                  Publicar Venta
+                </Button>
+              </div>
             </div>
           </form>
         )}
 
         {/* FORMULARIO DE COMPRA */}
         {activeTab === 'buy' && (
-          <form onSubmit={handleBuySubmit} className="space-y-5">
+          <form onSubmit={handleBuySubmit} className="space-y-3 sm:space-y-4">
             {/* TÍTULO */}
-            <div className="space-y-2">
-              <Label htmlFor="buy-title" className="text-slate-300">Título de la publicación *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="buy-title" className="text-xs sm:text-sm text-gray-700">Título de la publicación *</Label>
               <Input
                 id="buy-title"
                 placeholder="Ej: Busco Rolex Submariner"
                 value={buyFormData.title}
                 onChange={(e) => setBuyFormData({ ...buyFormData, title: e.target.value })}
-                className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400"
+                className="bg-gray-50 border-gray-300 text-sm text-gray-900 placeholder:text-gray-400 h-9"
                 required
               />
-              <p className="text-xs text-slate-400">Máximo 200 caracteres</p>
+              <p className="text-[10px] sm:text-xs text-gray-500">Máximo 200 caracteres</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {/* CATEGORÍA */}
-              <div className="space-y-2">
-                <Label htmlFor="buy-category" className="text-slate-300">Categoría *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="buy-category" className="text-xs sm:text-sm text-gray-700">Categoría *</Label>
                 <Select 
                   value={buyFormData.category_id} 
                   onValueChange={(value) => setBuyFormData({ ...buyFormData, category_id: value })}
                   required
                 >
-                  <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                  <SelectTrigger className="bg-gray-50 border-gray-300 text-sm text-gray-900 h-9 px-3">
                     <SelectValue placeholder="Seleccionar..." />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                  <SelectContent className="bg-white border-gray-200 text-sm text-gray-900">
                     {categories.map(cat => (
                       <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
                     ))}
@@ -360,16 +382,16 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
               </div>
 
               {/* MONEDA */}
-              <div className="space-y-2">
-                <Label htmlFor="buy-currency" className="text-slate-300">Moneda</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="buy-currency" className="text-xs sm:text-sm text-gray-700">Moneda</Label>
                 <Select 
                   value={buyFormData.currency} 
                   onValueChange={(value) => setBuyFormData({ ...buyFormData, currency: value })}
                 >
-                  <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                  <SelectTrigger className="bg-gray-50 border-gray-300 text-sm text-gray-900 h-9 px-3">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                  <SelectContent className="bg-white border-gray-200 text-sm text-gray-900">
                     <SelectItem value="PEN">PEN (S/)</SelectItem>
                     <SelectItem value="USD">USD ($)</SelectItem>
                     <SelectItem value="EUR">EUR (€)</SelectItem>
@@ -379,8 +401,8 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
             </div>
 
             {/* PRECIO */}
-            <div className="space-y-2">
-              <Label htmlFor="buy-price" className="text-slate-300">Precio sugerido *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="buy-price" className="text-xs sm:text-sm text-gray-700">Precio sugerido *</Label>
               <Input
                 id="buy-price"
                 type="number"
@@ -388,111 +410,154 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
                 placeholder="50000.00"
                 value={buyFormData.price_suggested}
                 onChange={(e) => setBuyFormData({ ...buyFormData, price_suggested: e.target.value })}
-                className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400"
+                className="bg-gray-50 border-gray-300 text-sm text-gray-900 placeholder:text-gray-400 h-9"
                 required
               />
-              <p className="text-xs text-slate-400">Este precio es negociable</p>
+              <p className="text-[10px] sm:text-xs text-gray-500">Este precio es negociable</p>
             </div>
 
             {/* UBICACIÓN */}
-            <div className="space-y-2">
-              <Label htmlFor="buy-location" className="text-slate-300">Ubicación</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="buy-location" className="text-xs sm:text-sm text-gray-700">Ubicación</Label>
               <Input
                 id="buy-location"
                 placeholder="Ej: Lima, Perú"
                 value={buyFormData.location_text}
                 onChange={(e) => setBuyFormData({ ...buyFormData, location_text: e.target.value })}
-                className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400"
+                className="bg-gray-50 border-gray-300 text-sm text-gray-900 placeholder:text-gray-400 h-9"
               />
-              <p className="text-xs text-slate-400">Máximo 200 caracteres</p>
+              <p className="text-[10px] sm:text-xs text-gray-500">Máximo 200 caracteres</p>
             </div>
 
             {/* DESCRIPCIÓN */}
-            <div className="space-y-2">
-              <Label htmlFor="buy-description" className="text-slate-300">Descripción *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="buy-description" className="text-xs sm:text-sm text-gray-700">Descripción *</Label>
               <Textarea
                 id="buy-description"
                 placeholder="Describe tu artículo, características, historial, etc."
                 value={buyFormData.description}
                 onChange={(e) => setBuyFormData({ ...buyFormData, description: e.target.value })}
-                className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400 min-h-[120px]"
+                className="bg-gray-50 border-gray-300 text-sm text-gray-900 placeholder:text-gray-400 min-h-[90px] resize-none"
                 required
               />
             </div>
 
             {/* CONDICIONES */}
-            <div className="space-y-2">
-              <Label htmlFor="buy-conditions" className="text-slate-300">Condiciones y Términos</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="buy-conditions" className="text-xs sm:text-sm text-gray-700">Condiciones y Términos</Label>
               <Textarea
                 id="buy-conditions"
                 placeholder="Condiciones de venta, garantías, inspecciones, etc."
                 value={buyFormData.conditions_text}
                 onChange={(e) => setBuyFormData({ ...buyFormData, conditions_text: e.target.value })}
-                className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400 min-h-[80px]"
+                className="bg-gray-50 border-gray-300 text-sm text-gray-900 placeholder:text-gray-400 min-h-[70px] resize-none"
               />
             </div>
 
             {/* DISPONIBILIDAD */}
-            <div className="space-y-2">
-              <Label htmlFor="buy-availability" className="text-slate-300">Fecha de disponibilidad</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="buy-availability" className="text-xs sm:text-sm text-gray-700">Fecha de disponibilidad</Label>
               <Input
                 id="buy-availability"
                 type="date"
                 value={buyFormData.availability_date}
                 onChange={(e) => setBuyFormData({ ...buyFormData, availability_date: e.target.value })}
-                className="bg-slate-800/50 border-slate-700 text-white"
+                className="bg-gray-50 border-gray-300 text-sm text-gray-900 h-9"
               />
-              <p className="text-xs text-slate-400">¿Cuándo está disponible para entrega?</p>
+              <p className="text-[10px] sm:text-xs text-gray-500">¿Cuándo está disponible para entrega?</p>
             </div>
 
             {/* Imágenes */}
-            <div className="space-y-2">
-              <Label className="text-slate-300">Imágenes (Opcional, máximo 10)</Label>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs sm:text-sm text-gray-700">Imágenes (Opcional)</Label>
+                {buyFormData.images.length > 0 && (
+                  <span className="text-[10px] sm:text-xs text-gray-500 font-medium">
+                    {buyFormData.images.length}/10 imágenes
+                  </span>
+                )}
+              </div>
+              
+              {buyFormData.images.length > 0 && (
+                <p className="text-[10px] sm:text-xs text-blue-600 mb-1">
+                  💡 La primera imagen será la portada de tu publicación
+                </p>
+              )}
               
               {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-5 gap-2 mb-3">
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 mb-2">
                   {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative group">
+                    <div key={index} className="relative group aspect-square">
                       <img 
                         src={preview} 
                         alt={`Preview ${index + 1}`}
-                        className="w-full h-20 object-cover rounded border border-slate-700"
+                        className="w-full h-full object-cover rounded-lg border border-gray-300"
                       />
+                      {/* Badge de portada en la primera imagen */}
+                      {index === 0 && (
+                        <div className="absolute top-1 left-1 bg-blue-600 text-white text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded font-medium">
+                          Portada
+                        </div>
+                      )}
+                      {/* Botón eliminar - siempre visible en móvil, hover en desktop */}
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center shadow-md sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                       >
-                        <X className="w-4 h-4 text-white" />
+                        <X className="w-3.5 h-3.5 text-white" />
                       </button>
+                      {/* Número de imagen */}
+                      <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded font-medium">
+                        {index + 1}
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
 
-              <label className="border-2 border-dashed border-slate-700 rounded-lg p-6 text-center hover:border-slate-600 transition-colors cursor-pointer block">
+              <label className={`border-2 border-dashed rounded-lg p-4 sm:p-5 text-center transition-all cursor-pointer block ${
+                buyFormData.images.length >= 10 
+                  ? 'border-gray-200 bg-gray-50 cursor-not-allowed' 
+                  : 'border-gray-300 hover:border-[#0047FF] hover:bg-blue-50/50'
+              }`}>
                 <input
                   type="file"
                   accept="image/*"
                   multiple
                   onChange={handleImageUpload}
                   className="hidden"
+                  disabled={buyFormData.images.length >= 10}
                 />
-                <Upload className="w-6 h-6 text-slate-400 mx-auto mb-2" />
-                <p className="text-slate-400 text-sm">Click para subir imágenes</p>
-                <p className="text-slate-500 text-xs mt-1">PNG, JPG hasta 10MB cada una</p>
+                <Upload className={`w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1.5 ${
+                  buyFormData.images.length >= 10 ? 'text-gray-300' : 'text-gray-400'
+                }`} />
+                <p className={`text-xs sm:text-sm font-medium ${
+                  buyFormData.images.length >= 10 ? 'text-gray-400' : 'text-gray-600'
+                }`}>
+                  {buyFormData.images.length >= 10 
+                    ? 'Máximo de imágenes alcanzado' 
+                    : 'Click para subir imágenes'}
+                </p>
+                {buyFormData.images.length < 10 && (
+                  <p className="text-gray-400 text-[10px] sm:text-xs mt-0.5">
+                    PNG, JPG hasta 10MB cada una • {10 - buyFormData.images.length} restantes
+                  </p>
+                )}
               </label>
             </div>
 
-            {/* Estado de moderación info */}
-            <div className="bg-blue-900/20 border border-blue-800 rounded-lg p-3">
-              <p className="text-sm text-blue-300">
-                📋 <span className="font-semibold">Moderación:</span> Tu publicación será revisada antes de publicarse
-              </p>
+            {/* Información de compra */}
+            <div className="border border-gray-300 rounded-lg p-2.5 sm:p-3">
+              <ul className="text-[10px] sm:text-xs text-gray-700 space-y-0.5">
+                <li>✓ No cobramos comisión por tu venta.</li>
+                <li>✓ Negociar siempre es gratis.</li>
+                <li>✓ El pago y la entrega se coordinan entre las partes.</li>
+              </ul>
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-between gap-3 pt-4 border-t border-slate-800">
+            <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200">
               <Button
                 type="button"
                 variant="outline"
@@ -503,22 +568,22 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
                   alert("Borrador guardado. Puedes continuar editando más tarde");
                   onOpenChange(false);
                 }}
-                className="border-slate-700 text-slate-300 hover:bg-slate-800"
+                className="border-gray-300 text-gray-700 hover:bg-gray-100 h-9 text-xs sm:text-sm order-2 sm:order-1"
               >
                 Guardar Borrador
               </Button>
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3 order-1 sm:order-2">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => onOpenChange(false)}
-                  className="border-slate-700 text-slate-300 hover:bg-slate-800"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-100 h-9 text-xs sm:text-sm flex-1 sm:flex-none"
                 >
                   Cancelar
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  className="bg-[#0047FF] hover:bg-[#0039CC] text-white h-9 text-xs sm:text-sm flex-1 sm:flex-none"
                 >
                   Publicar
                 </Button>

@@ -1,5 +1,6 @@
 import { getApiUrl, API_ENDPOINTS } from "./api-config";
 import { clearSessionData } from "./session-manager";
+import { presenceService } from "./services/presence-service";
 
 // Tipos
 export interface RegisterData {
@@ -99,15 +100,16 @@ export async function register(userData: RegisterData): Promise<AuthResponse> {
       const token = data.token || data.data?.token;
       if (token) {
         localStorage.setItem("auth_token", token);
+        // 🟢 REDIS PRESENCE: Iniciar servicio
+        presenceService.start(token);
       }
       // El usuario puede estar en data.user o data.data.user
       const user = data.data?.user || data.user;
       if (user) {
         localStorage.setItem("user", JSON.stringify(user));
       }
-      // Inicializar timestamps de sesión
+      // Inicializar timestamp de actividad (para detección de inactividad)
       const now = Date.now().toString();
-      localStorage.setItem("login_time", now);
       localStorage.setItem("last_activity", now);
     }
 
@@ -184,6 +186,9 @@ export async function login(credentials: LoginData): Promise<AuthResponse> {
       if (token) {
         localStorage.setItem("auth_token", token);
         console.log('🔵 Token guardado:', token);
+        // 🟢 REDIS PRESENCE: Desactivado hasta que backend implemente endpoints
+        // presenceService.start(token);
+        // console.log('🟢 Presence service iniciado');
       }
       // El usuario puede estar en data.user o data.data.user
       const user = data.data?.user || data.user;
@@ -191,11 +196,10 @@ export async function login(credentials: LoginData): Promise<AuthResponse> {
         localStorage.setItem("user", JSON.stringify(user));
         console.log('🔵 Usuario guardado en localStorage:', user);
       }
-      // Inicializar timestamps de sesión
+      // Inicializar timestamp de actividad (para detección de inactividad)
       const now = Date.now().toString();
-      localStorage.setItem("login_time", now);
       localStorage.setItem("last_activity", now);
-      console.log('🔵 Timestamps de sesión inicializados');
+      console.log('🔵 Timestamp de actividad inicializado');
     } else {
       console.log('🔵 Login falló - success:', data.success);
     }
@@ -231,14 +235,28 @@ export async function logout(): Promise<AuthResponse> {
 
     const data: AuthResponse = await response.json();
 
+    // 🔴 REDIS PRESENCE: Detener servicio
+    presenceService.stop();
+
     // Limpiar localStorage y datos de sesión
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user");
     clearSessionData();
 
+    // Si el error es de no autenticación, considerarlo como éxito
+    // (la sesión ya estaba cerrada, que es el objetivo del logout)
+    if (!response.ok && data.error?.code === "UNAUTHENTICATED") {
+      return {
+        success: true,
+        message: "Sesión cerrada correctamente",
+      };
+    }
+
     return data;
   } catch (error) {
     console.error("Error en logout:", error);
+    // 🔴 REDIS PRESENCE: Detener servicio
+    presenceService.stop();
     // Limpiar localStorage y datos de sesión aunque haya error
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user");
