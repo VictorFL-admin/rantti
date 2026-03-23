@@ -1,5 +1,6 @@
 import Pusher from 'pusher-js';
 import Echo from 'laravel-echo';
+import { getBackendUrl } from './api-config';
 
 // Configuración de Pusher (solo en el cliente)
 if (typeof window !== 'undefined') {
@@ -28,7 +29,7 @@ const initializeEcho = (): Echo<any> | null => {
     key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY || '64c8c7ba34292d723e38',
     cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER || 'us2',
     forceTLS: true,
-    authEndpoint: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/broadcasting/auth`,
+    authEndpoint: `${getBackendUrl()}/api/broadcasting/auth`,
     auth: {
       headers: {
         Authorization: `Bearer ${token}`,

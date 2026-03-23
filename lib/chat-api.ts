@@ -1,5 +1,5 @@
 // API client para funcionalidades de chat
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import { getApiUrl } from './api-config';
 
 // Función helper para obtener headers de autenticación
 const getAuthHeaders = (): HeadersInit => {
@@ -64,7 +64,7 @@ export const fetchConversations = async (type: ChatType, filter?: FilterType): P
       params.append('filter', filter);
     }
 
-    const response = await fetch(`${API_URL}/api/conversations?${params.toString()}`, {
+    const response = await fetch(getApiUrl(`/api/conversations?${params.toString()}`), {
       method: 'GET',
       headers: getAuthHeaders(),
     });
@@ -84,7 +84,7 @@ export const fetchConversations = async (type: ChatType, filter?: FilterType): P
 // 2. Crear o recuperar conversación
 export const createOrGetConversation = async (listingId: number, otherUserId: number): Promise<Conversation> => {
   try {
-    const response = await fetch(`${API_URL}/api/conversations`, {
+    const response = await fetch(getApiUrl('/api/conversations'), {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({
@@ -108,7 +108,7 @@ export const createOrGetConversation = async (listingId: number, otherUserId: nu
 // 3. Obtener mensajes de una conversación
 export const fetchMessages = async (conversationId: number, page: number = 1): Promise<{ data: Message[]; conversation: Conversation; last_page: number }> => {
   try {
-    const response = await fetch(`${API_URL}/api/conversations/${conversationId}/messages?page=${page}`, {
+    const response = await fetch(getApiUrl(`/api/conversations/${conversationId}/messages?page=${page}`), {
       method: 'GET',
       headers: getAuthHeaders(),
     });
@@ -163,7 +163,7 @@ export const sendMessage = async (
   attachmentType?: string
 ): Promise<Message> => {
   try {
-    const response = await fetch(`${API_URL}/api/messages`, {
+    const response = await fetch(getApiUrl('/api/messages'), {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({
@@ -189,7 +189,7 @@ export const sendMessage = async (
 // 5. Marcar mensaje como leído
 export const markMessageAsRead = async (messageId: number): Promise<void> => {
   try {
-    const response = await fetch(`${API_URL}/api/messages/${messageId}/mark-read`, {
+    const response = await fetch(getApiUrl(`/api/messages/${messageId}/mark-read`), {
       method: 'PATCH',
       headers: getAuthHeaders(),
     });
@@ -206,7 +206,7 @@ export const markMessageAsRead = async (messageId: number): Promise<void> => {
 // 6. Marcar todos los mensajes de una conversación como leídos
 export const markAllMessagesAsRead = async (conversationId: number): Promise<void> => {
   try {
-    const response = await fetch(`${API_URL}/api/conversations/${conversationId}/mark-all-read`, {
+    const response = await fetch(getApiUrl(`/api/conversations/${conversationId}/mark-all-read`), {
       method: 'PATCH',
       headers: getAuthHeaders(),
     });
@@ -228,7 +228,7 @@ export const uploadAttachment = async (file: File): Promise<{ url: string; type:
 
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
     
-    const response = await fetch(`${API_URL}/api/attachments/upload`, {
+    const response = await fetch(getApiUrl('/api/attachments/upload'), {
       method: 'POST',
       headers: {
         'Accept': 'application/json',

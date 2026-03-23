@@ -2,6 +2,22 @@
 // Ahora usamos rutas relativas - Next.js redirige automáticamente al backend
 export const API_BASE_URL = '';
 
+// Helper para obtener la URL absoluta del backend (para WebSocket/Pusher)
+export const getBackendUrl = (): string => {
+  if (typeof window === 'undefined') {
+    // En el servidor, usar la URL de producción o desarrollo según NODE_ENV
+    return process.env.NODE_ENV === 'development'
+      ? process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      : process.env.NEXT_PUBLIC_API_PROD_URL || 'https://api.rantti.com';
+  }
+  
+  // En el cliente, detectar si estamos en producción o desarrollo
+  const isProduction = window.location.hostname !== 'localhost';
+  return isProduction
+    ? process.env.NEXT_PUBLIC_API_PROD_URL || 'https://api.rantti.com'
+    : process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+};
+
 // API Endpoints
 export const API_ENDPOINTS = {
   CATEGORIES: {
