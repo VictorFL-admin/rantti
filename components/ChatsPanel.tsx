@@ -828,7 +828,7 @@ export default function ChatsPanel() {
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 text-left min-w-0">
+                        <div className="flex-1 text-left min-w-0 overflow-hidden">
                           <div className="flex items-start justify-between mb-1">
                             <div className="flex-1 min-w-0">
                               <p className="font-['Poppins',sans-serif] text-[15px] text-black font-medium truncate">
@@ -844,7 +844,7 @@ export default function ChatsPanel() {
                               </span>
                             )}
                           </div>
-                          <p className="font-['Poppins',sans-serif] text-[13px] text-[#546A88] overflow-hidden text-ellipsis whitespace-nowrap max-w-full">
+                          <p className="font-['Poppins',sans-serif] text-[13px] text-[#546A88] line-clamp-1">
                             {chat.last_message_preview}
                           </p>
                         </div>
