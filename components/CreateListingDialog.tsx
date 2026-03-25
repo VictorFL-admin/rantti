@@ -5,23 +5,27 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Upload, X, ShoppingBag, Tag } from "lucide-react";
-// import { toast } from "sonner";
+import { Upload, X, ShoppingBag, Tag, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import { apiPost, apiPostFormData } from "../lib/api-client";
+import { API_ENDPOINTS } from "../lib/api-config";
+import { toast } from "sonner";
 
 interface CreateListingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onListingCreated?: () => void; // Callback para actualizar la lista en tiempo real
 }
 
 type ListingType = 'buy' | 'sell';
 
-// Formulario para VENTA (simple, sin imágenes)
+// Formulario para VENTA (con imágenes)
 interface SellFormData {
   category_id: string;
   title: string;
   description: string;
   location_text: string;
   price_suggested: string;
+  images: File[];
 }
 
 // Formulario para COMPRA (completo original con imágenes)
@@ -37,16 +41,20 @@ interface BuyFormData {
   images: File[];
 }
 
-export default function CreateListingDialog({ open, onOpenChange }: CreateListingDialogProps) {
+export default function CreateListingDialog({ open, onOpenChange, onListingCreated }: CreateListingDialogProps) {
   const [activeTab, setActiveTab] = useState<ListingType>('sell');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [sellFormData, setSellFormData] = useState<SellFormData>({
     category_id: "",
     title: "",
     description: "",
     location_text: "",
-    price_suggested: ""
+    price_suggested: "",
+    images: []
   });
+
+  const [sellImagePreviews, setSellImagePreviews] = useState<string[]>([]);
 
   const [buyFormData, setBuyFormData] = useState<BuyFormData>({
     category_id: "",
@@ -62,23 +70,70 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
 
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSellImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
-    if (files.length + buyFormData.images.length > 10) {
-      // toast.error("Máximo 10 imágenes", {
-      //   description: "Solo puedes subir hasta 10 imágenes por publicación"
-      // });
-      alert("Máximo 10 imágenes. Solo puedes subir hasta 10 imágenes por publicación");
+    if (files.length + sellFormData.images.length > 10) {
+      toast.error("Máximo 10 imágenes", {
+        description: "Solo puedes subir hasta 10 imágenes por publicación",
+        icon: <AlertCircle className="w-5 h-5" />
+      });
       return;
     }
 
     const validFiles = files.filter(file => {
       if (file.size > 10 * 1024 * 1024) {
-        // toast.error(`${file.name} es muy grande`, {
-        //   description: "Cada imagen debe ser menor a 10MB"
-        // });
-        alert(`${file.name} es muy grande. Cada imagen debe ser menor a 10MB`);
+        toast.error("Archivo muy grande", {
+          description: `${file.name} debe ser menor a 10MB`,
+          icon: <AlertCircle className="w-5 h-5" />
+        });
+        return false;
+      }
+      return true;
+    });
+
+    const newPreviews: string[] = [];
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        newPreviews.push(reader.result as string);
+        if (newPreviews.length === validFiles.length) {
+          setSellImagePreviews([...sellImagePreviews, ...newPreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    setSellFormData({
+      ...sellFormData,
+      images: [...sellFormData.images, ...validFiles]
+    });
+  };
+
+  const removeSellImage = (index: number) => {
+    const newImages = sellFormData.images.filter((_, i) => i !== index);
+    const newPreviews = sellImagePreviews.filter((_, i) => i !== index);
+    setSellFormData({ ...sellFormData, images: newImages });
+    setSellImagePreviews(newPreviews);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    if (files.length + buyFormData.images.length > 10) {
+      toast.error("Máximo 10 imágenes", {
+        description: "Solo puedes subir hasta 10 imágenes por publicación",
+        icon: <AlertCircle className="w-5 h-5" />
+      });
+      return;
+    }
+
+    const validFiles = files.filter(file => {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("Archivo muy grande", {
+          description: `${file.name} debe ser menor a 10MB`,
+          icon: <AlertCircle className="w-5 h-5" />
+        });
         return false;
       }
       return true;
@@ -109,48 +164,143 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
     setImagePreviews(newPreviews);
   };
 
-  const handleSellSubmit = (e: React.FormEvent) => {
+  const handleSellSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!sellFormData.title || !sellFormData.category_id || !sellFormData.price_suggested || !sellFormData.description) {
-      // toast.error("Campos requeridos", {
-      //   description: "Por favor completa todos los campos obligatorios"
-      // });
-      alert("Campos requeridos. Por favor completa todos los campos obligatorios");
+      toast.error("Campos requeridos", {
+        description: "Por favor completa todos los campos obligatorios",
+        icon: <AlertCircle className="w-5 h-5" />
+      });
       return;
     }
 
-    console.log("Publicación de VENTA:", sellFormData);
-    
-    // toast.success("¡Publicación creada!", {
-    //   description: "Tu artículo está en moderación y será visible pronto.",
-    // });
-    alert("¡Publicación creada! Tu artículo está en moderación y será visible pronto.");
-    
-    resetForms();
-    onOpenChange(false);
+    setIsSubmitting(true);
+
+    try {
+      // Crear FormData para enviar las imágenes
+      const formData = new FormData();
+      formData.append('title', sellFormData.title);
+      formData.append('category_id', sellFormData.category_id);
+      formData.append('price_suggested', sellFormData.price_suggested);
+      formData.append('description', sellFormData.description);
+      
+      if (sellFormData.location_text) {
+        formData.append('location_text', sellFormData.location_text);
+      }
+      
+      // Agregar imágenes
+      sellFormData.images.forEach((image) => {
+        formData.append('images[]', image);
+      });
+
+      const response = await apiPostFormData(API_ENDPOINTS.LISTINGS.SELL, formData);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al crear la publicación');
+      }
+
+      const result = await response.json();
+      console.log("✅ Publicación de VENTA creada:", result);
+      
+      toast.success("¡Publicación creada!", {
+        description: "Tu artículo está en moderación y será visible pronto",
+        icon: <CheckCircle2 className="w-5 h-5" />,
+        duration: 4000
+      });
+      
+      resetForms();
+      onOpenChange(false);
+      
+      // Actualizar la lista en tiempo real
+      if (onListingCreated) {
+        onListingCreated();
+      }
+    } catch (error) {
+      console.error("❌ Error al crear publicación de venta:", error);
+      toast.error("Error al crear publicación", {
+        description: error instanceof Error ? error.message : 'No se pudo crear la publicación',
+        icon: <AlertCircle className="w-5 h-5" />,
+        duration: 5000
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleBuySubmit = (e: React.FormEvent) => {
+  const handleBuySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!buyFormData.title || !buyFormData.category_id || !buyFormData.description) {
-      // toast.error("Campos requeridos", {
-      //   description: "Por favor completa todos los campos obligatorios"
-      // });
-      alert("Campos requeridos. Por favor completa todos los campos obligatorios");
+      toast.error("Campos requeridos", {
+        description: "Por favor completa todos los campos obligatorios",
+        icon: <AlertCircle className="w-5 h-5" />
+      });
       return;
     }
 
-    console.log("Solicitud de COMPRA:", buyFormData);
-    
-    // toast.success("¡Solicitud publicada!", {
-    //   description: "Tu búsqueda ha sido publicada. Recibirás ofertas pronto.",
-    // });
-    alert("¡Solicitud publicada! Tu búsqueda ha sido publicada. Recibirás ofertas pronto.");
-    
-    resetForms();
-    onOpenChange(false);
+    setIsSubmitting(true);
+
+    try {
+      // Crear FormData para enviar las imágenes
+      const formData = new FormData();
+      formData.append('title', buyFormData.title);
+      formData.append('category_id', buyFormData.category_id);
+      formData.append('price_suggested', buyFormData.price_suggested);
+      formData.append('currency', buyFormData.currency);
+      formData.append('description', buyFormData.description);
+      
+      if (buyFormData.location_text) {
+        formData.append('location_text', buyFormData.location_text);
+      }
+      
+      if (buyFormData.conditions_text) {
+        formData.append('conditions_text', buyFormData.conditions_text);
+      }
+      
+      if (buyFormData.availability_date) {
+        formData.append('availability_date', buyFormData.availability_date);
+      }
+      
+      // Agregar imágenes
+      buyFormData.images.forEach((image, index) => {
+        formData.append('images[]', image);
+      });
+
+      const response = await apiPostFormData(API_ENDPOINTS.LISTINGS.BUY, formData);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al crear la solicitud');
+      }
+
+      const result = await response.json();
+      console.log("✅ Solicitud de COMPRA creada:", result);
+      
+      toast.success("¡Solicitud publicada!", {
+        description: "Tu búsqueda ha sido publicada. Recibirás ofertas pronto",
+        icon: <CheckCircle2 className="w-5 h-5" />,
+        duration: 4000
+      });
+      
+      resetForms();
+      onOpenChange(false);
+      
+      // Actualizar la lista en tiempo real
+      if (onListingCreated) {
+        onListingCreated();
+      }
+    } catch (error) {
+      console.error("❌ Error al crear solicitud de compra:", error);
+      toast.error("Error al crear solicitud", {
+        description: error instanceof Error ? error.message : 'No se pudo crear la solicitud',
+        icon: <AlertCircle className="w-5 h-5" />,
+        duration: 5000
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const resetForms = () => {
@@ -159,7 +309,8 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
       title: "",
       description: "",
       location_text: "",
-      price_suggested: ""
+      price_suggested: "",
+      images: []
     });
     setBuyFormData({
       category_id: "",
@@ -173,6 +324,7 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
       images: []
     });
     setImagePreviews([]);
+    setSellImagePreviews([]);
     setActiveTab('sell');
   };
 
@@ -302,6 +454,86 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
               />
             </div>
 
+            {/* Imágenes */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs sm:text-sm text-gray-700">Imágenes (Opcional)</Label>
+                {sellFormData.images.length > 0 && (
+                  <span className="text-[10px] sm:text-xs text-gray-500 font-medium">
+                    {sellFormData.images.length}/10 imágenes
+                  </span>
+                )}
+              </div>
+              
+              {sellFormData.images.length > 0 && (
+                <p className="text-[10px] sm:text-xs text-blue-600 mb-1">
+                  💡 La primera imagen será la portada de tu publicación
+                </p>
+              )}
+              
+              {sellImagePreviews.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 mb-2">
+                  {sellImagePreviews.map((preview, index) => (
+                    <div key={index} className="relative group aspect-square">
+                      <img 
+                        src={preview} 
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover rounded-lg border border-gray-300"
+                      />
+                      {/* Badge de portada en la primera imagen */}
+                      {index === 0 && (
+                        <div className="absolute top-1 left-1 bg-blue-600 text-white text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded font-medium">
+                          Portada
+                        </div>
+                      )}
+                      {/* Botón eliminar - siempre visible en móvil, hover en desktop */}
+                      <button
+                        type="button"
+                        onClick={() => removeSellImage(index)}
+                        className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center shadow-md sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3.5 h-3.5 text-white" />
+                      </button>
+                      {/* Número de imagen */}
+                      <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded font-medium">
+                        {index + 1}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <label className={`border-2 border-dashed rounded-lg p-4 sm:p-5 text-center transition-all cursor-pointer block ${
+                sellFormData.images.length >= 10 
+                  ? 'border-gray-200 bg-gray-50 cursor-not-allowed' 
+                  : 'border-gray-300 hover:border-[#0047FF] hover:bg-blue-50/50'
+              }`}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleSellImageUpload}
+                  className="hidden"
+                  disabled={sellFormData.images.length >= 10}
+                />
+                <Upload className={`w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1.5 ${
+                  sellFormData.images.length >= 10 ? 'text-gray-300' : 'text-gray-400'
+                }`} />
+                <p className={`text-xs sm:text-sm font-medium ${
+                  sellFormData.images.length >= 10 ? 'text-gray-400' : 'text-gray-600'
+                }`}>
+                  {sellFormData.images.length >= 10 
+                    ? 'Máximo de imágenes alcanzado' 
+                    : 'Click para subir imágenes'}
+                </p>
+                {sellFormData.images.length < 10 && (
+                  <p className="text-gray-400 text-[10px] sm:text-xs mt-0.5">
+                    PNG, JPG hasta 10MB cada una • {10 - sellFormData.images.length} restantes
+                  </p>
+                )}
+              </label>
+            </div>
+
             {/* Información de venta */}
             <div className="border border-gray-300 rounded-lg p-2.5 sm:p-3">
               <ul className="text-[10px] sm:text-xs text-gray-700 space-y-0.5">
@@ -317,7 +549,10 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  alert("Borrador guardado. Puedes continuar editando más tarde");
+                  toast.info("Borrador guardado", {
+                    description: "Puedes continuar editando más tarde",
+                    icon: <Info className="w-5 h-5" />
+                  });
                   onOpenChange(false);
                 }}
                 className="border-gray-300 text-gray-700 hover:bg-gray-100 h-9 text-xs sm:text-sm order-2 sm:order-1"
@@ -335,9 +570,10 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-[#0047FF] hover:bg-[#0039CC] text-white h-9 text-xs sm:text-sm flex-1 sm:flex-none"
+                  disabled={isSubmitting}
+                  className="bg-[#0047FF] hover:bg-[#0039CC] text-white h-9 text-xs sm:text-sm flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Publicar Venta
+                  {isSubmitting ? 'Publicando...' : 'Publicar Venta'}
                 </Button>
               </div>
             </div>
@@ -562,10 +798,10 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  // toast.success("Borrador guardado", {
-                  //   description: "Puedes continuar editando más tarde"
-                  // });
-                  alert("Borrador guardado. Puedes continuar editando más tarde");
+                  toast.info("Borrador guardado", {
+                    description: "Puedes continuar editando más tarde",
+                    icon: <Info className="w-5 h-5" />
+                  });
                   onOpenChange(false);
                 }}
                 className="border-gray-300 text-gray-700 hover:bg-gray-100 h-9 text-xs sm:text-sm order-2 sm:order-1"
@@ -583,9 +819,10 @@ export default function CreateListingDialog({ open, onOpenChange }: CreateListin
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-[#0047FF] hover:bg-[#0039CC] text-white h-9 text-xs sm:text-sm flex-1 sm:flex-none"
+                  disabled={isSubmitting}
+                  className="bg-[#0047FF] hover:bg-[#0039CC] text-white h-9 text-xs sm:text-sm flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Publicar
+                  {isSubmitting ? 'Publicando...' : 'Publicar'}
                 </Button>
               </div>
             </div>

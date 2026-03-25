@@ -17,8 +17,11 @@ import {
   Menu,
   Box,
   ShoppingCart,
-  ShoppingBag
+  ShoppingBag,
+  Loader2,
+  ArrowLeft
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -77,99 +80,69 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   // Estados para "Explorar Hoy"
   const [loadingListings, setLoadingListings] = useState(false);
   const [listingsError, setListingsError] = useState<string | null>(null);
-  const [exploreFilter, setExploreFilter] = useState<'COMPRA' | 'VENTA'>('COMPRA');
   
-  // Datos estáticos para "Explorar Hoy" (sin conexión a API)
-  const exploreTodayListings: Listing[] = [
-    {
-      id: 1,
-      title: "Busco Tesla Model 3 2023",
-      price: 42000,
-      currency: "USD",
-      category: { id: 1, name: "Autos" },
-      location: "Lima, Perú",
-      listing_type: "COMPRA",
-      image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800",
-      views: 234
-    },
-    {
-      id: 2,
-      title: "Departamento en Miraflores",
-      price: 280000,
-      currency: "USD",
-      category: { id: 2, name: "Propiedades" },
-      location: "Miraflores, Lima",
-      listing_type: "VENTA",
-      image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800",
-      views: 567
-    },
-    {
-      id: 3,
-      title: "Busco Rolex Submariner",
-      price: 12500,
-      currency: "USD",
-      category: { id: 3, name: "Objetos de Lujo" },
-      location: "San Isidro, Lima",
-      listing_type: "COMPRA",
-      image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800",
-      views: 189
-    },
-    {
-      id: 4,
-      title: "iPhone 15 Pro Max 256GB",
-      price: 1300,
-      currency: "USD",
-      category: { id: 4, name: "Electrónicos" },
-      location: "Lima, Perú",
-      listing_type: "VENTA",
-      image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800",
-      views: 445
-    },
-    {
-      id: 5,
-      title: "Casa de Playa - Asia",
-      price: 450000,
-      currency: "USD",
-      category: { id: 2, name: "Propiedades" },
-      location: "Asia, Lima",
-      listing_type: "VENTA",
-      image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800",
-      views: 678
-    },
-    {
-      id: 6,
-      title: "Busco Bicicleta de Montaña",
-      price: 1800,
-      currency: "USD",
-      category: { id: 5, name: "Deportes" },
-      location: "La Molina, Lima",
-      listing_type: "COMPRA",
-      image: "https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=800",
-      views: 156
-    },
-    {
-      id: 7,
-      title: "MacBook Pro M3 Max 2024",
-      price: 3200,
-      currency: "USD",
-      category: { id: 4, name: "Electrónicos" },
-      location: "San Borja, Lima",
-      listing_type: "VENTA",
-      image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
-      views: 389
-    },
-    {
-      id: 8,
-      title: "Busco Set de Golf Premium",
-      price: 2400,
-      currency: "USD",
-      category: { id: 5, name: "Deportes" },
-      location: "Surco, Lima",
-      listing_type: "COMPRA",
-      image: "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800",
-      views: 203
+  // Estados para vista de especificaciones del producto
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectedProductData, setSelectedProductData] = useState<any>(null);
+  const [loadingProduct, setLoadingProduct] = useState(false);
+  const [exploreFilter, setExploreFilter] = useState<'COMPRA' | 'VENTA'>('COMPRA');
+  const [exploreTodayListings, setExploreTodayListings] = useState<Listing[]>([]);
+
+  // Función para cargar publicaciones de "Explorar Hoy"
+  const fetchExploreTodayListings = async () => {
+    try {
+      setLoadingListings(true);
+      setListingsError(null);
+      
+      const response = await apiGet(getApiUrl(API_ENDPOINTS.LISTINGS.PUBLIC));
+      
+      if (!response.ok) {
+        throw new Error('Error al cargar las publicaciones');
+      }
+      
+      const data = await response.json();
+      console.log('📦 Publicaciones cargadas:', data);
+      
+      // Normalizar la respuesta según el formato del backend - asegurar que siempre sea un array
+      let listings: Listing[] = [];
+      if (Array.isArray(data)) {
+        // Respuesta directa como array: [...]
+        listings = data;
+      } else if (data && data.data) {
+        // Respuesta con estructura anidada
+        if (Array.isArray(data.data.listings)) {
+          // Estructura: { data: { listings: [...] } }
+          listings = data.data.listings;
+        } else if (Array.isArray(data.data)) {
+          // Estructura: { data: [...] }
+          listings = data.data;
+        }
+      }
+      
+      console.log('✅ Listings normalizados:', listings);
+      setExploreTodayListings(listings);
+    } catch (error) {
+      console.error('❌ Error al cargar publicaciones:', error);
+      setListingsError('No se pudieron cargar las publicaciones. Intenta de nuevo.');
+      setExploreTodayListings([]);
+    } finally {
+      setLoadingListings(false);
     }
-  ];
+  };
+
+  // Cargar publicaciones al montar el componente y cada 60 segundos
+  useEffect(() => {
+    if (activeTab === 'overview') {
+      fetchExploreTodayListings();
+      
+      // Actualizar cada 60 segundos
+      const interval = setInterval(() => {
+        fetchExploreTodayListings();
+      }, 60000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [activeTab]);
 
   // Sync activeTab with URL changes
   useEffect(() => {
@@ -360,6 +333,41 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
     }
   ];
 
+  // Función para abrir vista de detalle de producto
+  const handleOpenProduct = async (productId: number) => {
+    setSelectedProductId(productId);
+    setActiveTab('product-detail');
+    setLoadingProduct(true);
+    
+    try {
+      const response = await apiGet(getApiUrl(API_ENDPOINTS.LISTINGS.DETAILS(productId)));
+      
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('📦 Datos recibidos de la API:', responseData);
+        // La estructura es: { success: true, data: { listing: {...} } }
+        setSelectedProductData(responseData.data.listing);
+      } else {
+        console.error('Error al cargar producto');
+        toast.error('No se pudo cargar el producto');
+        setActiveTab('overview');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error al cargar el producto');
+      setActiveTab('overview');
+    } finally {
+      setLoadingProduct(false);
+    }
+  };
+
+  // Función para volver desde detalle de producto
+  const handleBackFromProduct = () => {
+    setActiveTab('overview');
+    setSelectedProductId(null);
+    setSelectedProductData(null);
+  };
+
   // Mostrar loader solo si estamos cargando el perfil por primera vez
   if (loadingProfile) {
     return (
@@ -423,7 +431,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                   {activeTab === "overview" && "Explorar Hoy"}
                   {activeTab === "notifications" && "Notificaciones"}
                   {activeTab === "chats" && "Chats"}
-                  {activeTab === "especificaciones" && "Especificaciones"}
+                  {activeTab === "product-detail" && "Detalle de Producto"}
                   {activeTab === "actividad-reciente" && "Actividad Reciente"}
                   {activeTab === "panel-vendedores" && "Panel de Vendedores"}
                   {activeTab === "tus-publicaciones" && "Tus Publicaciones"}
@@ -512,7 +520,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                   </div>
                   
                   {/* Loader de Listings */}
-                  {loadingListings && exploreTodayListings.length === 0 ? (
+                  {loadingListings && (!Array.isArray(exploreTodayListings) || exploreTodayListings.length === 0) ? (
                     <div className="flex items-center justify-center py-12">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0047FF]"></div>
                     </div>
@@ -520,54 +528,55 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                     <>
                       {/* Products Grid - Estilo Marketplace */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                        {exploreTodayListings.filter(listing => listing.listing_type === exploreFilter).length === 0 ? (
+                        {(Array.isArray(exploreTodayListings) ? exploreTodayListings : []).filter(listing => listing.listing_type === exploreFilter).length === 0 ? (
                           <div className="col-span-full text-center py-12">
                             <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                             <p className="text-gray-500">No hay publicaciones disponibles en este momento</p>
                           </div>
                         ) : (
-                          exploreTodayListings
+                          (Array.isArray(exploreTodayListings) ? exploreTodayListings : [])
                             .filter(listing => listing.listing_type === exploreFilter)
                             .map((listing) => (
-                            <Card 
-                              key={listing.id} 
-                              className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
-                            >
-                              <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
-                                <img
-                                  src={listing.image || '/images/placeholder.jpg'}
-                                  alt={listing.title}
-                                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = '/images/placeholder.jpg';
-                                  }}
-                                />
-                              </div>
-                              <CardContent className="p-4 pt-5">
-                                <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                                  {listing.title}
-                                </h3>
-                                <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
-                                  {listing.currency} {listing.price.toLocaleString('es-PE')}
-                                </p>
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-1 text-gray-500">
-                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                    <p className="font-['Poppins',sans-serif] text-xs">
-                                      {listing.location}
-                                    </p>
-                                  </div>
-                                  <div className="flex items-center gap-1 text-gray-400">
-                                    <Eye className="w-3.5 h-3.5" />
-                                    <span className="text-xs">{listing.views}</span>
-                                  </div>
+                              <Card 
+                                key={listing.id}
+                                onClick={() => handleOpenProduct(listing.id)}
+                                className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
+                              >
+                                <div className="aspect-[4/3] bg-gradient-to-br from-purple-50 to-blue-50 overflow-hidden">
+                                  <img
+                                    src={listing.image || '/images/placeholder.jpg'}
+                                    alt={listing.title}
+                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = '/images/placeholder.jpg';
+                                    }}
+                                  />
                                 </div>
-                              </CardContent>
-                            </Card>
+                                <CardContent className="p-4 pt-5">
+                                  <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                                    {listing.title}
+                                  </h3>
+                                  <p className="font-['Poppins',sans-serif] text-xl font-semibold text-[#0047FF] mb-2">
+                                    {listing.currency} {listing.price.toLocaleString('es-PE')}
+                                  </p>
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1 text-gray-500">
+                                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                      </svg>
+                                      <p className="font-['Poppins',sans-serif] text-xs">
+                                        {listing.location}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center gap-1 text-gray-400">
+                                      <Eye className="w-3.5 h-3.5" />
+                                      <span className="text-xs">{listing.views}</span>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
                           ))
                         )}
                       </div>
@@ -585,13 +594,9 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           )}
 
           {/* Chats Tab */}
+          {/* Chats Tab */}
           {activeTab === "chats" && (
             <ChatsPanel />
-          )}
-
-          {/* Specifications Tab */}
-          {activeTab === "especificaciones" && (
-            <ProductSpecifications />
           )}
 
           {/* Actividad Reciente Tab */}
@@ -642,13 +647,49 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           {activeTab === "settings" && (
             <SettingsPanel user={user} onUpdateUser={onUpdateUser} />
           )}
+
+          {/* Product Detail View */}
+          {activeTab === "product-detail" && (
+            <div className="space-y-4">
+              {/* Botón Volver */}
+              <Button
+                variant="ghost"
+                onClick={handleBackFromProduct}
+                className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver a Explorar
+              </Button>
+              
+              {loadingProduct ? (
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="w-12 h-12 animate-spin text-[#0047FF]" />
+                </div>
+              ) : selectedProductData ? (
+                <ProductSpecifications
+                  listing={selectedProductData}
+                  onMakeOffer={() => {
+                    // TODO: Abrir modal de oferta
+                    console.log('Hacer oferta');
+                  }}
+                  onContactSeller={() => {
+                    setActiveTab('chats');
+                  }}
+                />
+              ) : null}
+            </div>
+          )}
             </>
           )}
         </div>
       </main>
 
       {/* Create Listing Dialog */}
-      <CreateListingDialog open={createListingOpen} onOpenChange={setCreateListingOpen} />
+      <CreateListingDialog 
+        open={createListingOpen} 
+        onOpenChange={setCreateListingOpen}
+        onListingCreated={fetchExploreTodayListings}
+      />
       
       {/* Perfil Marketplace Modal */}
       <PerfilMarketplaceModal 
@@ -719,6 +760,8 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+
     </div>
   );
 }

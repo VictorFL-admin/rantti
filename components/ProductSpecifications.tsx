@@ -15,38 +15,69 @@ import {
   Clock
 } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import type { ListingDetails } from "@/lib/types/listings";
 
-export default function ProductSpecifications() {
-  // Mock data del producto
-  const product = {
+interface ProductSpecificationsProps {
+  listing?: ListingDetails;
+  onMakeOffer?: () => void;
+  onContactSeller?: () => void;
+  onClose?: () => void;
+}
+
+export default function ProductSpecifications({ 
+  listing,
+  onMakeOffer,
+  onContactSeller,
+  onClose
+}: ProductSpecificationsProps) {
+  // Si no hay listing, usar datos mock para preview
+  const mockProduct = {
     id: 1,
     title: "Rolex Submariner Oro Blanco",
-    category: "Relojes de Lujo",
-    location: "Ciudad de México, CDMX",
+    category: { name: "Relojes de Lujo" },
+    location: { formatted: "Ciudad de México, CDMX" },
     description: "Rolex Submariner original en oro blanco de 18k, modelo 116619LB con bisel de cerámica azul. El reloj está en excelente condición, incluye caja original, papeles y garantía. Movimiento automático calibre 3135, resistente al agua hasta 300 metros.",
-    image: "https://images.unsplash.com/photo-1666374796260-6f9d3af1e3ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjB3YXRjaCUyMGNsb3NldXB8ZW58MXx8fHwxNzY2MjkyNDkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
-    price: 1250000,
-    originalPrice: 1450000,
-    negotiable: true,
-    timePosted: "Hace 2 días",
-    views: 487,
-    favorites: 23
+    images: [{
+      id: 1,
+      url: "https://images.unsplash.com/photo-1666374796260-6f9d3af1e3ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjB3YXRjaCUyMGNsb3NldXB8ZW58MXx8fHwxNzY2MjkyNDkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      thumbnail_url: "",
+      is_primary: true,
+      order: 1
+    }],
+    pricing: {
+      currency: "MXN",
+      current_price: 1250000,
+      original_price: 1450000,
+      discount_percentage: 14,
+      is_negotiable: true,
+      formatted: {
+        current: "$1,250,000",
+        original: "$1,450,000"
+      }
+    },
+    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    views_count: 487,
+    favorites_count: 23,
+    seller: {
+      id: 1,
+      name: "Carlos Mendoza",
+      avatar: "https://images.unsplash.com/photo-1740153204804-200310378f2f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBzZWxsZXIlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjYzMzA2NDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      is_verified: true,
+      profile_url: "/seller/1",
+      member_since: "2022-03-01",
+      stats: {
+        rating: 4.9,
+        total_reviews: 127,
+        successful_sales: 84,
+        response_rate: 98,
+        avg_response_time_hours: 2
+      }
+    }
   };
 
-  // Mock data del vendedor
-  const seller = {
-    id: 1,
-    name: "Carlos Mendoza",
-    avatar: "https://images.unsplash.com/photo-1740153204804-200310378f2f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBzZWxsZXIlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjYzMzA2NDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    rating: 4.9,
-    totalReviews: 127,
-    memberSince: "Marzo 2022",
-    verified: true,
-    responseRate: "98%",
-    responseTime: "~2 horas",
-    totalSales: 84
-  };
-
+  // Usar datos reales si están disponibles, sino mock
+  const data = listing || mockProduct;
+  
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
@@ -55,6 +86,21 @@ export default function ProductSpecifications() {
       maximumFractionDigits: 0,
     }).format(price);
   };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return "Hace 1 día";
+    if (diffDays < 7) return `Hace ${diffDays} días`;
+    if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
+    return date.toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" });
+  };
+
+  const currentImage = data.images && data.images.length > 0 ? data.images[0].url : "";
+  const hasDiscount = data.pricing.discount_percentage && data.pricing.discount_percentage > 0;
 
   return (
     <div className="space-y-6">
@@ -65,15 +111,15 @@ export default function ProductSpecifications() {
             <Card className="overflow-hidden border-gray-200">
               <div className="relative aspect-square bg-gray-100">
                 <ImageWithFallback
-                  src={product.image}
-                  alt={product.title}
+                  src={currentImage}
+                  alt={data.title}
                   className="w-full h-full object-cover"
                 />
                 
                 {/* Badges on image */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
                   <Badge className="bg-[#0047FF] text-white border-0 shadow-lg">
-                    {product.category}
+                    {data.category.name}
                   </Badge>
                 </div>
 
@@ -90,27 +136,29 @@ export default function ProductSpecifications() {
                 {/* Stats on bottom */}
                 <div className="absolute bottom-4 left-4 right-4 flex gap-2">
                   <Badge className="bg-white/90 backdrop-blur-sm text-gray-900 border-0">
-                    👁️ {product.views} vistas
+                    👁️ {data.views_count} vistas
                   </Badge>
                   <Badge className="bg-white/90 backdrop-blur-sm text-gray-900 border-0">
-                    ❤️ {product.favorites} favoritos
+                    ❤️ {data.favorites_count} favoritos
                   </Badge>
                 </div>
               </div>
             </Card>
 
-            {/* Additional images could go here */}
-            <div className="grid grid-cols-4 gap-2">
-              {[1, 2, 3, 4].map((i) => (
-                <Card key={i} className="aspect-square overflow-hidden border-gray-200 cursor-pointer hover:border-[#0047FF] transition-all">
-                  <ImageWithFallback
-                    src={product.image}
-                    alt={`Vista ${i}`}
-                    className="w-full h-full object-cover opacity-50 hover:opacity-100 transition-opacity"
-                  />
-                </Card>
-              ))}
-            </div>
+            {/* Additional images */}
+            {data.images && data.images.length > 1 && (
+              <div className="grid grid-cols-4 gap-2">
+                {data.images.slice(0, 4).map((img, i) => (
+                  <Card key={img.id} className="aspect-square overflow-hidden border-gray-200 cursor-pointer hover:border-[#0047FF] transition-all">
+                    <ImageWithFallback
+                      src={img.thumbnail_url || img.url}
+                      alt={`Vista ${i + 1}`}
+                      className="w-full h-full object-cover hover:opacity-100 transition-opacity"
+                    />
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right Side - Specifications */}
@@ -118,17 +166,17 @@ export default function ProductSpecifications() {
             {/* Title & Location */}
             <div>
               <div className="flex items-start justify-between mb-2">
-                <h1 className="text-gray-900 text-lg md:text-xl lg:text-2xl">{product.title}</h1>
+                <h1 className="text-gray-900 text-lg md:text-xl lg:text-2xl">{data.title}</h1>
               </div>
               
               <div className="flex items-center gap-4 text-gray-600">
                 <div className="flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
-                  <span className="text-sm">{product.location}</span>
+                  <span className="text-sm">{data.location.formatted}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Clock className="w-4 h-4" />
-                  <span className="text-sm">{product.timePosted}</span>
+                  <span className="text-sm">{formatDate(data.created_at)}</span>
                 </div>
               </div>
             </div>
@@ -136,23 +184,31 @@ export default function ProductSpecifications() {
             {/* Price Section */}
             <Card className="bg-gradient-to-br from-[#0047FF]/5 to-[#0047FF]/10 border-[#0047FF]/20 p-4 md:p-6">
               <div className="space-y-3 md:space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Precio original</span>
-                  <span className="text-gray-400 line-through">{formatPrice(product.originalPrice)}</span>
-                </div>
+                {hasDiscount && data.pricing.original_price && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">Precio original</span>
+                    <span className="text-gray-400 line-through">
+                      {data.pricing.formatted?.original || formatPrice(data.pricing.original_price)}
+                    </span>
+                  </div>
+                )}
                 
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-xs md:text-sm text-[#0047FF] mb-1">Precio actual</div>
-                    <div className="text-xl md:text-2xl lg:text-3xl text-[#0047FF]">{formatPrice(product.price)}</div>
+                    <div className="text-xl md:text-2xl lg:text-3xl text-[#0047FF]">
+                      {data.pricing.formatted?.current || formatPrice(data.pricing.current_price)}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 bg-green-100 px-2 md:px-3 py-1.5 md:py-2 rounded-lg">
-                    <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
-                    <span className="text-xs md:text-sm text-green-700">-14% OFF</span>
-                  </div>
+                  {hasDiscount && (
+                    <div className="flex items-center gap-2 bg-green-100 px-2 md:px-3 py-1.5 md:py-2 rounded-lg">
+                      <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                      <span className="text-xs md:text-sm text-green-700">-{data.pricing.discount_percentage}% OFF</span>
+                    </div>
+                  )}
                 </div>
 
-                {product.negotiable && (
+                {data.pricing.is_negotiable && (
                   <div className="flex items-center gap-2 bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-[#0047FF]/30">
                     <CheckCircle2 className="w-5 h-5 text-[#0047FF]" />
                     <span className="text-sm text-gray-700">Precio negociable - ¡Haz tu oferta!</span>
@@ -165,16 +221,23 @@ export default function ProductSpecifications() {
             <div>
               <h2 className="text-gray-900 text-base md:text-lg mb-3">Descripción</h2>
               <p className="text-sm md:text-base text-gray-600 leading-relaxed">
-                {product.description}
+                {data.description}
               </p>
             </div>
 
             {/* Action Buttons */}
             <div className="space-y-3 pt-4">
-              <Button className="w-full bg-[#0047FF] hover:bg-[#0039CC] text-white shadow-lg hover:shadow-xl transition-all py-4 md:py-5 text-sm md:text-base">
+              <Button 
+                onClick={onMakeOffer}
+                className="w-full bg-[#0047FF] hover:bg-[#0039CC] text-white shadow-lg hover:shadow-xl transition-all py-4 md:py-5 text-sm md:text-base"
+              >
                 Hacer una oferta
               </Button>
-              <Button variant="outline" className="w-full border-[#0047FF] text-[#0047FF] hover:bg-[#0047FF]/5 py-4 md:py-5 text-sm md:text-base">
+              <Button 
+                onClick={onContactSeller}
+                variant="outline" 
+                className="w-full border-[#0047FF] text-[#0047FF] hover:bg-[#0047FF]/5 py-4 md:py-5 text-sm md:text-base"
+              >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 Contactar vendedor
               </Button>
@@ -201,16 +264,16 @@ export default function ProductSpecifications() {
             {/* Seller Avatar & Basic Info */}
             <div className="flex items-center gap-3 md:gap-4 lg:border-r lg:border-gray-200 lg:pr-6">
               <Avatar className="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 border-2 border-[#0047FF]">
-                <AvatarImage src={seller.avatar} alt={seller.name} />
+                <AvatarImage src={data.seller.avatar} alt={data.seller.name} />
                 <AvatarFallback className="bg-[#0047FF] text-white text-sm md:text-base lg:text-xl">
-                  {seller.name.split(' ').map(n => n[0]).join('')}
+                  {data.seller.name.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
               
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-gray-900 text-sm md:text-base lg:text-lg">{seller.name}</h3>
-                  {seller.verified && (
+                  <h3 className="text-gray-900 text-sm md:text-base lg:text-lg">{data.seller.name}</h3>
+                  {data.seller.is_verified && (
                     <div className="relative group">
                       <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-[#0047FF] fill-[#0047FF]" />
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
@@ -222,13 +285,13 @@ export default function ProductSpecifications() {
                 
                 <div className="flex items-center gap-1 mb-1">
                   <Star className="w-3 h-3 md:w-3.5 md:h-3.5 lg:w-4 lg:h-4 text-yellow-500 fill-yellow-500" />
-                  <span className="text-xs md:text-sm text-gray-900">{seller.rating}</span>
-                  <span className="text-xs md:text-sm text-gray-500">({seller.totalReviews} opiniones)</span>
+                  <span className="text-xs md:text-sm text-gray-900">{data.seller.stats.rating}</span>
+                  <span className="text-xs md:text-sm text-gray-500">({data.seller.stats.total_reviews} opiniones)</span>
                 </div>
                 
                 <div className="flex items-center gap-1 text-xs md:text-sm text-gray-500">
                   <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5 lg:w-4 lg:h-4" />
-                  <span>Miembro desde {seller.memberSince}</span>
+                  <span>Miembro desde {new Date(data.seller.member_since).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })}</span>
                 </div>
               </div>
             </div>
@@ -236,17 +299,17 @@ export default function ProductSpecifications() {
             {/* Seller Stats */}
             <div className="flex-1 grid grid-cols-3 gap-3 md:gap-4">
               <div className="text-center lg:text-left">
-                <div className="text-lg md:text-xl lg:text-2xl text-[#0047FF] mb-0.5 md:mb-1">{seller.totalSales}</div>
+                <div className="text-lg md:text-xl lg:text-2xl text-[#0047FF] mb-0.5 md:mb-1">{data.seller.stats.successful_sales}</div>
                 <div className="text-[10px] md:text-xs lg:text-sm text-gray-500">Ventas exitosas</div>
               </div>
               
               <div className="text-center lg:text-left">
-                <div className="text-lg md:text-xl lg:text-2xl text-[#0047FF] mb-0.5 md:mb-1">{seller.responseRate}</div>
+                <div className="text-lg md:text-xl lg:text-2xl text-[#0047FF] mb-0.5 md:mb-1">{data.seller.stats.response_rate}%</div>
                 <div className="text-[10px] md:text-xs lg:text-sm text-gray-500">Tasa de respuesta</div>
               </div>
               
               <div className="text-center lg:text-left">
-                <div className="text-lg md:text-xl lg:text-2xl text-[#0047FF] mb-0.5 md:mb-1">{seller.responseTime}</div>
+                <div className="text-lg md:text-xl lg:text-2xl text-[#0047FF] mb-0.5 md:mb-1">~{data.seller.stats.avg_response_time_hours} horas</div>
                 <div className="text-[10px] md:text-xs lg:text-sm text-gray-500">Tiempo de respuesta</div>
               </div>
             </div>

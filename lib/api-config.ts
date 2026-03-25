@@ -25,6 +25,9 @@ export const API_ENDPOINTS = {
   },
   LISTINGS: {
     PUBLIC: '/api/public/listings',  // Para "Explorar Hoy" en Dashboard
+    DETAILS: (id: string | number) => `/api/public/listings/${id}`, // Detalles del producto
+    SELL: '/api/listings/sell',     // Crear publicación de VENTA
+    BUY: '/api/listings/buy',       // Crear publicación de COMPRA
   },
   AUTH: {
     REGISTER: '/api/auth/register',

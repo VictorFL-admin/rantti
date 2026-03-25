@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Card } from "./ui/card";
-import { Search, Send, Paperclip, Check, ChevronDown, ChevronUp, X, FileText } from "lucide-react";
+import { Search, Send, Paperclip, Check, ChevronDown, ChevronUp, X, FileText, AlertCircle } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import * as ChatAPI from "@/lib/chat-api";
 import { getEcho } from "@/lib/echo";
 import { presenceService } from "@/lib/services/presence-service";
 import type { Conversation, Message as APIMessage } from "@/lib/chat-api";
+import { toast } from "sonner";
 
 const FILTER_TAGS = [
   { id: "todo", label: "Todo", value: "todo" },
@@ -644,7 +645,10 @@ export default function ChatsPanel() {
       setSelectedFile(null);
     } catch (err) {
       // console.error('❌ Error sending message:', err);
-      alert('Error al enviar mensaje');
+      toast.error("Error al enviar mensaje", {
+        description: "No se pudo enviar el mensaje. Inténtalo nuevamente",
+        icon: <AlertCircle className="w-5 h-5" />
+      });
     }
   };
 
@@ -658,7 +662,10 @@ export default function ChatsPanel() {
         fileInputRef.current.value = '';
       }
     } else {
-      alert('Por favor, selecciona solo archivos PDF');
+      toast.error("Archivo no válido", {
+        description: "Por favor, selecciona solo archivos PDF",
+        icon: <AlertCircle className="w-5 h-5" />
+      });
     }
   };
 

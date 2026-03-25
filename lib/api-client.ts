@@ -135,3 +135,29 @@ export async function apiDelete(url: string): Promise<Response> {
   
   return response;
 }
+
+/**
+ * Realiza una petición POST con FormData (para archivos/imágenes)
+ */
+export async function apiPostFormData(url: string, formData: FormData): Promise<Response> {
+  const token = getAuthToken();
+  const headers: HeadersInit = {};
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  // NO establecer Content-Type manualmente - el navegador lo hace automáticamente con boundary
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+  
+  // Detectar token expirado
+  if (response.status === 401) {
+    handleUnauthorized();
+  }
+  
+  return response;
+}
