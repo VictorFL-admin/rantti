@@ -544,7 +544,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                                   }}
                                 />
                               </div>
-                              <CardContent className="p-4">
+                              <CardContent className="p-4 pt-5">
                                 <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
                                   {listing.title}
                                 </h3>
