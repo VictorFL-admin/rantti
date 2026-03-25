@@ -3,41 +3,22 @@ import { useRouter, usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 import { API_ENDPOINTS, getApiUrl } from "@/lib/api-config";
 import { apiGet } from "@/lib/api-client";
-import { Listing, ListingsResponse } from "@/lib/types/listings";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Badge } from "./ui/badge";
+import { Listing } from "@/lib/types/listings";
+import { Card, CardContent } from "./ui/card";
 import { 
-  LayoutDashboard, 
   Package, 
   MessageSquare, 
   TrendingUp, 
-  Settings, 
-  LogOut,
   Plus,
-  Search,
-  Filter,
-  MoreVertical,
   Eye,
-  Edit,
-  Trash2,
   DollarSign,
-  ArrowUpRight,
-  ArrowDownRight,
-  Clock,
   Bell,
-  CreditCard,
   Zap,
-  MessageCircle,
   Menu,
   Box,
-  FileText,
   ShoppingCart,
   ShoppingBag
 } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "./ui/sheet";
-import { VisuallyHidden } from "./ui/visually-hidden";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -94,9 +75,101 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   const [loadingProfile, setLoadingProfile] = useState(true);
   
   // Estados para "Explorar Hoy"
-  const [exploreTodayListings, setExploreTodayListings] = useState<Listing[]>([]);
   const [loadingListings, setLoadingListings] = useState(false);
   const [listingsError, setListingsError] = useState<string | null>(null);
+  const [exploreFilter, setExploreFilter] = useState<'COMPRA' | 'VENTA'>('COMPRA');
+  
+  // Datos estáticos para "Explorar Hoy" (sin conexión a API)
+  const exploreTodayListings: Listing[] = [
+    {
+      id: 1,
+      title: "Busco Tesla Model 3 2023",
+      price: 42000,
+      currency: "USD",
+      category: { id: 1, name: "Autos" },
+      location: "Lima, Perú",
+      listing_type: "COMPRA",
+      image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800",
+      views: 234
+    },
+    {
+      id: 2,
+      title: "Departamento en Miraflores",
+      price: 280000,
+      currency: "USD",
+      category: { id: 2, name: "Propiedades" },
+      location: "Miraflores, Lima",
+      listing_type: "VENTA",
+      image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800",
+      views: 567
+    },
+    {
+      id: 3,
+      title: "Busco Rolex Submariner",
+      price: 12500,
+      currency: "USD",
+      category: { id: 3, name: "Objetos de Lujo" },
+      location: "San Isidro, Lima",
+      listing_type: "COMPRA",
+      image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800",
+      views: 189
+    },
+    {
+      id: 4,
+      title: "iPhone 15 Pro Max 256GB",
+      price: 1300,
+      currency: "USD",
+      category: { id: 4, name: "Electrónicos" },
+      location: "Lima, Perú",
+      listing_type: "VENTA",
+      image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800",
+      views: 445
+    },
+    {
+      id: 5,
+      title: "Casa de Playa - Asia",
+      price: 450000,
+      currency: "USD",
+      category: { id: 2, name: "Propiedades" },
+      location: "Asia, Lima",
+      listing_type: "VENTA",
+      image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800",
+      views: 678
+    },
+    {
+      id: 6,
+      title: "Busco Bicicleta de Montaña",
+      price: 1800,
+      currency: "USD",
+      category: { id: 5, name: "Deportes" },
+      location: "La Molina, Lima",
+      listing_type: "COMPRA",
+      image: "https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=800",
+      views: 156
+    },
+    {
+      id: 7,
+      title: "MacBook Pro M3 Max 2024",
+      price: 3200,
+      currency: "USD",
+      category: { id: 4, name: "Electrónicos" },
+      location: "San Borja, Lima",
+      listing_type: "VENTA",
+      image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+      views: 389
+    },
+    {
+      id: 8,
+      title: "Busco Set de Golf Premium",
+      price: 2400,
+      currency: "USD",
+      category: { id: 5, name: "Deportes" },
+      location: "Surco, Lima",
+      listing_type: "COMPRA",
+      image: "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800",
+      views: 203
+    }
+  ];
 
   // Sync activeTab with URL changes
   useEffect(() => {
@@ -192,41 +265,6 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
     fetchDashboardData();
   }, []);
 
-  // Fetch "Explorar Hoy" listings
-  const fetchExploreTodayListings = async () => {
-    try {
-      setLoadingListings(true);
-      setListingsError(null);
-      
-      const response = await apiGet(
-        `${getApiUrl(API_ENDPOINTS.LISTINGS.PUBLIC)}?per_page=8&sort=recent`
-      );
-      
-      if (response.ok) {
-        const result: ListingsResponse = await response.json();
-        setExploreTodayListings(result.data.listings);
-      } else {
-        setListingsError('Error al cargar publicaciones');
-      }
-    } catch (error) {
-      console.error('Error al cargar listings de Explorar Hoy:', error);
-      setListingsError('Error al conectar con el servidor');
-    } finally {
-      setLoadingListings(false);
-    }
-  };
-
-  // Fetch listings on mount y polling cada 60 segundos
-  useEffect(() => {
-    fetchExploreTodayListings();
-    
-    // Polling cada 60 segundos
-    const interval = setInterval(() => {
-      fetchExploreTodayListings();
-    }, 60000);
-    
-    return () => clearInterval(interval);
-  }, []);
 
   // Preparar los stats desde la API
   const stats = dashboardData ? [
@@ -443,6 +481,36 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                     </div>
                   )}
                   
+                  {/* Tabs de Comprar / Vender */}
+                  <div className="flex gap-8 border-b border-gray-200">
+                    <button
+                      onClick={() => setExploreFilter('COMPRA')}
+                      className={`pb-3 px-1 font-medium text-sm transition-colors relative ${
+                        exploreFilter === 'COMPRA'
+                          ? 'text-gray-900'
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      Comprar
+                      {exploreFilter === 'COMPRA' && (
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0047FF]" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setExploreFilter('VENTA')}
+                      className={`pb-3 px-1 font-medium text-sm transition-colors relative ${
+                        exploreFilter === 'VENTA'
+                          ? 'text-gray-900'
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      Vender
+                      {exploreFilter === 'VENTA' && (
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0047FF]" />
+                      )}
+                    </button>
+                  </div>
+                  
                   {/* Loader de Listings */}
                   {loadingListings && exploreTodayListings.length === 0 ? (
                     <div className="flex items-center justify-center py-12">
@@ -452,13 +520,15 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                     <>
                       {/* Products Grid - Estilo Marketplace */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                        {exploreTodayListings.length === 0 ? (
+                        {exploreTodayListings.filter(listing => listing.listing_type === exploreFilter).length === 0 ? (
                           <div className="col-span-full text-center py-12">
                             <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                             <p className="text-gray-500">No hay publicaciones disponibles en este momento</p>
                           </div>
                         ) : (
-                          exploreTodayListings.map((listing) => (
+                          exploreTodayListings
+                            .filter(listing => listing.listing_type === exploreFilter)
+                            .map((listing) => (
                             <Card 
                               key={listing.id} 
                               className="bg-white border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
@@ -475,17 +545,6 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                                 />
                               </div>
                               <CardContent className="p-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Badge variant="secondary" className="text-xs">
-                                    {listing.category.name}
-                                  </Badge>
-                                  <Badge 
-                                    variant={listing.listing_type === 'VENTA' ? 'default' : 'secondary'}
-                                    className="text-xs"
-                                  >
-                                    {listing.listing_type}
-                                  </Badge>
-                                </div>
                                 <h3 className="font-['Poppins',sans-serif] text-sm font-medium text-gray-900 line-clamp-2 mb-2">
                                   {listing.title}
                                 </h3>
@@ -509,7 +568,6 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                                 </div>
                               </CardContent>
                             </Card>
-
                           ))
                         )}
                       </div>
