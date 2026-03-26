@@ -12,8 +12,11 @@ import {
   Calendar,
   CheckCircle2,
   TrendingDown,
-  Clock
+  Clock,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
+import { useState } from "react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import type { ListingDetails } from "@/lib/types/listings";
 
@@ -78,12 +81,34 @@ export default function ProductSpecifications({
   // Usar datos reales si están disponibles, sino mock
   const data = listing || mockProduct;
   
+  // Estado para el carousel de imágenes
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Estado para el ajuste de precio en ofertas
+  const [priceAdjustment, setPriceAdjustment] = useState(0);
+  
+  const handlePrevImage = () => {
+    if (data.images && data.images.length > 0) {
+      setCurrentImageIndex((prev) => 
+        prev === 0 ? data.images.length - 1 : prev - 1
+      );
+    }
+  };
+  
+  const handleNextImage = () => {
+    if (data.images && data.images.length > 0) {
+      setCurrentImageIndex((prev) => 
+        prev === data.images.length - 1 ? 0 : prev + 1
+      );
+    }
+  };
+  
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-MX', {
+    return new Intl.NumberFormat('es-PE', {
       style: 'currency',
-      currency: 'MXN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      currency: 'PEN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(price);
   };
 
@@ -99,21 +124,22 @@ export default function ProductSpecifications({
     return date.toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" });
   };
 
-  const currentImage = data.images && data.images.length > 0 ? data.images[0].url : "";
+  const currentImage = data.images && data.images.length > 0 ? data.images[currentImageIndex].url : "";
   const hasDiscount = data.pricing.discount_percentage && data.pricing.discount_percentage > 0;
 
   return (
     <div className="space-y-6">
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-          {/* Left Side - Image */}
-          <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+          {/* Left Side - Image Carousel */}
+          <div className="space-y-4 lg:col-span-2">
+            {/* Imagen Principal con Carousel */}
             <Card className="overflow-hidden border-gray-200">
-              <div className="relative aspect-square bg-gray-100">
+              <div className="relative aspect-video bg-white group">
                 <ImageWithFallback
                   src={currentImage}
                   alt={data.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
                 
                 {/* Badges on image */}
@@ -124,7 +150,7 @@ export default function ProductSpecifications({
                 </div>
 
                 {/* Actions on image */}
-                <div className="absolute top-4 right-4 flex flex-col gap-2">
+                <div className="absolute top-4 right-4 flex flex-row gap-2">
                   <button className="w-10 h-10 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full flex items-center justify-center transition-all shadow-md hover:shadow-lg">
                     <Heart className="w-5 h-5 text-gray-700" />
                   </button>
@@ -133,32 +159,50 @@ export default function ProductSpecifications({
                   </button>
                 </div>
 
-                {/* Stats on bottom */}
-                <div className="absolute bottom-4 left-4 right-4 flex gap-2">
-                  <Badge className="bg-white/90 backdrop-blur-sm text-gray-900 border-0">
-                    👁️ {data.views_count} vistas
-                  </Badge>
-                  <Badge className="bg-white/90 backdrop-blur-sm text-gray-900 border-0">
-                    ❤️ {data.favorites_count} favoritos
-                  </Badge>
-                </div>
+                {/* Carousel Navigation Buttons */}
+                {data.images && data.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={handlePrevImage}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <ChevronLeft className="w-8 h-8 text-gray-900" />
+                    </button>
+                    <button
+                      onClick={handleNextImage}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <ChevronRight className="w-8 h-8 text-gray-900" />
+                    </button>
+                  </>
+                )}
+
+                {/* Carousel Indicators (Dots) */}
+                {data.images && data.images.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                    {data.images.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          index === currentImageIndex
+                            ? "bg-white w-6"
+                            : "bg-white/50 hover:bg-white/75"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </Card>
 
-            {/* Additional images */}
-            {data.images && data.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {data.images.slice(0, 4).map((img, i) => (
-                  <Card key={img.id} className="aspect-square overflow-hidden border-gray-200 cursor-pointer hover:border-[#0047FF] transition-all">
-                    <ImageWithFallback
-                      src={img.thumbnail_url || img.url}
-                      alt={`Vista ${i + 1}`}
-                      className="w-full h-full object-cover hover:opacity-100 transition-opacity"
-                    />
-                  </Card>
-                ))}
-              </div>
-            )}
+            {/* Descripción del Producto */}
+            <div className="py-4">
+              <h2 className="text-gray-900 text-base md:text-lg mb-3 font-semibold">Descripción</h2>
+              <p className="text-sm md:text-base text-gray-600 leading-relaxed whitespace-pre-line">
+                {data.description}
+              </p>
+            </div>
           </div>
 
           {/* Right Side - Specifications */}
@@ -183,65 +227,100 @@ export default function ProductSpecifications({
 
             {/* Price Section */}
             <Card className="bg-gradient-to-br from-[#0047FF]/5 to-[#0047FF]/10 border-[#0047FF]/20 p-4 md:p-6">
-              <div className="space-y-3 md:space-y-4">
-                {hasDiscount && data.pricing.original_price && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">Precio original</span>
-                    <span className="text-gray-400 line-through">
-                      {data.pricing.formatted?.original || formatPrice(data.pricing.original_price)}
-                    </span>
-                  </div>
-                )}
-                
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-xs md:text-sm text-[#0047FF] mb-1">Precio actual</div>
-                    <div className="text-xl md:text-2xl lg:text-3xl text-[#0047FF]">
+                    <div className="text-xs md:text-sm text-gray-600 mb-1">Precio actual</div>
+                    <div className="text-2xl md:text-3xl font-bold text-[#0047FF]">
                       {data.pricing.formatted?.current || formatPrice(data.pricing.current_price)}
                     </div>
                   </div>
-                  {hasDiscount && (
-                    <div className="flex items-center gap-2 bg-green-100 px-2 md:px-3 py-1.5 md:py-2 rounded-lg">
-                      <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
-                      <span className="text-xs md:text-sm text-green-700">-{data.pricing.discount_percentage}% OFF</span>
+                  {hasDiscount && data.pricing.discount_percentage && (
+                    <div className="flex items-center gap-2 bg-green-100 px-3 py-1.5 rounded-lg">
+                      <TrendingDown className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-green-700 font-semibold">-{data.pricing.discount_percentage}%</span>
                     </div>
                   )}
                 </div>
 
                 {data.pricing.is_negotiable && (
-                  <div className="flex items-center gap-2 bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-[#0047FF]/30">
-                    <CheckCircle2 className="w-5 h-5 text-[#0047FF]" />
-                    <span className="text-sm text-gray-700">Precio negociable - ¡Haz tu oferta!</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <CheckCircle2 className="w-4 h-4 text-[#0047FF]" />
+                      <span>Precio negociable - ¡Haz tu oferta!</span>
+                    </div>
+                    
+                    {/* Comprar Button */}
+                    <Button 
+                      className="w-full bg-[#0047FF] hover:bg-[#0039CC] text-white py-3 text-base font-medium"
+                    >
+                      Comprar
+                    </Button>
+
+                    {/* Price Adjustment Controls - InDrive Style */}
+                    <div className="border-t border-gray-200 pt-4">
+                      <div className="grid grid-cols-3 gap-2 mb-3">
+                        <button
+                          onClick={() => setPriceAdjustment(prev => prev + 10)}
+                          className="px-4 py-2.5 rounded-lg border bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 font-medium transition-all"
+                        >
+                          +10%
+                        </button>
+                        <div className="flex flex-col items-center justify-center px-2 py-2 bg-white rounded-lg border border-gray-300">
+                          <span className="text-base font-semibold text-[#0047FF]">
+                            {formatPrice(data.pricing.current_price * (1 + priceAdjustment / 100))}
+                          </span>
+                          {priceAdjustment !== 0 && (
+                            <span className="text-xs text-gray-500">
+                              {priceAdjustment > 0 ? '+' : ''}{priceAdjustment}%
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => setPriceAdjustment(prev => prev - 10)}
+                          className="px-4 py-2.5 rounded-lg border bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 font-medium transition-all"
+                        >
+                          -10%
+                        </button>
+                      </div>
+
+                      <Button 
+                        onClick={onMakeOffer}
+                        className="w-full bg-[#0047FF] hover:bg-[#0039CC] text-white py-3 text-base font-medium"
+                      >
+                        Mandar Oferta
+                      </Button>
+                      
+                      <button
+                        onClick={onContactSeller}
+                        className="w-full mt-2 flex items-center justify-center gap-2 text-gray-600 hover:text-[#0047FF] py-2 text-sm transition-colors"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Enviar Mensaje
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {!data.pricing.is_negotiable && (
+                  <div className="space-y-3 pt-2">
+                    <Button 
+                      className="w-full bg-[#0047FF] hover:bg-[#0039CC] text-white py-3 text-base font-medium"
+                    >
+                      Comprar ahora
+                    </Button>
+                    <Button 
+                      onClick={onContactSeller}
+                      variant="outline" 
+                      className="w-full border-[#0047FF] text-[#0047FF] hover:bg-[#0047FF]/5 py-3 text-base"
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Contactar vendedor
+                    </Button>
                   </div>
                 )}
               </div>
             </Card>
-
-            {/* Description */}
-            <div>
-              <h2 className="text-gray-900 text-base md:text-lg mb-3">Descripción</h2>
-              <p className="text-sm md:text-base text-gray-600 leading-relaxed">
-                {data.description}
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-3 pt-4">
-              <Button 
-                onClick={onMakeOffer}
-                className="w-full bg-[#0047FF] hover:bg-[#0039CC] text-white shadow-lg hover:shadow-xl transition-all py-4 md:py-5 text-sm md:text-base"
-              >
-                Hacer una oferta
-              </Button>
-              <Button 
-                onClick={onContactSeller}
-                variant="outline" 
-                className="w-full border-[#0047FF] text-[#0047FF] hover:bg-[#0047FF]/5 py-4 md:py-5 text-sm md:text-base"
-              >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                Contactar vendedor
-              </Button>
-            </div>
 
             {/* Safety Notice */}
             <Card className="bg-blue-50 border-blue-200 p-3 md:p-4">
