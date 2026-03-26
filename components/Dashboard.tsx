@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 import { API_ENDPOINTS, getApiUrl } from "@/lib/api-config";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiPost } from "@/lib/api-client";
 import { Listing } from "@/lib/types/listings";
 import { Card, CardContent } from "./ui/card";
 import { 
@@ -87,6 +87,9 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   const [loadingProduct, setLoadingProduct] = useState(false);
   const [exploreFilter, setExploreFilter] = useState<'COMPRA' | 'VENTA'>('COMPRA');
   const [exploreTodayListings, setExploreTodayListings] = useState<Listing[]>([]);
+  
+  // Estado para abrir chat específico después de enviar oferta
+  const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
 
   // Función para cargar publicaciones de "Explorar Hoy"
   const fetchExploreTodayListings = async () => {
@@ -362,6 +365,42 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   };
 
   // Función para volver desde detalle de producto
+  // Función para manejar el envío de una oferta
+  const handleMakeOffer = async (listingId: number, amount: number, currency: string, message?: string) => {
+    try {
+      const response = await apiPost(getApiUrl(API_ENDPOINTS.OFFERS.SEND), {
+        listing_id: listingId,
+        amount: amount,
+        currency: currency,
+        message: message || `Hola, te ofrezco ${currency} ${amount.toFixed(2)}`,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.success && data.data.conversation_id) {
+          // Guardar el conversation_id y cambiar al tab de chats
+          setActiveConversationId(data.data.conversation_id);
+          setActiveTab('chats');
+          
+          toast.success('Oferta enviada', {
+            description: 'Tu oferta ha sido enviada al vendedor. Ahora puedes chatear con él.',
+          });
+        }
+      } else {
+        const errorData = await response.json();
+        toast.error('Error al enviar oferta', {
+          description: errorData.error?.message || 'No se pudo enviar la oferta',
+        });
+      }
+    } catch (error) {
+      console.error('Error sending offer:', error);
+      toast.error('Error', {
+        description: 'Ocurrió un error al enviar la oferta',
+      });
+    }
+  };
+
   const handleBackFromProduct = () => {
     setActiveTab('overview');
     setSelectedProductId(null);
@@ -596,7 +635,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           {/* Chats Tab */}
           {/* Chats Tab */}
           {activeTab === "chats" && (
-            <ChatsPanel />
+            <ChatsPanel initialConversationId={activeConversationId} />
           )}
 
           {/* Actividad Reciente Tab */}
@@ -668,9 +707,8 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
               ) : selectedProductData ? (
                 <ProductSpecifications
                   listing={selectedProductData}
-                  onMakeOffer={() => {
-                    // TODO: Abrir modal de oferta
-                    console.log('Hacer oferta');
+                  onMakeOffer={(amount: number, currency: string) => {
+                    handleMakeOffer(selectedProductData.id, amount, currency);
                   }}
                   onContactSeller={() => {
                     setActiveTab('chats');

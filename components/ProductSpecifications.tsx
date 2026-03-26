@@ -22,7 +22,7 @@ import type { ListingDetails } from "@/lib/types/listings";
 
 interface ProductSpecificationsProps {
   listing?: ListingDetails;
-  onMakeOffer?: () => void;
+  onMakeOffer?: (amount: number, currency: string) => void;
   onContactSeller?: () => void;
   onClose?: () => void;
 }
@@ -285,7 +285,12 @@ export default function ProductSpecifications({
                       </div>
 
                       <Button 
-                        onClick={onMakeOffer}
+                        onClick={() => {
+                          if (onMakeOffer) {
+                            const adjustedPrice = data.pricing.current_price * (1 + priceAdjustment / 100);
+                            onMakeOffer(adjustedPrice, data.pricing.currency);
+                          }
+                        }}
                         className="w-full bg-[#0047FF] hover:bg-[#0039CC] text-white py-3 text-base font-medium"
                       >
                         Mandar Oferta

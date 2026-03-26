@@ -24,8 +24,11 @@ export interface User {
 export interface Listing {
   id: number;
   title: string;
+  title_short?: string; // Título truncado del backend
   price: number;
-  image: string;
+  currency?: string;
+  image?: string; // URL de la imagen principal
+  images?: Array<{ id: number; url: string; thumbnail_url?: string; is_primary: boolean; order: number }>;
 }
 
 export interface Message {

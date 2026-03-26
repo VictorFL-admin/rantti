@@ -20,7 +20,7 @@ const FILTER_TAGS = [
   { id: "pago_contra_entrega", label: "Pago contra entrega", value: "pago_contra_entrega" }
 ];
 
-export default function ChatsPanel() {
+export default function ChatsPanel({ initialConversationId }: { initialConversationId?: number | null }) {
   // Estados del componente
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
@@ -142,7 +142,6 @@ export default function ChatsPanel() {
         };
       });
       
-      // console.log('📋 Loaded conversations (online status will be updated by presenceService):', normalizedData);
       setConversations(normalizedData);
       
       // ✅ CRITICAL: Aplicar estado online inmediatamente después de cargar
@@ -180,6 +179,8 @@ export default function ChatsPanel() {
         const isOnline = currentOnlineUserIds.has(updatedChat.user?.id || 0);
         return {
           ...updatedChat,
+          // ✅ CRITICAL: Preservar mensajes existentes
+          messages: prev.messages || updatedChat.messages || [],
           user: updatedChat.user ? {
             ...updatedChat.user,
             online: isOnline,
@@ -201,6 +202,20 @@ export default function ChatsPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, activeFilter]);
 
+  // Recargar conversaciones cuando se recibe un initialConversationId (nueva oferta)
+  useEffect(() => {
+    if (initialConversationId) {
+      // console.log('🔄 Reloading conversations due to new offer');
+      // ⏰ Delay para dar tiempo al backend a procesar la oferta
+      const timer = setTimeout(() => {
+        loadConversations();
+      }, 500); // 500ms delay
+      
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialConversationId]);
+
   // � WebSocket para canal personal - actualizar lista en tiempo real
   useEffect(() => {
     if (!currentUserId) return;
@@ -216,11 +231,8 @@ export default function ChatsPanel() {
 
     // Escuchar eventos globales en el canal personal
     personalChannel.subscription.bind_global((eventName: string, data: any) => {
-      // console.log(`📬 Personal channel event: ${eventName}`, data);
-
       // Actualizar lista cuando llega mensaje nuevo
       if (eventName === 'MessageSent') {
-        // console.log('📬 New message notification for conversation:', data.conversation_id);
         
         setConversations(prev => prev.map(conv => {
           if (conv.id === data.conversation_id) {
@@ -303,6 +315,45 @@ export default function ChatsPanel() {
     };
   }, []);
 
+  // Seleccionar conversación automáticamente cuando se pasa initialConversationId
+  useEffect(() => {
+    const selectConversationFromOffer = async () => {
+      if (!initialConversationId || conversations.length === 0) return;
+      
+      const targetConversation = conversations.find(conv => conv.id === initialConversationId);
+      if (!targetConversation) return;
+      
+      // Evitar re-seleccionar si ya está seleccionado
+      if (selectedChat && selectedChat.id === initialConversationId) return;
+      
+      // Normalizar el chat antes de seleccionar
+      const normalizedChat: Conversation = {
+        ...targetConversation,
+        user: targetConversation.other_user ? {
+          id: targetConversation.other_user.id,
+          name: (targetConversation.other_user as any).full_name || targetConversation.other_user.name,
+          online: onlineUserIds.has(targetConversation.other_user.id),
+          avatar: (targetConversation.other_user as any).avatar_url || targetConversation.other_user.avatar,
+          initials: getInitials((targetConversation.other_user as any).full_name || targetConversation.other_user.name || '')
+        } : targetConversation.user || {
+          id: 0,
+          name: 'Usuario',
+          online: false,
+          initials: '?'
+        },
+        messages: Array.isArray(targetConversation.messages) ? targetConversation.messages : []
+      };
+      
+      setSelectedChat(normalizedChat);
+      
+      // Cargar mensajes de la conversación
+      await loadMessages(initialConversationId);
+    };
+    
+    selectConversationFromOffer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialConversationId, conversations.length]);
+
   // Configurar WebSocket cuando se selecciona un chat
   useEffect(() => {
     if (!selectedChat) return;
@@ -319,11 +370,8 @@ export default function ChatsPanel() {
     
     // Debug: Listener para todos los eventos
     channel.subscription.bind_global((eventName: string, data: any) => {
-      // console.log(`🌐 WebSocket Event: ${eventName}`, data);
-      
       // Si es MessageSent, procesarlo manualmente
       if (eventName === 'MessageSent') {
-        // console.log('📨 Processing MessageSent from bind_global');
         const message = data;
         
         // console.log('📨 Message data:', message);
@@ -835,14 +883,14 @@ export default function ChatsPanel() {
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 text-left min-w-0 overflow-hidden">
+                        <div className="flex-1 text-left min-w-0">
                           <div className="flex items-start justify-between mb-1">
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 pr-2">
                               <p className="font-['Poppins',sans-serif] text-[15px] text-black font-medium truncate">
                                 {chat.user?.name || 'Usuario'}
                               </p>
                               <p className="font-['Poppins',sans-serif] text-[12px] text-[#8E8E93] truncate">
-                                {chat.listing.title}
+                                {(chat.listing as any).title_short || chat.listing.title}
                               </p>
                             </div>
                             {chat.last_message_at && (
@@ -851,7 +899,7 @@ export default function ChatsPanel() {
                               </span>
                             )}
                           </div>
-                          <p className="font-['Poppins',sans-serif] text-[13px] text-[#546A88] line-clamp-1">
+                          <p className="font-['Poppins',sans-serif] text-[13px] text-[#546A88] truncate">
                             {chat.last_message_preview}
                           </p>
                         </div>
@@ -906,7 +954,7 @@ export default function ChatsPanel() {
               {/* Product Info Card */}
               <div className="p-2 mx-3 my-2 md:p-3 md:mx-4 md:my-3 lg:p-4 lg:m-5 bg-[#F5F5F7] rounded-[8px] md:rounded-[12px] flex items-center gap-2 md:gap-3 lg:gap-4 flex-shrink-0">
                 <img
-                  src={selectedChat.listing.image}
+                  src={(selectedChat.listing as any).image || (selectedChat.listing as any).images?.[0]?.url || ''}
                   alt={selectedChat.listing.title}
                   className="w-[50px] h-[50px] md:w-[55px] md:h-[55px] lg:w-[60px] lg:h-[60px] rounded-[6px] md:rounded-[8px] object-cover flex-shrink-0"
                 />

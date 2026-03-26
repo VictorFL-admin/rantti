@@ -28,6 +28,13 @@ export const API_ENDPOINTS = {
     DETAILS: (id: string | number) => `/api/public/listings/${id}`, // Detalles del producto
     SELL: '/api/listings/sell',     // Crear publicación de VENTA
     BUY: '/api/listings/buy',       // Crear publicación de COMPRA
+    USER_LISTINGS: '/api/user/listings', // Obtener mis publicaciones (con filtros: type, status)
+  },
+  OFFERS: {
+    SEND: '/api/offers/send',       // Enviar oferta (crea todo: oferta + chat + mensaje)
+    ACCEPT: (id: string | number) => `/api/offers/${id}/accept`,
+    REJECT: (id: string | number) => `/api/offers/${id}/reject`,
+    COUNTER: (id: string | number) => `/api/offers/${id}/counter`,
   },
   AUTH: {
     REGISTER: '/api/auth/register',

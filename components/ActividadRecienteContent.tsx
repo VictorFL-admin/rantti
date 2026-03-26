@@ -1,7 +1,12 @@
+'use client';
+
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { RefreshCw, Plus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useState, useEffect } from "react";
+import { UserListingsAPI, type UserListing } from "@/lib/user-listings-api";
+import { toast } from "sonner";
 
 interface ActividadRecienteContentProps {
   user: { email: string; name: string; avatar?: string };
@@ -9,22 +14,45 @@ interface ActividadRecienteContentProps {
 }
 
 export default function ActividadRecienteContent({ user, onOpenPerfilModal }: ActividadRecienteContentProps) {
-  const productos = [
-    {
-      id: 1,
-      titulo: 'MacBook Pro M3 Max 16"',
-      precio: "10.999",
-      imagen: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop",
-      diasActivo: 28
-    },
-    {
-      id: 2,
-      titulo: 'MacBook Pro M3 Max 16"',
-      precio: "10.999",
-      imagen: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop",
-      diasActivo: 28
+  const [listings, setListings] = useState<UserListing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [repostingId, setRepostingId] = useState<number | null>(null);
+
+  // Cargar publicaciones de COMPRA del usuario
+  useEffect(() => {
+    loadListings();
+  }, []);
+
+  const loadListings = async () => {
+    try {
+      setLoading(true);
+      // Backend usa 'compra' en minúsculas y no necesitamos filtrar por status
+      const response = await UserListingsAPI.fetchUserListings('COMPRA');
+      
+      // Backend devuelve data.data (paginación Laravel)
+      const listingsData = response.data?.data || response.data || [];
+      setListings(Array.isArray(listingsData) ? listingsData : []);
+    } catch (error) {
+      console.error('Error loading purchase listings:', error);
+      toast.error('Error al cargar publicaciones');
+      setListings([]); // Asegurar array vacío en caso de error
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const handleRepost = async (listingId: number) => {
+    try {
+      setRepostingId(listingId);
+      await UserListingsAPI.repostListing(listingId);
+      toast.success('Publicación reposteada exitosamente');
+      loadListings(); // Recargar lista
+    } catch (error) {
+      toast.error('Error al repostear publicación');
+    } finally {
+      setRepostingId(null);
+    }
+  };
 
   const getInitials = (name: string) => {
     return name
@@ -39,46 +67,64 @@ export default function ActividadRecienteContent({ user, onOpenPerfilModal }: Ac
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Columna izquierda - Productos */}
       <div className="lg:col-span-2 space-y-4">
-        {productos.map((producto) => (
-          <Card 
-            key={producto.id} 
-            className="bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-center gap-4">
-              {/* Imagen del producto */}
-              <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 rounded-xl overflow-hidden">
-                <img
-                  src={producto.imagen}
-                  alt={producto.titulo}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* Contenido */}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-['Poppins',sans-serif] text-sm sm:text-base font-medium text-gray-900 mb-1">
-                  {producto.titulo}
-                </h3>
-                <p className="font-['Poppins',sans-serif] text-lg sm:text-xl font-semibold text-[#0047FF] mb-1">
-                  S/ {producto.precio}
-                </p>
-                <p className="font-['Poppins',sans-serif] text-xs sm:text-sm text-gray-500">
-                  Publicación activa por {producto.diasActivo} días
-                </p>
-              </div>
-
-              {/* Botón Repostear */}
-              <div className="flex-shrink-0">
-                <Button 
-                  className="bg-[#0047FF] hover:bg-[#0039CC] text-white rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap flex items-center gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  <span className="hidden sm:inline">Repostear</span>
-                </Button>
-              </div>
-            </div>
+        {loading ? (
+          <Card className="bg-white border border-gray-200 rounded-2xl p-8 text-center">
+            <p className="font-['Poppins',sans-serif] text-gray-500">Cargando publicaciones...</p>
           </Card>
-        ))}
+        ) : listings.length === 0 ? (
+          <Card className="bg-white border border-gray-200 rounded-2xl p-8 text-center">
+            <p className="font-['Poppins',sans-serif] text-gray-500 mb-4">
+              No tienes publicaciones de compra activas
+            </p>
+            <Button className="bg-[#0047FF] hover:bg-[#0039CC] text-white rounded-lg px-4 py-2">
+              <Plus className="w-4 h-4 mr-2" />
+              Crear Primera Publicación
+            </Button>
+          </Card>
+        ) : (
+          listings.map((listing) => (
+            <Card 
+              key={listing.id} 
+              className="bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center gap-4">
+                {/* Imagen del producto */}
+                <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 rounded-xl overflow-hidden">
+                  <img
+                    src={listing.images?.[0]?.url || listing.primary_image || 'https://via.placeholder.com/150'}
+                    alt={listing.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Contenido */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-['Poppins',sans-serif] text-sm sm:text-base font-medium text-gray-900 mb-1">
+                    {listing.title}
+                  </h3>
+                  <p className="font-['Poppins',sans-serif] text-lg sm:text-xl font-semibold text-[#0047FF] mb-1">
+                    {listing.formatted_price || `${listing.currency} ${Number(listing.price || listing.current_price || 0).toFixed(2)}`}
+                  </p>
+                  <p className="font-['Poppins',sans-serif] text-xs sm:text-sm text-gray-500">
+                    Publicación activa por {Math.ceil(listing.days_active || 0)} días
+                  </p>
+                </div>
+
+                {/* Botón Repostear */}
+                <div className="flex-shrink-0">
+                  <Button 
+                    onClick={() => handleRepost(listing.id)}
+                    disabled={repostingId === listing.id}
+                    className="bg-[#0047FF] hover:bg-[#0039CC] text-white rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap flex items-center gap-2 disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${repostingId === listing.id ? 'animate-spin' : ''}`} />
+                    <span className="hidden sm:inline">Repostear</span>
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
       </div>
 
       {/* Columna derecha - Perfil y Ayuda */}
