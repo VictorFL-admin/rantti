@@ -42,6 +42,7 @@ import PerfilMarketplaceModal from "./PerfilMarketplaceModal";
 import PanelVendedoresContent from "./PanelVendedoresContent";
 import TusPublicacionesContent from "./TusPublicacionesContent";
 import EstadisticasContent from "./EstadisticasContent";
+import NotificationsPanel from "./NotificationsPanel";
 
 interface DashboardProps {
   user: { email: string; name: string; avatar?: string };
@@ -626,10 +627,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
 
           {/* Notifications Tab */}
           {activeTab === "notifications" && (
-            <div className="text-center py-12">
-              <Bell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Panel de notificaciones próximamente</p>
-            </div>
+            <NotificationsPanel />
           )}
 
           {/* Chats Tab */}
