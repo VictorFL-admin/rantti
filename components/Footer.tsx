@@ -21,9 +21,9 @@ export default function Footer() {
             
             {/* Contact info */}
             <div className="space-y-3 mb-6">
-              <a href="mailto:rantti.soporte@gmail.com" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#0047FF] transition-colors">
+              <a href="mailto:support@rantti.com" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#0047FF] transition-colors">
                 <Mail className="w-4 h-4" />
-                rantti.soporte@gmail.com
+                support@rantti.com
               </a>
               <a href="tel:+51936151017" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#0047FF] transition-colors">
                 <Phone className="w-4 h-4" />

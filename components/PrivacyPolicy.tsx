@@ -30,187 +30,419 @@ export default function PrivacyPolicy({ onNavigate }: PrivacyPolicyProps) {
           Política de Privacidad
         </h1>
         <p className="text-sm text-gray-500 font-['Poppins',sans-serif] mb-8">
-          Última actualización: 10 de enero de 2025
+          Última actualización: 29 de marzo de 2026
         </p>
 
         <div className="prose prose-gray max-w-none space-y-6">
           <section>
             <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
-              1. Introducción
+              1. Identidad del Responsable del Tratamiento
             </h2>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              La presente Política de Privacidad regula el tratamiento de los datos personales de los usuarios de la plataforma digital Rantti (en adelante, "Rantti" o la "Plataforma").
+            </p>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              El responsable del tratamiento de los datos personales es el titular de Rantti, quien determina las finalidades y medios del tratamiento de dichos datos conforme a la normativa aplicable.
+            </p>
             <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
-              En Rantti, respetamos tu privacidad y nos comprometemos a proteger tus datos personales. Esta Política de Privacidad explica cómo recopilamos, usamos, compartimos y protegemos tu información cuando utilizas nuestra plataforma.
+              Para cualquier consulta, solicitud o ejercicio de derechos relacionados con datos personales, los usuarios pueden contactarse a través del siguiente correo electrónico: <a href="mailto:support@rantti.com" className="text-[#0047FF] hover:underline">support@rantti.com</a>
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
-              2. Información que Recopilamos
+              2. Alcance de la Política
             </h2>
             <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
-              Recopilamos diferentes tipos de información:
+              La presente Política de Privacidad se aplica a todas las personas que acceden, navegan o utilizan la Plataforma, ya sea como usuarios registrados o no registrados.
+            </p>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              El uso de Rantti implica la recopilación y tratamiento de datos personales conforme a lo establecido en este documento.
+            </p>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              Al registrarse en la Plataforma o utilizar sus funcionalidades, el usuario declara haber leído, comprendido y aceptado la presente Política de Privacidad.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
+              3. Definición del Servicio
+            </h2>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Rantti es una plataforma digital de intermediación que permite a los usuarios publicar anuncios relacionados con productos, tanto para su oferta como para su búsqueda.
+            </p>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              En particular, la Plataforma permite:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>La publicación de anuncios de oferta, mediante los cuales los usuarios ofrecen productos para la venta.</li>
+              <li>La publicación de anuncios de demanda, mediante los cuales los usuarios manifiestan su intención de adquirir determinados productos.</li>
+            </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Rantti actúa exclusivamente como un intermediario tecnológico que facilita la visibilidad de dichos anuncios y el contacto entre usuarios.
+            </p>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              En ese sentido, Rantti:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>No vende, compra ni distribuye productos.</li>
+              <li>No participa en las negociaciones entre usuarios.</li>
+              <li>No interviene en los pagos, entregas o cumplimiento de las transacciones.</li>
+            </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              Las interacciones y acuerdos realizados entre usuarios son de su exclusiva responsabilidad.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
+              4. Datos Personales que se Recopilan
+            </h2>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Rantti recopila datos personales de los usuarios de distintas formas, según la interacción que realicen dentro de la Plataforma.
             </p>
             
             <h3 className="text-xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-2 mt-4">
-              2.1. Información que nos proporcionas
+              4.1 Datos proporcionados directamente por el usuario
             </h3>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Al registrarse y utilizar la Plataforma, los usuarios pueden proporcionar los siguientes datos:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>Nombre</li>
+              <li>Correo electrónico</li>
+              <li>Nombre de usuario (opcional)</li>
+              <li>Número de teléfono (opcional)</li>
+            </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Asimismo, el usuario puede proporcionar información adicional al utilizar las funcionalidades de la Plataforma, incluyendo:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>Información contenida en los anuncios publicados (ofertas o demandas)</li>
+              <li>Contenido de los mensajes enviados a través del chat interno</li>
+              <li>Cualquier otro dato que el usuario decida compartir voluntariamente</li>
+            </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              El usuario es responsable de la veracidad y exactitud de los datos proporcionados.
+            </p>
+
+            <h3 className="text-xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-2 mt-4">
+              4.2 Datos recopilados automáticamente
+            </h3>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Rantti puede recopilar automáticamente cierta información cuando el usuario accede o navega en la Plataforma, tales como:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>Dirección IP</li>
+              <li>Tipo de navegador</li>
+              <li>Tipo de dispositivo</li>
+              <li>Páginas visitadas</li>
+              <li>Tiempo de navegación</li>
+            </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              Asimismo, Rantti utiliza herramientas de análisis como Google Analytics para comprender el comportamiento de los usuarios y mejorar el funcionamiento de la Plataforma.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
+              5. Finalidades del Tratamiento de los Datos
+            </h2>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Los datos personales recopilados por Rantti son utilizados para las siguientes finalidades:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>Crear y gestionar cuentas de usuario</li>
+              <li>Permitir la publicación de anuncios de oferta y demanda</li>
+              <li>Facilitar la comunicación entre usuarios mediante el chat interno</li>
+              <li>Permitir la contratación de servicios de visibilidad (publicaciones destacadas)</li>
+              <li>Enviar comunicaciones relacionadas con el servicio, tales como:
+                <ul className="list-circle list-inside ml-6 mt-2 space-y-1">
+                  <li>Confirmación de registro</li>
+                  <li>Notificaciones sobre actividad en la cuenta</li>
+                  <li>Confirmación de pagos</li>
+                </ul>
+              </li>
+            </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Asimismo, los datos podrán ser utilizados para:
+            </p>
             <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif]">
-              <li>Nombre completo y datos de contacto (email, teléfono)</li>
-              <li>Información de perfil (foto, biografía)</li>
-              <li>Detalles de publicaciones (productos, descripciones, imágenes, precios)</li>
-              <li>Mensajes y comunicaciones en la plataforma</li>
-              <li>Información de verificación de identidad</li>
+              <li>Enviar comunicaciones promocionales o informativas sobre Rantti (cuando corresponda)</li>
+              <li>Mejorar la experiencia del usuario y el funcionamiento de la Plataforma</li>
+              <li>Prevenir fraudes, abusos o usos indebidos de la Plataforma</li>
+              <li>Atender consultas, solicitudes o reclamos</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
+              6. Base Legal del Tratamiento
+            </h2>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              El tratamiento de los datos personales por parte de Rantti se realiza conforme a las siguientes bases legales:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif]">
+              <li><strong>Consentimiento del usuario:</strong> Cuando el usuario proporciona sus datos personales de manera voluntaria al registrarse o utilizar la Plataforma.</li>
+              <li><strong>Ejecución de la relación contractual:</strong> Cuando el tratamiento es necesario para permitir el acceso y uso de las funcionalidades de Rantti, incluyendo la publicación de anuncios y la interacción entre usuarios.</li>
+              <li><strong>Intereses legítimos de Rantti:</strong> Para garantizar la seguridad de la Plataforma, prevenir actividades fraudulentas, mejorar los servicios ofrecidos y optimizar la experiencia del usuario.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
+              7. Compartición de Datos Personales
+            </h2>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Rantti podrá compartir datos personales en los siguientes casos:
+            </p>
+            
+            <h3 className="text-xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-2 mt-4">
+              7.1 Con otros usuarios de la Plataforma
+            </h3>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Al utilizar Rantti, el usuario acepta que cierta información podrá ser visible o compartida con otros usuarios, incluyendo:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>Nombre o nombre de usuario</li>
+              <li>Información contenida en los anuncios publicados</li>
+              <li>Información que el propio usuario decida compartir a través del chat interno o en descripciones</li>
+            </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              Rantti no controla ni se responsabiliza por el uso que otros usuarios puedan hacer de la información compartida voluntariamente.
+            </p>
+
+            <h3 className="text-xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-2 mt-4">
+              7.2 Con proveedores de servicios
+            </h3>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Rantti podrá compartir datos personales con terceros que prestan servicios necesarios para el funcionamiento de la Plataforma, tales como:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>Servicios de alojamiento web proporcionados por Hostinger</li>
+              <li>Servicios de procesamiento de pagos proporcionados por Culqi</li>
+              <li>Herramientas de análisis como Google Analytics</li>
+            </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              Estos proveedores acceden a los datos únicamente en la medida necesaria para prestar sus servicios y están sujetos a sus propias políticas de privacidad.
+            </p>
+
+            <h3 className="text-xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-2 mt-4">
+              7.3 Transferencias internacionales de datos
+            </h3>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              Debido a la naturaleza de los servicios tecnológicos utilizados por Rantti, los datos personales pueden ser almacenados o procesados en servidores ubicados fuera del Perú. En tales casos, Rantti adopta medidas razonables para asegurar que los datos personales sean tratados de forma segura y conforme a la presente Política de Privacidad.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
+              8. Pagos dentro de la Plataforma
+            </h2>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Rantti ofrece servicios de pago únicamente en relación con la contratación de publicaciones destacadas dentro de la Plataforma.
+            </p>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Los pagos son procesados a través de un proveedor externo, Culqi, mediante un formulario seguro integrado en la Plataforma.
+            </p>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Rantti:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>No recopila ni almacena información financiera sensible, como datos de tarjetas de crédito o débito.</li>
+              <li>No tiene acceso directo a los datos de pago ingresados por el usuario.</li>
+            </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              El tratamiento de los datos de pago es responsabilidad exclusiva del proveedor de servicios de pago, conforme a sus propios términos y políticas de privacidad.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
+              9. Chat Interno y Contenido Generado por los Usuarios
+            </h2>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Rantti ofrece a los usuarios la posibilidad de comunicarse mediante un sistema de chat interno dentro de la Plataforma.
+            </p>
+            
+            <h3 className="text-xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-2 mt-4">
+              9.1 Almacenamiento de mensajes
+            </h3>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Los mensajes intercambiados entre usuarios pueden ser almacenados por Rantti con fines de:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif]">
+              <li>Funcionamiento de la Plataforma</li>
+              <li>Seguridad</li>
+              <li>Prevención de fraudes o abusos</li>
             </ul>
 
             <h3 className="text-xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-2 mt-4">
-              2.2. Información recopilada automáticamente
+              9.2 Acceso a los mensajes
             </h3>
-            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif]">
-              <li>Dirección IP y datos de navegación</li>
-              <li>Tipo de dispositivo y navegador</li>
-              <li>Páginas visitadas y tiempo de permanencia</li>
-              <li>Cookies y tecnologías similares</li>
-              <li>Ubicación geográfica aproximada</li>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Rantti podrá acceder al contenido de los mensajes en casos específicos, tales como:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>Atención de reportes o denuncias</li>
+              <li>Investigación de conductas indebidas</li>
+              <li>Cumplimiento de obligaciones legales</li>
             </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              Rantti no realiza una supervisión activa o sistemática de las conversaciones entre usuarios.
+            </p>
+
+            <h3 className="text-xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-2 mt-4">
+              9.3 Responsabilidad del usuario
+            </h3>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Los usuarios son los únicos responsables del contenido que comparten a través del chat interno o en cualquier otra sección de la Plataforma.
+            </p>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Se recomienda a los usuarios:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>No compartir información sensible innecesaria</li>
+              <li>Verificar la identidad de otros usuarios antes de realizar cualquier acuerdo</li>
+            </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              Rantti no garantiza la veracidad de la información proporcionada por los usuarios ni se responsabiliza por las interacciones, acuerdos o conflictos que puedan surgir entre ellos.
+            </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
-              3. Cómo Usamos tu Información
+              10. Conservación de los Datos Personales
             </h2>
             <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
-              Utilizamos tu información para:
+              Rantti conservará los datos personales de los usuarios únicamente durante el tiempo necesario para cumplir con las finalidades descritas en la presente Política de Privacidad.
             </p>
-            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif]">
-              <li>Proporcionar y mantener nuestros servicios</li>
-              <li>Facilitar las negociaciones entre compradores y vendedores</li>
-              <li>Procesar publicaciones y pagos de servicios premium</li>
-              <li>Verificar tu identidad y prevenir fraudes</li>
-              <li>Enviarte notificaciones sobre ofertas, mensajes y actualizaciones</li>
-              <li>Mejorar y personalizar tu experiencia</li>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              En particular:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>Los datos de usuarios con cuentas activas se conservarán mientras la cuenta permanezca vigente.</li>
+              <li>En caso de que el usuario solicite la eliminación de su cuenta, sus datos personales serán eliminados en un plazo máximo de 90 días desde la solicitud.</li>
+            </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              No obstante, Rantti podrá conservar cierta información por un período adicional cuando sea necesario para:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
               <li>Cumplir con obligaciones legales</li>
-              <li>Realizar análisis y estadísticas</li>
+              <li>Resolver disputas</li>
+              <li>Prevenir fraudes o abusos</li>
             </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              Asimismo, los mensajes intercambiados a través del chat interno podrán ser conservados por un período adicional con fines de seguridad y prevención de conductas indebidas.
+            </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
-              4. Compartir tu Información
+              11. Derechos del Usuario
             </h2>
             <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
-              Compartimos tu información únicamente en los siguientes casos:
+              De conformidad con la normativa aplicable, los usuarios tienen derecho a ejercer control sobre sus datos personales.
             </p>
-            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif]">
-              <li><strong>Con otros usuarios:</strong> Tu perfil público, publicaciones y mensajes de negociación son visibles para otros usuarios</li>
-              <li><strong>Proveedores de servicios:</strong> Empresas que nos ayudan a operar la plataforma (hosting, análisis, email)</li>
-              <li><strong>Cumplimiento legal:</strong> Cuando sea requerido por ley o para proteger nuestros derechos</li>
-              <li><strong>Transferencias comerciales:</strong> En caso de fusión, adquisición o venta de activos</li>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              En ese sentido, el usuario puede solicitar en cualquier momento:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>Acceso a sus datos personales</li>
+              <li>Rectificación de datos inexactos o incompletos</li>
+              <li>Eliminación de sus datos personales</li>
+              <li>Oposición al tratamiento de sus datos en determinados casos</li>
             </ul>
-            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mt-3">
-              <strong>Nunca vendemos tu información personal a terceros.</strong>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Para ejercer estos derechos, el usuario podrá enviar una solicitud al correo de contacto indicado en la presente Política de Privacidad.
+            </p>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              Rantti atenderá dichas solicitudes dentro de los plazos establecidos por la normativa aplicable.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
-              5. Seguridad de los Datos
+              12. Eliminación de Cuenta
             </h2>
             <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
-              Implementamos medidas de seguridad técnicas y organizativas para proteger tu información:
+              Los usuarios pueden solicitar la eliminación de su cuenta en cualquier momento.
             </p>
-            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif]">
-              <li>Encriptación SSL/TLS para la transmisión de datos</li>
-              <li>Almacenamiento seguro en servidores protegidos</li>
-              <li>Acceso limitado a la información personal</li>
-              <li>Monitoreo continuo de vulnerabilidades</li>
-              <li>Protocolos de respuesta ante incidentes</li>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              La eliminación de la cuenta implica:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif] mb-3">
+              <li>La eliminación de los datos personales asociados a la cuenta, conforme al plazo indicado en la presente Política</li>
+              <li>La eliminación de los anuncios publicados por el usuario</li>
             </ul>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              No obstante, cierta información podrá conservarse temporalmente por razones legales, técnicas o de seguridad, incluyendo información relacionada con el uso de la Plataforma o interacciones realizadas.
+            </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
-              6. Cookies y Tecnologías Similares
+              13. Seguridad de la Información
             </h2>
             <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
-              Utilizamos cookies y tecnologías similares para:
+              Rantti adopta medidas técnicas y organizativas razonables para proteger los datos personales de los usuarios contra el acceso no autorizado, pérdida, uso indebido o divulgación.
             </p>
-            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif]">
-              <li>Mantener tu sesión activa</li>
-              <li>Recordar tus preferencias</li>
-              <li>Analizar el uso de la plataforma</li>
-              <li>Personalizar contenido y anuncios</li>
-            </ul>
-            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mt-3">
-              Puedes gestionar las cookies desde la configuración de tu navegador.
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              La Plataforma utiliza protocolos de seguridad, incluyendo conexiones cifradas (HTTPS), para proteger la información durante su transmisión.
+            </p>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              No obstante, el usuario reconoce que ningún sistema es completamente seguro, por lo que Rantti no puede garantizar la seguridad absoluta de la información.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
-              7. Tus Derechos
+              14. Uso de Cookies
             </h2>
             <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
-              Tienes derecho a:
+              Rantti utiliza cookies y tecnologías similares para mejorar la experiencia del usuario y analizar el uso de la Plataforma.
             </p>
-            <ul className="list-disc list-inside space-y-2 text-gray-600 font-['Poppins',sans-serif]">
-              <li><strong>Acceder:</strong> Solicitar una copia de tu información personal</li>
-              <li><strong>Rectificar:</strong> Corregir datos inexactos o incompletos</li>
-              <li><strong>Eliminar:</strong> Solicitar la eliminación de tu cuenta y datos</li>
-              <li><strong>Portabilidad:</strong> Recibir tus datos en formato estructurado</li>
-              <li><strong>Oponerte:</strong> Rechazar ciertos procesamientos de tus datos</li>
-              <li><strong>Limitar:</strong> Restringir el procesamiento en ciertas circunstancias</li>
-            </ul>
-            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mt-3">
-              Para ejercer estos derechos, contáctanos en <a href="mailto:privacidad@rantti.com" className="text-[#0047FF] hover:underline">privacidad@rantti.com</a>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              En particular, la Plataforma utiliza herramientas de análisis como Google Analytics, que permiten recopilar información sobre la navegación de los usuarios, tales como páginas visitadas, tiempo de permanencia y comportamiento dentro del sitio.
+            </p>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
+              El usuario puede configurar su navegador para rechazar o eliminar cookies; sin embargo, esto podría afectar el correcto funcionamiento de algunas funcionalidades de la Plataforma.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
-              8. Retención de Datos
+              15. Restricción de Edad
             </h2>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Rantti está dirigida exclusivamente a personas mayores de 18 años.
+            </p>
             <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
-              Conservamos tu información personal mientras tu cuenta esté activa o sea necesario para proporcionar servicios. Después de la eliminación de tu cuenta, mantenemos ciertos datos por razones legales, fiscales o de seguridad durante el período requerido por ley.
+              La Plataforma no recopila intencionalmente datos personales de menores de edad. En caso de detectarse el registro de un menor, Rantti podrá eliminar la cuenta y los datos asociados.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
-              9. Menores de Edad
+              16. Modificaciones de la Política de Privacidad
             </h2>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Rantti se reserva el derecho de modificar la presente Política de Privacidad en cualquier momento, con el fin de adaptarla a cambios normativos o mejoras en la Plataforma.
+            </p>
+            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed mb-3">
+              Cualquier modificación será publicada en la Plataforma, indicando la fecha de última actualización.
+            </p>
             <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
-              Rantti está dirigido a mayores de 18 años. No recopilamos intencionalmente información de menores. Si descubrimos que hemos recopilado datos de un menor, eliminaremos esa información inmediatamente.
+              El uso continuo de Rantti después de la publicación de cambios implica la aceptación de la Política de Privacidad actualizada.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
-              10. Transferencias Internacionales
+              17. Contacto
             </h2>
             <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
-              Tu información puede ser transferida y procesada en países fuera de Perú. Nos aseguramos de que estas transferencias cumplan con las leyes aplicables de protección de datos.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
-              11. Cambios a esta Política
-            </h2>
-            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
-              Podemos actualizar esta política periódicamente. Te notificaremos sobre cambios significativos mediante email o un aviso destacado en la plataforma. La fecha de "Última actualización" refleja cuándo se modificó por última vez.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-['Poppins',sans-serif] font-semibold text-gray-900 mb-3">
-              12. Contacto
-            </h2>
-            <p className="text-gray-600 font-['Poppins',sans-serif] leading-relaxed">
-              Para preguntas sobre esta política de privacidad o el manejo de tus datos:
-              <br />
-              <strong>Email:</strong> <a href="mailto:privacidad@rantti.com" className="text-[#0047FF] hover:underline">privacidad@rantti.com</a>
-              <br />
-              <strong>Dirección:</strong> Lima, Perú
+              Para cualquier consulta, solicitud o reclamo relacionado con la presente Política de Privacidad o el tratamiento de datos personales, los usuarios pueden contactarse a través del siguiente correo electrónico: <a href="mailto:support@rantti.com" className="text-[#0047FF] hover:underline">support@rantti.com</a>
             </p>
           </section>
         </div>
