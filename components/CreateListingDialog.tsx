@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -6,7 +6,7 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Upload, X, ShoppingBag, Tag, CheckCircle2, AlertCircle, Info } from "lucide-react";
-import { apiPost, apiPostFormData } from "../lib/api-client";
+import { apiPost, apiPostFormData, apiGet } from "../lib/api-client";
 import { API_ENDPOINTS } from "../lib/api-config";
 import { toast } from "sonner";
 
@@ -41,9 +41,18 @@ interface BuyFormData {
   images: File[];
 }
 
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  parent_id: number | null;
+}
+
 export default function CreateListingDialog({ open, onOpenChange, onListingCreated }: CreateListingDialogProps) {
   const [activeTab, setActiveTab] = useState<ListingType>('sell');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   
   const [sellFormData, setSellFormData] = useState<SellFormData>({
     category_id: "",
@@ -69,6 +78,33 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
   });
 
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+  // Cargar categorías desde la API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const response = await apiGet(API_ENDPOINTS.CATEGORIES.ALL);
+        const data = await response.json();
+        
+        if (data.success && data.data?.categories) {
+          setCategories(data.data.categories);
+        }
+      } catch (error) {
+        console.error('Error al cargar categorías:', error);
+        toast.error('Error al cargar categorías', {
+          description: 'No se pudieron cargar las categorías disponibles',
+          icon: <AlertCircle className="w-5 h-5" />
+        });
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    if (open) {
+      fetchCategories();
+    }
+  }, [open]);
 
   const handleSellImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -328,16 +364,6 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
     setActiveTab('sell');
   };
 
-  // Categorías actualizadas según tu marketplace
-  const categories = [
-    { value: "1", label: "Joyas Exclusivas" },
-    { value: "2", label: "Relojes de Lujo" },
-    { value: "3", label: "Arte & Coleccionables" },
-    { value: "4", label: "Consolas Retro" },
-    { value: "5", label: "Tech Premium" },
-    { value: "6", label: "Objetos Únicos" }
-  ];
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white border-gray-200 text-gray-900 w-[95vw] max-w-[600px] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
@@ -398,13 +424,14 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
               <Select 
                 value={sellFormData.category_id} 
                 onValueChange={(value) => setSellFormData({ ...sellFormData, category_id: value })}
+                disabled={loadingCategories}
               >
                 <SelectTrigger className="bg-gray-50 border-gray-300 text-sm text-gray-900 h-9 px-3">
-                  <SelectValue placeholder="Selecciona una categoría..." />
+                  <SelectValue placeholder={loadingCategories ? "Cargando categorías..." : "Selecciona una categoría..."} />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-gray-200 text-sm text-gray-900">
                   {categories.map(cat => (
-                    <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                    <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -605,13 +632,14 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
                   value={buyFormData.category_id} 
                   onValueChange={(value) => setBuyFormData({ ...buyFormData, category_id: value })}
                   required
+                  disabled={loadingCategories}
                 >
                   <SelectTrigger className="bg-gray-50 border-gray-300 text-sm text-gray-900 h-9 px-3">
-                    <SelectValue placeholder="Seleccionar..." />
+                    <SelectValue placeholder={loadingCategories ? "Cargando..." : "Seleccionar..."} />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-gray-200 text-sm text-gray-900">
                     {categories.map(cat => (
-                      <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                      <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

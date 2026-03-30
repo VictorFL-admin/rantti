@@ -21,6 +21,7 @@ export const getBackendUrl = (): string => {
 // API Endpoints
 export const API_ENDPOINTS = {
   CATEGORIES: {
+    ALL: '/api/public/categories',
     FEATURED: '/api/public/categories/featured',
   },
   LISTINGS: {
