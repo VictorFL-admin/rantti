@@ -250,11 +250,16 @@ export default function ProductSpecifications({
                       <span>Precio negociable - ¡Haz tu oferta!</span>
                     </div>
                     
-                    {/* Comprar Button */}
+                    {/* Solicitar Button */}
                     <Button 
+                      onClick={() => {
+                        if (onMakeOffer) {
+                          onMakeOffer(data.pricing.current_price, data.pricing.currency);
+                        }
+                      }}
                       className="w-full bg-[#0047FF] hover:bg-[#0039CC] text-white py-3 text-base font-medium"
                     >
-                      Comprar
+                      Solicitar
                     </Button>
 
                     {/* Price Adjustment Controls - InDrive Style */}
@@ -310,9 +315,14 @@ export default function ProductSpecifications({
                 {!data.pricing.is_negotiable && (
                   <div className="space-y-3 pt-2">
                     <Button 
+                      onClick={() => {
+                        if (onMakeOffer) {
+                          onMakeOffer(data.pricing.current_price, data.pricing.currency);
+                        }
+                      }}
                       className="w-full bg-[#0047FF] hover:bg-[#0039CC] text-white py-3 text-base font-medium"
                     >
-                      Comprar ahora
+                      Solicitar ahora
                     </Button>
                     <Button 
                       onClick={onContactSeller}

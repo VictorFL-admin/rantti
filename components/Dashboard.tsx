@@ -370,13 +370,17 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
 
   // Función para volver desde detalle de producto
   // Función para manejar el envío de una oferta
-  const handleMakeOffer = async (listingId: number, amount: number, currency: string, message?: string) => {
+  const handleMakeOffer = async (listingId: number, amount: number, currency: string, message?: string, isRequest: boolean = false) => {
     try {
+      const defaultMessage = isRequest 
+        ? `Hola, me interesa comprar al precio publicado de ${currency} ${amount.toFixed(2)}`
+        : `Hola, te ofrezco ${currency} ${amount.toFixed(2)}`;
+
       const response = await apiPost(getApiUrl(API_ENDPOINTS.OFFERS.SEND), {
         listing_id: listingId,
         amount: amount,
         currency: currency,
-        message: message || `Hola, te ofrezco ${currency} ${amount.toFixed(2)}`,
+        message: message || defaultMessage,
       });
 
       if (response.ok) {
@@ -387,8 +391,13 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           setActiveConversationId(data.data.conversation_id);
           setActiveTab('chats');
           
-          toast.success('Oferta enviada', {
-            description: 'Tu oferta ha sido enviada al vendedor. Ahora puedes chatear con él.',
+          const successMessage = isRequest ? 'Solicitud enviada' : 'Oferta enviada';
+          const successDescription = isRequest 
+            ? 'Tu solicitud de compra ha sido enviada al vendedor. Ahora puedes chatear con él.'
+            : 'Tu oferta ha sido enviada al vendedor. Ahora puedes chatear con él.';
+          
+          toast.success(successMessage, {
+            description: successDescription,
           });
         }
       } else {
@@ -532,7 +541,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                     </div>
                   )}
                   
-                  {/* Tabs de Vender / Comprar */}
+                  {/* Tabs de Artículos en Venta / Comprar */}
                   <div className="flex gap-8 border-b border-gray-200">
                     <button
                       onClick={() => setExploreFilter('VENTA')}
@@ -542,7 +551,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                           : 'text-gray-500 hover:text-gray-700'
                       }`}
                     >
-                      Vender
+                      Artículos en Venta
                       {exploreFilter === 'VENTA' && (
                         <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0047FF]" />
                       )}
@@ -709,7 +718,8 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                 <ProductSpecifications
                   listing={selectedProductData}
                   onMakeOffer={(amount: number, currency: string) => {
-                    handleMakeOffer(selectedProductData.id, amount, currency);
+                    const isRequest = amount === selectedProductData.pricing.current_price;
+                    handleMakeOffer(selectedProductData.id, amount, currency, undefined, isRequest);
                   }}
                   onContactSeller={() => {
                     setActiveTab('chats');
