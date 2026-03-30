@@ -86,7 +86,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [selectedProductData, setSelectedProductData] = useState<any>(null);
   const [loadingProduct, setLoadingProduct] = useState(false);
-  const [exploreFilter, setExploreFilter] = useState<'COMPRA' | 'VENTA'>('COMPRA');
+  const [exploreFilter, setExploreFilter] = useState<'COMPRA' | 'VENTA'>('VENTA');
   const [exploreTodayListings, setExploreTodayListings] = useState<Listing[]>([]);
   
   // Estado para abrir chat específico después de enviar oferta
@@ -532,21 +532,8 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                     </div>
                   )}
                   
-                  {/* Tabs de Comprar / Vender */}
+                  {/* Tabs de Vender / Comprar */}
                   <div className="flex gap-8 border-b border-gray-200">
-                    <button
-                      onClick={() => setExploreFilter('COMPRA')}
-                      className={`pb-3 px-1 font-medium text-sm transition-colors relative ${
-                        exploreFilter === 'COMPRA'
-                          ? 'text-gray-900'
-                          : 'text-gray-500 hover:text-gray-700'
-                      }`}
-                    >
-                      Comprar
-                      {exploreFilter === 'COMPRA' && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0047FF]" />
-                      )}
-                    </button>
                     <button
                       onClick={() => setExploreFilter('VENTA')}
                       className={`pb-3 px-1 font-medium text-sm transition-colors relative ${
@@ -557,6 +544,19 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                     >
                       Vender
                       {exploreFilter === 'VENTA' && (
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0047FF]" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setExploreFilter('COMPRA')}
+                      className={`pb-3 px-1 font-medium text-sm transition-colors relative ${
+                        exploreFilter === 'COMPRA'
+                          ? 'text-gray-900'
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      Comprar
+                      {exploreFilter === 'COMPRA' && (
                         <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0047FF]" />
                       )}
                     </button>
