@@ -91,6 +91,9 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   
   // Estado para abrir chat específico después de enviar oferta
   const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
+  
+  // Trigger para actualizar las publicaciones del usuario
+  const [userListingsRefresh, setUserListingsRefresh] = useState(0);
 
   // Función para cargar publicaciones de "Explorar Hoy"
   const fetchExploreTodayListings = async () => {
@@ -643,12 +646,12 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
 
           {/* Panel de Vendedores Tab */}
           {activeTab === "panel-vendedores" && (
-            <PanelVendedoresContent />
+            <PanelVendedoresContent refreshTrigger={userListingsRefresh} />
           )}
 
           {/* Tus Publicaciones Tab */}
           {activeTab === "tus-publicaciones" && (
-            <TusPublicacionesContent />
+            <TusPublicacionesContent refreshTrigger={userListingsRefresh} />
           )}
 
           {/* Estadísticas Tab */}
@@ -724,7 +727,10 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
       <CreateListingDialog 
         open={createListingOpen} 
         onOpenChange={setCreateListingOpen}
-        onListingCreated={fetchExploreTodayListings}
+        onListingCreated={() => {
+          fetchExploreTodayListings();
+          setUserListingsRefresh(prev => prev + 1);
+        }}
       />
       
       {/* Perfil Marketplace Modal */}
