@@ -53,6 +53,8 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [isDraggingSell, setIsDraggingSell] = useState(false);
+  const [isDraggingBuy, setIsDraggingBuy] = useState(false);
   
   const [sellFormData, setSellFormData] = useState<SellFormData>({
     category_id: "",
@@ -118,6 +120,18 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
     }
 
     const validFiles = files.filter(file => {
+      // Validar formato de imagen
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Formato no permitido", {
+          description: `${file.name} no es válido. Formatos permitidos: JPEG, JPG, PNG, WEBP`,
+          icon: <AlertCircle className="w-5 h-5" />,
+          duration: 5000
+        });
+        return false;
+      }
+      
+      // Validar tamaño
       if (file.size > 10 * 1024 * 1024) {
         toast.error("Archivo muy grande", {
           description: `${file.name} debe ser menor a 10MB`,
@@ -153,6 +167,89 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
     setSellImagePreviews(newPreviews);
   };
 
+  // Drag and Drop handlers para SELL
+  const handleSellDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingSell(true);
+  };
+
+  const handleSellDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingSell(true);
+  };
+
+  const handleSellDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingSell(false);
+  };
+
+  const handleSellDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingSell(false);
+
+    if (sellFormData.images.length >= 10) {
+      toast.error("Máximo 10 imágenes", {
+        description: "Solo puedes subir hasta 10 imágenes por publicación",
+        icon: <AlertCircle className="w-5 h-5" />
+      });
+      return;
+    }
+
+    const files = Array.from(e.dataTransfer.files);
+    
+    if (files.length + sellFormData.images.length > 10) {
+      toast.error("Máximo 10 imágenes", {
+        description: "Solo puedes subir hasta 10 imágenes por publicación",
+        icon: <AlertCircle className="w-5 h-5" />
+      });
+      return;
+    }
+
+    const validFiles = files.filter(file => {
+      // Validar formato de imagen
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Formato no permitido", {
+          description: `${file.name} no es válido. Formatos permitidos: JPEG, JPG, PNG, WEBP`,
+          icon: <AlertCircle className="w-5 h-5" />,
+          duration: 5000
+        });
+        return false;
+      }
+      
+      // Validar tamaño
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("Archivo muy grande", {
+          description: `${file.name} debe ser menor a 10MB`,
+          icon: <AlertCircle className="w-5 h-5" />
+        });
+        return false;
+      }
+      return true;
+    });
+
+    const newPreviews: string[] = [];
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        newPreviews.push(reader.result as string);
+        if (newPreviews.length === validFiles.length) {
+          setSellImagePreviews([...sellImagePreviews, ...newPreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    setSellFormData({
+      ...sellFormData,
+      images: [...sellFormData.images, ...validFiles]
+    });
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
@@ -165,6 +262,18 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
     }
 
     const validFiles = files.filter(file => {
+      // Validar formato de imagen
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Formato no permitido", {
+          description: `${file.name} no es válido. Formatos permitidos: JPEG, JPG, PNG, WEBP`,
+          icon: <AlertCircle className="w-5 h-5" />,
+          duration: 5000
+        });
+        return false;
+      }
+      
+      // Validar tamaño
       if (file.size > 10 * 1024 * 1024) {
         toast.error("Archivo muy grande", {
           description: `${file.name} debe ser menor a 10MB`,
@@ -198,6 +307,89 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
     const newPreviews = imagePreviews.filter((_, i) => i !== index);
     setBuyFormData({ ...buyFormData, images: newImages });
     setImagePreviews(newPreviews);
+  };
+
+  // Drag and Drop handlers para BUY
+  const handleBuyDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingBuy(true);
+  };
+
+  const handleBuyDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingBuy(true);
+  };
+
+  const handleBuyDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingBuy(false);
+  };
+
+  const handleBuyDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingBuy(false);
+
+    if (buyFormData.images.length >= 10) {
+      toast.error("Máximo 10 imágenes", {
+        description: "Solo puedes subir hasta 10 imágenes por publicación",
+        icon: <AlertCircle className="w-5 h-5" />
+      });
+      return;
+    }
+
+    const files = Array.from(e.dataTransfer.files);
+    
+    if (files.length + buyFormData.images.length > 10) {
+      toast.error("Máximo 10 imágenes", {
+        description: "Solo puedes subir hasta 10 imágenes por publicación",
+        icon: <AlertCircle className="w-5 h-5" />
+      });
+      return;
+    }
+
+    const validFiles = files.filter(file => {
+      // Validar formato de imagen
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Formato no permitido", {
+          description: `${file.name} no es válido. Formatos permitidos: JPEG, JPG, PNG, WEBP`,
+          icon: <AlertCircle className="w-5 h-5" />,
+          duration: 5000
+        });
+        return false;
+      }
+      
+      // Validar tamaño
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("Archivo muy grande", {
+          description: `${file.name} debe ser menor a 10MB`,
+          icon: <AlertCircle className="w-5 h-5" />
+        });
+        return false;
+      }
+      return true;
+    });
+
+    const newPreviews: string[] = [];
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        newPreviews.push(reader.result as string);
+        if (newPreviews.length === validFiles.length) {
+          setImagePreviews([...imagePreviews, ...newPreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    setBuyFormData({
+      ...buyFormData,
+      images: [...buyFormData.images, ...validFiles]
+    });
   };
 
   const handleSellSubmit = async (e: React.FormEvent) => {
@@ -234,7 +426,34 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Error al crear la publicación');
+        
+        // Manejar errores de validación
+        if (errorData.error?.code === 'VALIDATION_ERROR' && errorData.error?.errors) {
+          const validationErrors = errorData.error.errors;
+          const errorMessages: string[] = [];
+          
+          // Extraer todos los mensajes de error
+          Object.entries(validationErrors).forEach(([field, messages]) => {
+            if (Array.isArray(messages)) {
+              errorMessages.push(...messages);
+            }
+          });
+          
+          // Mostrar todos los errores
+          errorMessages.forEach((msg, index) => {
+            setTimeout(() => {
+              toast.error("Error de validación", {
+                description: msg,
+                icon: <AlertCircle className="w-5 h-5" />,
+                duration: 5000
+              });
+            }, index * 300); // Escalonar los mensajes
+          });
+          
+          throw new Error('Errores de validación');
+        }
+        
+        throw new Error(errorData.error?.message || errorData.message || 'Error al crear la publicación');
       }
 
       const result = await response.json();
@@ -255,11 +474,15 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
       }
     } catch (error) {
       console.error("❌ Error al crear publicación de venta:", error);
-      toast.error("Error al crear publicación", {
-        description: error instanceof Error ? error.message : 'No se pudo crear la publicación',
-        icon: <AlertCircle className="w-5 h-5" />,
-        duration: 5000
-      });
+      
+      // No mostrar error genérico si ya se mostraron errores de validación
+      if (error instanceof Error && error.message !== 'Errores de validación') {
+        toast.error("Error al crear publicación", {
+          description: error.message,
+          icon: <AlertCircle className="w-5 h-5" />,
+          duration: 5000
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -308,7 +531,34 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Error al crear la solicitud');
+        
+        // Manejar errores de validación
+        if (errorData.error?.code === 'VALIDATION_ERROR' && errorData.error?.errors) {
+          const validationErrors = errorData.error.errors;
+          const errorMessages: string[] = [];
+          
+          // Extraer todos los mensajes de error
+          Object.entries(validationErrors).forEach(([field, messages]) => {
+            if (Array.isArray(messages)) {
+              errorMessages.push(...messages);
+            }
+          });
+          
+          // Mostrar todos los errores
+          errorMessages.forEach((msg, index) => {
+            setTimeout(() => {
+              toast.error("Error de validación", {
+                description: msg,
+                icon: <AlertCircle className="w-5 h-5" />,
+                duration: 5000
+              });
+            }, index * 300); // Escalonar los mensajes
+          });
+          
+          throw new Error('Errores de validación');
+        }
+        
+        throw new Error(errorData.error?.message || errorData.message || 'Error al crear la solicitud');
       }
 
       const result = await response.json();
@@ -329,11 +579,15 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
       }
     } catch (error) {
       console.error("❌ Error al crear solicitud de compra:", error);
-      toast.error("Error al crear solicitud", {
-        description: error instanceof Error ? error.message : 'No se pudo crear la solicitud',
-        icon: <AlertCircle className="w-5 h-5" />,
-        duration: 5000
-      });
+      
+      // No mostrar error genérico si ya se mostraron errores de validación
+      if (error instanceof Error && error.message !== 'Errores de validación') {
+        toast.error("Error al crear solicitud", {
+          description: error.message,
+          icon: <AlertCircle className="w-5 h-5" />,
+          duration: 5000
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -530,32 +784,42 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
                 </div>
               )}
 
-              <label className={`border-2 border-dashed rounded-lg p-4 sm:p-5 text-center transition-all cursor-pointer block ${
-                sellFormData.images.length >= 10 
-                  ? 'border-gray-200 bg-gray-50 cursor-not-allowed' 
-                  : 'border-gray-300 hover:border-[#0047FF] hover:bg-blue-50/50'
-              }`}>
+              <label 
+                className={`border-2 border-dashed rounded-lg p-4 sm:p-5 text-center transition-all cursor-pointer block ${
+                  sellFormData.images.length >= 10 
+                    ? 'border-gray-200 bg-gray-50 cursor-not-allowed' 
+                    : isDraggingSell 
+                      ? 'border-[#0047FF] bg-blue-50 scale-[1.02]'
+                      : 'border-gray-300 hover:border-[#0047FF] hover:bg-blue-50/50'
+                }`}
+                onDragOver={handleSellDragOver}
+                onDragEnter={handleSellDragEnter}
+                onDragLeave={handleSellDragLeave}
+                onDrop={handleSellDrop}
+              >
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
                   multiple
                   onChange={handleSellImageUpload}
                   className="hidden"
                   disabled={sellFormData.images.length >= 10}
                 />
                 <Upload className={`w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1.5 ${
-                  sellFormData.images.length >= 10 ? 'text-gray-300' : 'text-gray-400'
+                  sellFormData.images.length >= 10 ? 'text-gray-300' : isDraggingSell ? 'text-[#0047FF]' : 'text-gray-400'
                 }`} />
                 <p className={`text-xs sm:text-sm font-medium ${
-                  sellFormData.images.length >= 10 ? 'text-gray-400' : 'text-gray-600'
+                  sellFormData.images.length >= 10 ? 'text-gray-400' : isDraggingSell ? 'text-[#0047FF]' : 'text-gray-600'
                 }`}>
                   {sellFormData.images.length >= 10 
                     ? 'Máximo de imágenes alcanzado' 
-                    : 'Click para subir imágenes'}
+                    : isDraggingSell 
+                      ? 'Suelta las imágenes aquí'
+                      : 'Click o arrastra imágenes aquí'}
                 </p>
                 {sellFormData.images.length < 10 && (
                   <p className="text-gray-400 text-[10px] sm:text-xs mt-0.5">
-                    PNG, JPG hasta 10MB cada una • {10 - sellFormData.images.length} restantes
+                    PNG, JPG, WEBP hasta 10MB cada una • {10 - sellFormData.images.length} restantes
                   </p>
                 )}
               </label>
@@ -780,32 +1044,42 @@ export default function CreateListingDialog({ open, onOpenChange, onListingCreat
                 </div>
               )}
 
-              <label className={`border-2 border-dashed rounded-lg p-4 sm:p-5 text-center transition-all cursor-pointer block ${
-                buyFormData.images.length >= 10 
-                  ? 'border-gray-200 bg-gray-50 cursor-not-allowed' 
-                  : 'border-gray-300 hover:border-[#0047FF] hover:bg-blue-50/50'
-              }`}>
+              <label 
+                className={`border-2 border-dashed rounded-lg p-4 sm:p-5 text-center transition-all cursor-pointer block ${
+                  buyFormData.images.length >= 10 
+                    ? 'border-gray-200 bg-gray-50 cursor-not-allowed' 
+                    : isDraggingBuy 
+                      ? 'border-[#0047FF] bg-blue-50 scale-[1.02]'
+                      : 'border-gray-300 hover:border-[#0047FF] hover:bg-blue-50/50'
+                }`}
+                onDragOver={handleBuyDragOver}
+                onDragEnter={handleBuyDragEnter}
+                onDragLeave={handleBuyDragLeave}
+                onDrop={handleBuyDrop}
+              >
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
                   multiple
                   onChange={handleImageUpload}
                   className="hidden"
                   disabled={buyFormData.images.length >= 10}
                 />
                 <Upload className={`w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1.5 ${
-                  buyFormData.images.length >= 10 ? 'text-gray-300' : 'text-gray-400'
+                  buyFormData.images.length >= 10 ? 'text-gray-300' : isDraggingBuy ? 'text-[#0047FF]' : 'text-gray-400'
                 }`} />
                 <p className={`text-xs sm:text-sm font-medium ${
-                  buyFormData.images.length >= 10 ? 'text-gray-400' : 'text-gray-600'
+                  buyFormData.images.length >= 10 ? 'text-gray-400' : isDraggingBuy ? 'text-[#0047FF]' : 'text-gray-600'
                 }`}>
                   {buyFormData.images.length >= 10 
                     ? 'Máximo de imágenes alcanzado' 
-                    : 'Click para subir imágenes'}
+                    : isDraggingBuy 
+                      ? 'Suelta las imágenes aquí'
+                      : 'Click o arrastra imágenes aquí'}
                 </p>
                 {buyFormData.images.length < 10 && (
                   <p className="text-gray-400 text-[10px] sm:text-xs mt-0.5">
-                    PNG, JPG hasta 10MB cada una • {10 - buyFormData.images.length} restantes
+                    PNG, JPG, WEBP hasta 10MB cada una • {10 - buyFormData.images.length} restantes
                   </p>
                 )}
               </label>
