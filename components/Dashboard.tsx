@@ -378,17 +378,17 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
         // Solicitud al precio publicado
         if (listingType === 'COMPRA') {
           // Usuario busca comprar algo, yo le vendo
-          defaultMessage = `Hola, me interesa vender al precio publicado de ${currency} ${amount.toFixed(2)}`;
+          defaultMessage = `Hola, me interesa venderte el artículo al precio publicado de ${currency} ${amount.toFixed(2)}`;
         } else {
           // Artículo en venta, yo compro
-          defaultMessage = `Hola, me interesa comprar al precio publicado de ${currency} ${amount.toFixed(2)}`;
+          defaultMessage = `Hola, me interesa comprar el artículo al precio publicado de ${currency} ${amount.toFixed(2)}`;
         }
       } else {
         // Oferta con precio ajustado
         if (listingType === 'COMPRA') {
-          defaultMessage = `Hola, te ofrezco vender por ${currency} ${amount.toFixed(2)}`;
+          defaultMessage = `Hola, ofrezco venderte el artículo por ${currency} ${amount.toFixed(2)}`;
         } else {
-          defaultMessage = `Hola, te ofrezco ${currency} ${amount.toFixed(2)}`;
+          defaultMessage = `Hola, te ofrezco ${currency} ${amount.toFixed(2)} por el artículo`;
         }
       }
 
