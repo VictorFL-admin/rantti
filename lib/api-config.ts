@@ -59,11 +59,17 @@ export const API_ENDPOINTS = {
 
 // Helper function to build full URL
 export const getApiUrl = (endpoint: string) => {
-  // En el servidor, necesitamos URL absoluta
+  // En el servidor, necesitamos URL absoluta (SSR)
   if (typeof window === 'undefined') {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     return `${baseUrl}${endpoint}`;
   }
-  // En el cliente, URL relativa funciona bien
-  return `${API_BASE_URL}${endpoint}`;
+  // En producción: llamar api.rantti.com directo para que cada usuario
+  // use su propia IP real — evita el rate limiting de LiteSpeed por IP compartida de Netlify
+  const isProduction = window.location.hostname !== 'localhost';
+  if (isProduction) {
+    return `https://api.rantti.com${endpoint}`;
+  }
+  // En dev: URL relativa, Next.js proxy a localhost
+  return endpoint;
 };
