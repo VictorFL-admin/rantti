@@ -88,6 +88,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   const [loadingProduct, setLoadingProduct] = useState(false);
   const [exploreFilter, setExploreFilter] = useState<'COMPRA' | 'VENTA'>('VENTA');
   const [exploreTodayListings, setExploreTodayListings] = useState<Listing[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Estado para abrir chat específico después de enviar oferta
   const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
@@ -96,12 +97,16 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   const [userListingsRefresh, setUserListingsRefresh] = useState(0);
 
   // Función para cargar publicaciones de "Explorar Hoy"
-  const fetchExploreTodayListings = async () => {
+  const fetchExploreTodayListings = async (search = '') => {
     try {
       setLoadingListings(true);
       setListingsError(null);
-      
-      const response = await apiGet(getApiUrl(API_ENDPOINTS.LISTINGS.PUBLIC));
+
+      const url = search
+        ? getApiUrl(`${API_ENDPOINTS.LISTINGS.PUBLIC}?search=${encodeURIComponent(search)}`)
+        : getApiUrl(API_ENDPOINTS.LISTINGS.PUBLIC);
+
+      const response = await apiGet(url);
       
       if (!response.ok) {
         throw new Error('Error al cargar las publicaciones');
@@ -137,19 +142,25 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
     }
   };
 
-  // Cargar publicaciones al montar el componente y cada 60 segundos
+  // Cargar publicaciones al montar y cada 60 segundos (solo sin búsqueda activa)
   useEffect(() => {
     if (activeTab === 'overview') {
-      fetchExploreTodayListings();
-      
-      // Actualizar cada 60 segundos
-      const interval = setInterval(() => {
-        fetchExploreTodayListings();
-      }, 60000);
-      
-      return () => clearInterval(interval);
+      fetchExploreTodayListings(searchQuery);
+
+      if (!searchQuery) {
+        const interval = setInterval(() => {
+          fetchExploreTodayListings('');
+        }, 60000);
+        return () => clearInterval(interval);
+      }
     }
   }, [activeTab]);
+
+  // Re-fetch cuando cambia el searchQuery
+  useEffect(() => {
+    if (activeTab !== 'overview') setActiveTab('overview');
+    fetchExploreTodayListings(searchQuery);
+  }, [searchQuery]);
 
   // Sync activeTab with URL changes
   useEffect(() => {
@@ -468,6 +479,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
         setMobileMenuOpen={setMobileMenuOpen}
         collapsed={sidebarCollapsed}
         onOpenPerfilModal={() => setPerfilModalOpen(true)}
+        onSearch={(q) => setSearchQuery(q)}
       />
 
       {/* Main Content */}

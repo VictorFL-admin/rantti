@@ -27,6 +27,7 @@ class PresenceService {
   private callbacks: Set<PresenceCallback> = new Set();
   private isRunning = false;
   private token: string | null = null;
+  private backoffUntil: number = 0;
   
   /**
    * Iniciar el servicio de presencia
@@ -58,12 +59,12 @@ class PresenceService {
     // Enviar heartbeat cada 60 segundos
     this.heartbeatInterval = setInterval(() => {
       this.sendHeartbeat();
-    }, 60000); // 60 segundos
-    
-    // Obtener contactos online cada 30 segundos
+    }, 60000);
+
+    // Obtener contactos online cada 90 segundos
     this.fetchInterval = setInterval(() => {
       this.fetchOnlineContacts();
-    }, 30000); // 30 segundos
+    }, 90000);
     
     // Marcar como offline al cerrar navegador
     if (typeof window !== 'undefined') {
@@ -107,7 +108,8 @@ class PresenceService {
    */
   private async sendHeartbeat() {
     if (!this.token) return;
-    
+    if (Date.now() < this.backoffUntil) return;
+
     try {
       const response = await fetch(getApiUrl('/api/presence/heartbeat'), {
         method: 'POST',
@@ -117,16 +119,12 @@ class PresenceService {
           'Accept': 'application/json',
         },
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('💓 Heartbeat sent:', data);
-      } else {
-        console.error('❌ Heartbeat failed:', response.status);
+
+      if (response.status === 429) {
+        this.backoffUntil = Date.now() + 5 * 60 * 1000; // pausa 5 min
+        return;
       }
-    } catch (error) {
-      console.error('❌ Heartbeat error:', error);
-    }
+    } catch (_) {}
   }
   
   /**
@@ -134,7 +132,8 @@ class PresenceService {
    */
   private async fetchOnlineContacts() {
     if (!this.token) return;
-    
+    if (Date.now() < this.backoffUntil) return;
+
     try {
       const response = await fetch(getApiUrl('/api/presence/contacts'), {
         method: 'GET',
@@ -143,28 +142,22 @@ class PresenceService {
           'Accept': 'application/json',
         },
       });
-      
+
+      if (response.status === 429) {
+        this.backoffUntil = Date.now() + 5 * 60 * 1000; // pausa 5 min
+        return;
+      }
+
       if (response.ok) {
         const data = await response.json();
         const onlineIds = data.online_contacts || [];
-        
-        // Actualizar set de usuarios online
         const previousSize = this.onlineUserIds.size;
         this.onlineUserIds = new Set(onlineIds.map((id: number | string) => parseInt(id.toString(), 10)));
-        
-        console.log(`🟢 Online contacts (${this.onlineUserIds.size}):`, Array.from(this.onlineUserIds));
-        
-        // Notificar solo si hubo cambios
         if (previousSize !== this.onlineUserIds.size || !this.setsAreEqual(this.onlineUserIds, new Set(onlineIds))) {
-          console.log('📡 Presence changed, notifying listeners');
           this.notifyCallbacks();
         }
-      } else {
-        console.error('❌ Failed to fetch online contacts:', response.status);
       }
-    } catch (error) {
-      console.error('❌ Fetch online contacts error:', error);
-    }
+    } catch (_) {}
   }
   
   /**
@@ -339,16 +332,5 @@ class PresenceService {
   }
 }
 
-// Exportar instancia singleton
+// Exportar instancia singleton — el start() lo llama explícitamente el Dashboard
 export const presenceService = new PresenceService();
-
-// ✅ AUTO-START ACTIVADO: Backend Redis implementado
-if (typeof window !== 'undefined') {
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    // Esperar a que React se monte antes de iniciar
-    setTimeout(() => {
-      presenceService.start(token);
-    }, 1000);
-  }
-}

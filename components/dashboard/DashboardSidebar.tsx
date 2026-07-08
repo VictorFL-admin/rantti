@@ -20,7 +20,7 @@ import {
   BarChart3,
   Percent
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "../ui/sheet";
@@ -40,6 +40,7 @@ interface DashboardSidebarProps {
   setMobileMenuOpen?: (open: boolean) => void;
   collapsed?: boolean;
   onOpenPerfilModal?: () => void;
+  onSearch?: (query: string) => void;
 }
 
 export default function DashboardSidebar({
@@ -52,8 +53,17 @@ export default function DashboardSidebar({
   setMobileMenuOpen,
   collapsed = false,
   onOpenPerfilModal,
+  onSearch,
 }: DashboardSidebarProps) {
   const [submenuView, setSubmenuView] = useState<'main' | 'compras' | 'ventas'>('main');
+  const [searchValue, setSearchValue] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearch?.(searchValue);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchValue]);
   const [comprasSubSection, setComprasSubSection] = useState('actividad-reciente');
   const [ventasSubSection, setVentasSubSection] = useState('panel-vendedores');
 
@@ -122,6 +132,8 @@ export default function DashboardSidebar({
               <input
                 type="text"
                 placeholder="Buscar en Rantti"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0047FF] focus:border-transparent"
               />
             </div>
@@ -273,6 +285,8 @@ export default function DashboardSidebar({
               <input
                 type="text"
                 placeholder="Buscar en Rantti"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0047FF] focus:border-transparent"
               />
             </div>
@@ -405,6 +419,8 @@ export default function DashboardSidebar({
               <input
                 type="text"
                 placeholder="Buscar en Rantti"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0047FF] focus:border-transparent"
               />
             </div>
