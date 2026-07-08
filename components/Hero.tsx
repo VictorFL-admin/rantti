@@ -5,7 +5,7 @@ import { LogOut, Settings, Package, MessageSquare } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { ArrowRight, Sparkles, TrendingUp, Users, Menu, X, DollarSign, Zap, Award, Star, SearchIcon, UserIcon } from "../lib/icons";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Carousel,
   CarouselContent,
@@ -13,18 +13,29 @@ import {
 } from "./ui/carousel";
 import type { CarouselApi } from "./ui/carousel";
 import type { HomePageData } from "@/sanity/lib/types";
+import SearchBar from "./SearchBar";
+
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  active_listings: number;
+  icon: string;
+}
 
 interface HeroProps {
   user: { email: string; name: string; avatar?: string } | null;
   onNavigate: (page: 'home' | 'login' | 'register' | 'dashboard') => void;
   onLogout: () => void;
   data?: HomePageData['hero'];
+  categories?: Category[];
 }
 
-export default function Hero({ user, onNavigate, onLogout, data }: HeroProps) {
+export default function Hero({ user, onNavigate, onLogout, data, categories = [] }: HeroProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     if (!api) return;
@@ -54,15 +65,6 @@ export default function Hero({ user, onNavigate, onLogout, data }: HeroProps) {
   const getFirstName = (name: string) => {
     return name.split(" ")[0];
   };
-
-  // Categorías para el carousel - SOLO OBJETOS ÚNICOS
-  const categories = [
-    { id: 1, emoji: "💎", title: "Joyas Exclusivas", count: "23 activos" },
-    { id: 2, emoji: "⌚", title: "Relojes de Lujo", count: "18 activos" },
-    { id: 3, emoji: "🎨", title: "Arte & Coleccionables", count: "31 activos" },
-    { id: 4, emoji: "🎮", title: "Consolas Retro", count: "15 activos" },
-    { id: 5, emoji: "📱", title: "Tech Premium", count: "27 activos" }
-  ];
 
   const logoImage = "/images/logo_rantti.png";
   const mascotImage = "/images/transparent-photoroom.webp";
@@ -209,10 +211,13 @@ export default function Hero({ user, onNavigate, onLogout, data }: HeroProps) {
           </Sheet>
 
           {/* SearchIcon button */}
-          <button className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg hover:bg-gray-100 transition-colors">
+          <button
+            className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={() => setSearchOpen(true)}
+          >
             <SearchIcon className="w-4 h-4" />
           </button>
-          
+
           {/* User Avatar */}
           {user ? (
             <button className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg hover:bg-gray-100 transition-colors">
@@ -235,6 +240,21 @@ export default function Hero({ user, onNavigate, onLogout, data }: HeroProps) {
         </div>
       </div>
     </div>
+
+    {/* SearchBar sticky nav */}
+    <AnimatePresence>
+      {searchOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.15 }}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-3"
+        >
+          <SearchBar onClose={() => setSearchOpen(false)} categories={categories} />
+        </motion.div>
+      )}
+    </AnimatePresence>
   </motion.nav>
 
   {/* INTEGRATED NAVIGATION */}
@@ -369,7 +389,10 @@ export default function Hero({ user, onNavigate, onLogout, data }: HeroProps) {
         </Sheet>
 
         {/* SearchIcon button - Hidden on mobile */}
-        <button className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg hover:bg-gray-100 transition-colors">
+        <button
+          className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+          onClick={() => setSearchOpen(true)}
+        >
           <SearchIcon className="w-4 h-4" />
         </button>
         
@@ -429,7 +452,7 @@ export default function Hero({ user, onNavigate, onLogout, data }: HeroProps) {
         )}
 
         {/* Publicar button - Always visible */}
-        <Button 
+        <Button
           onClick={() => user ? onNavigate('dashboard') : onNavigate('login')}
           className="bg-[#0047FF] hover:bg-[#0039CC] text-white h-8 sm:h-9 px-4 sm:px-5 rounded-lg font-['Poppins',sans-serif] text-sm shadow-lg shadow-[#0047FF]/30 transition-all"
         >
@@ -437,6 +460,21 @@ export default function Hero({ user, onNavigate, onLogout, data }: HeroProps) {
         </Button>
       </div>
     </div>
+
+    {/* SearchBar nav integrado */}
+    <AnimatePresence>
+      {searchOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.15 }}
+          className="mt-3"
+        >
+          <SearchBar onClose={() => setSearchOpen(false)} categories={categories} />
+        </motion.div>
+      )}
+    </AnimatePresence>
   </nav>
 
   {/* HERO CONTENT */}
