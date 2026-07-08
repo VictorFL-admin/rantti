@@ -322,11 +322,12 @@ export default function HeroClient({
   // Página principal (home)
   return (
     <>
-      <Hero 
-        user={user} 
-        onNavigate={handleNavigate} 
+      <Hero
+        user={user}
+        onNavigate={handleNavigate}
         onLogout={handleLogout}
         data={sanityData?.hero}
+        categories={categories}
       />
 
       {/* Sección Categorías Populares */}
