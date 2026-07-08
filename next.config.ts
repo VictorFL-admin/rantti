@@ -5,10 +5,11 @@ const nextConfig: NextConfig = {
     taint: true,
   },
   async rewrites() {
-    const apiUrl = process.env.NODE_ENV === 'development'
-      ? process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
-      : process.env.NEXT_PUBLIC_API_PROD_URL || 'https://api.rantti.com';
+    // En producción, netlify.toml maneja los redirects a nivel CDN (IPs distribuidas)
+    // En dev, Next.js proxia a localhost
+    if (process.env.NODE_ENV !== 'development') return [];
 
+    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     return [
       {
         source: '/api/:path*',
