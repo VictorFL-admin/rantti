@@ -142,24 +142,25 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
     }
   };
 
-  // Cargar publicaciones al montar y cada 60 segundos (solo sin búsqueda activa)
+  // Cargar publicaciones: al montar, al cambiar tab a overview, al cambiar búsqueda
+  // Un solo effect unificado para evitar doble llamada al montar
   useEffect(() => {
-    if (activeTab === 'overview') {
-      fetchExploreTodayListings(searchQuery);
-
-      if (!searchQuery) {
-        const interval = setInterval(() => {
-          fetchExploreTodayListings('');
-        }, 60000);
-        return () => clearInterval(interval);
-      }
-    }
-  }, [activeTab]);
-
-  // Re-fetch cuando cambia el searchQuery
-  useEffect(() => {
-    if (activeTab !== 'overview') setActiveTab('overview');
+    if (activeTab !== 'overview') return;
     fetchExploreTodayListings(searchQuery);
+
+    if (!searchQuery) {
+      const interval = setInterval(() => {
+        fetchExploreTodayListings('');
+      }, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, searchQuery]);
+
+  // Cuando el buscador tiene texto y el tab no es overview, forzar overview
+  useEffect(() => {
+    if (searchQuery && activeTab !== 'overview') {
+      setActiveTab('overview');
+    }
   }, [searchQuery]);
 
   // Sync activeTab with URL changes
