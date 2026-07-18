@@ -4,7 +4,7 @@ import { VisuallyHidden } from "./ui/visually-hidden";
 import { X, Star, Package } from "lucide-react";
 import svgPaths from "../imports/svg-peqj1oeayz";
 import { API_ENDPOINTS, getApiUrl } from "@/lib/api-config";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiPost } from "@/lib/api-client";
 
 interface SellerListing {
   id: number;
@@ -29,6 +29,7 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user, selle
   const [loadingListings, setLoadingListings] = useState(false);
   const [activeProfileTab, setActiveProfileTab] = useState<'comprador' | 'vendedor'>('vendedor');
   const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
   const getInitials = (name: string) => {
     return name
@@ -67,15 +68,45 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user, selle
     }
   }, [sellerId]);
 
+  const fetchFollowStatus = useCallback(async () => {
+    if (!sellerId) return;
+    try {
+      const res = await apiGet(getApiUrl(API_ENDPOINTS.USERS.FOLLOW_STATUS(sellerId)));
+      if (res.ok) {
+        const data = await res.json();
+        setIsFollowing(data.data.is_following);
+      }
+    } catch {
+      // silenciar
+    }
+  }, [sellerId]);
+
+  const handleFollowToggle = async () => {
+    if (!sellerId || followLoading) return;
+    setFollowLoading(true);
+    try {
+      const res = await apiPost(getApiUrl(API_ENDPOINTS.USERS.FOLLOW_TOGGLE(sellerId)), {});
+      if (res.ok) {
+        const data = await res.json();
+        setIsFollowing(data.data.is_following);
+      }
+    } catch {
+      // silenciar
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (open && sellerId) {
       fetchSellerListings();
+      fetchFollowStatus();
       setActiveProfileTab('vendedor');
-      setIsFollowing(false);
     } else if (!open) {
       setListings([]);
+      setIsFollowing(false);
     }
-  }, [open, sellerId, fetchSellerListings]);
+  }, [open, sellerId, fetchSellerListings, fetchFollowStatus]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -172,19 +203,22 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user, selle
               </button>
             </div>
 
-            {/* Botón Seguir */}
-            <button
-              onClick={() => setIsFollowing((prev) => !prev)}
-              className={`cursor-pointer h-[38px] rounded-lg w-full sm:w-auto sm:min-w-[300px] flex items-center justify-center transition-colors border ${
-                isFollowing
-                  ? 'bg-white border-[#0047FF] hover:bg-blue-50'
-                  : 'bg-[#0047ff] border-[#0047ff] hover:bg-[#0039CC]'
-              }`}
-            >
-              <p className={`font-['Poppins',sans-serif] text-sm md:text-base ${isFollowing ? 'text-[#0047FF]' : 'text-white'}`}>
-                {isFollowing ? 'Siguiendo ✓' : 'Seguir'}
-              </p>
-            </button>
+            {/* Botón Seguir — solo visible cuando es el perfil de otro usuario */}
+            {sellerId && (
+              <button
+                onClick={handleFollowToggle}
+                disabled={followLoading}
+                className={`h-[38px] rounded-lg w-full sm:w-auto sm:min-w-[300px] flex items-center justify-center transition-colors border disabled:opacity-60 disabled:cursor-not-allowed ${
+                  isFollowing
+                    ? 'cursor-pointer bg-white border-[#0047FF] hover:bg-blue-50'
+                    : 'cursor-pointer bg-[#0047ff] border-[#0047ff] hover:bg-[#0039CC]'
+                }`}
+              >
+                <p className={`font-['Poppins',sans-serif] text-sm md:text-base ${isFollowing ? 'text-[#0047FF]' : 'text-white'}`}>
+                  {followLoading ? 'Cargando...' : isFollowing ? 'Siguiendo ✓' : 'Seguir'}
+                </p>
+              </button>
+            )}
 
             {/* Grid de Cards - Calificaciones */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
