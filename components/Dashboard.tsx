@@ -68,7 +68,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [limitReachedDialogOpen, setLimitReachedDialogOpen] = useState(false);
   const [perfilModalOpen, setPerfilModalOpen] = useState(false);
-  const [perfilModalSeller, setPerfilModalSeller] = useState<{ name: string; avatar?: string; memberSince?: string } | null>(null);
+  const [perfilModalSeller, setPerfilModalSeller] = useState<{ name: string; avatar?: string; memberSince?: string; sellerId?: number } | null>(null);
   const [selectedListingForBoost, setSelectedListingForBoost] = useState<{
     id: number;
     title: string;
@@ -759,6 +759,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                       name: selectedProductData.seller.name,
                       avatar: selectedProductData.seller.avatar,
                       memberSince: selectedProductData.seller.member_since,
+                      sellerId: selectedProductData.seller.id,
                     });
                     setPerfilModalOpen(true);
                   }}
@@ -789,6 +790,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
           if (!open) setPerfilModalSeller(null);
         }}
         user={perfilModalSeller ?? user}
+        sellerId={perfilModalSeller?.sellerId}
       />
       
       {/* Boost Publication Dialog */}
