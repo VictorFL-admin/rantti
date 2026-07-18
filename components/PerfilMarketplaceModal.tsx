@@ -6,7 +6,7 @@ import svgPaths from "../imports/svg-peqj1oeayz";
 interface PerfilMarketplaceModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user: { email: string; name: string; avatar?: string };
+  user: { name: string; avatar?: string; memberSince?: string; email?: string };
 }
 
 export default function PerfilMarketplaceModal({ open, onOpenChange, user }: PerfilMarketplaceModalProps) {
@@ -16,8 +16,14 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user }: Per
       .map((n) => n[0])
       .join("")
       .toUpperCase()
-      .slice(0, 1);
+      .slice(0, 2);
   };
+
+  const firstName = user.name.split(" ")[0];
+
+  const memberSinceText = user.memberSince
+    ? new Date(user.memberSince).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+    : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -43,12 +49,22 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user }: Per
 
           {/* Avatar */}
           <div className="absolute left-6 md:left-10 top-[120px] md:top-[160px] w-[100px] h-[100px] md:w-[140px] md:h-[140px]">
-            <svg className="absolute block w-full h-full" fill="none" preserveAspectRatio="none" viewBox="0 0 176 176">
-              <circle cx="88" cy="88" fill="#0047FF" r="88" />
-            </svg>
-            <p className="absolute inset-0 flex items-center justify-center font-['Poppins',sans-serif] text-[40px] md:text-[56px] text-white">
-              {getInitials(user.name)}
-            </p>
+            {user.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-full h-full rounded-full object-cover border-4 border-[#0047FF]"
+              />
+            ) : (
+              <>
+                <svg className="absolute block w-full h-full" fill="none" preserveAspectRatio="none" viewBox="0 0 176 176">
+                  <circle cx="88" cy="88" fill="#0047FF" r="88" />
+                </svg>
+                <p className="absolute inset-0 flex items-center justify-center font-['Poppins',sans-serif] text-[40px] md:text-[56px] text-white">
+                  {getInitials(user.name)}
+                </p>
+              </>
+            )}
           </div>
 
           {/* Contenedor principal */}
@@ -56,11 +72,13 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user }: Per
             {/* Nombre y fecha */}
             <div>
               <h2 className="font-['Poppins',sans-serif] text-lg md:text-2xl text-black mb-1">
-                Carlos Mendoza
+                {user.name}
               </h2>
-              <p className="font-['Poppins',sans-serif] text-xs md:text-sm text-[#546a88]">
-                Miembro desde Marzo 2022
-              </p>
+              {memberSinceText && (
+                <p className="font-['Poppins',sans-serif] text-xs md:text-sm text-[#546a88]">
+                  Miembro desde {memberSinceText}
+                </p>
+              )}
             </div>
 
             {/* Tabs y botones */}
@@ -184,7 +202,7 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user }: Per
             {/* Card: Publicaciones de Carlos */}
             <div className="bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.15)] shadow-sm p-5">
               <p className="font-['Poppins',sans-serif] text-sm md:text-base text-black mb-1">
-                Publicaciones de Carlos
+                Publicaciones de {firstName}
               </p>
               <p className="font-['Poppins',sans-serif] text-[10px] md:text-xs text-[#546a88] mb-4">
                 4 publicaciones activas

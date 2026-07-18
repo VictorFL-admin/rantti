@@ -37,6 +37,12 @@ export const API_ENDPOINTS = {
     REJECT: (id: string | number) => `/api/offers/${id}/reject`,
     COUNTER: (id: string | number) => `/api/offers/${id}/counter`,
   },
+  NOTIFICATIONS: {
+    LIST: '/api/notifications',
+    UNREAD_COUNT: '/api/notifications/unread-count',
+    MARK_READ: (id: number) => `/api/notifications/${id}/mark-read`,
+    MARK_ALL_READ: '/api/notifications/mark-all-read',
+  },
   AUTH: {
     REGISTER: '/api/auth/register',
     LOGIN: '/api/auth/login',

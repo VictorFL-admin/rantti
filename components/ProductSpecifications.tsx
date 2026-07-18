@@ -25,13 +25,15 @@ interface ProductSpecificationsProps {
   onMakeOffer?: (amount: number, currency: string) => void;
   onContactSeller?: () => void;
   onClose?: () => void;
+  onViewProfile?: () => void;
 }
 
-export default function ProductSpecifications({ 
+export default function ProductSpecifications({
   listing,
   onMakeOffer,
   onContactSeller,
-  onClose
+  onClose,
+  onViewProfile,
 }: ProductSpecificationsProps) {
   // Si no hay listing, usar datos mock para preview
   const mockProduct = {
@@ -393,24 +395,37 @@ export default function ProductSpecifications({
             {/* Seller Stats */}
             <div className="flex-1 grid grid-cols-3 gap-3 md:gap-4">
               <div className="text-center lg:text-left">
-                <div className="text-lg md:text-xl lg:text-2xl text-[#0047FF] mb-0.5 md:mb-1">{data.seller.stats.successful_sales}</div>
+                <div className="text-lg md:text-xl lg:text-2xl text-[#0047FF] mb-0.5 md:mb-1">
+                  {data.seller.stats.successful_sales}
+                </div>
                 <div className="text-[10px] md:text-xs lg:text-sm text-gray-500">Ventas exitosas</div>
               </div>
-              
+
               <div className="text-center lg:text-left">
-                <div className="text-lg md:text-xl lg:text-2xl text-[#0047FF] mb-0.5 md:mb-1">{data.seller.stats.response_rate}%</div>
+                <div className="text-lg md:text-xl lg:text-2xl text-[#0047FF] mb-0.5 md:mb-1">
+                  {data.seller.stats.response_rate != null ? `${data.seller.stats.response_rate}%` : '—'}
+                </div>
                 <div className="text-[10px] md:text-xs lg:text-sm text-gray-500">Tasa de respuesta</div>
               </div>
-              
+
               <div className="text-center lg:text-left">
-                <div className="text-lg md:text-xl lg:text-2xl text-[#0047FF] mb-0.5 md:mb-1">~{data.seller.stats.avg_response_time_hours} horas</div>
+                <div className="text-lg md:text-xl lg:text-2xl text-[#0047FF] mb-0.5 md:mb-1">
+                  {data.seller.stats.avg_response_time_hours != null
+                    ? `~${data.seller.stats.avg_response_time_hours}h`
+                    : '—'}
+                </div>
                 <div className="text-[10px] md:text-xs lg:text-sm text-gray-500">Tiempo de respuesta</div>
               </div>
             </div>
 
             {/* View Profile Button */}
             <div className="flex items-center justify-center lg:justify-start">
-              <Button variant="outline" className="border-[#0047FF] text-[#0047FF] hover:bg-[#0047FF]/5 whitespace-nowrap text-xs md:text-sm px-3 md:px-4 py-2">
+              <Button
+                variant="outline"
+                className="border-[#0047FF] text-[#0047FF] hover:bg-[#0047FF]/5 whitespace-nowrap text-xs md:text-sm px-3 md:px-4 py-2"
+                onClick={onViewProfile}
+                disabled={!onViewProfile}
+              >
                 Ver perfil completo
               </Button>
             </div>

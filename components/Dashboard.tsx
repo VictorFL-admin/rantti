@@ -68,6 +68,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [limitReachedDialogOpen, setLimitReachedDialogOpen] = useState(false);
   const [perfilModalOpen, setPerfilModalOpen] = useState(false);
+  const [perfilModalSeller, setPerfilModalSeller] = useState<{ name: string; avatar?: string; memberSince?: string } | null>(null);
   const [selectedListingForBoost, setSelectedListingForBoost] = useState<{
     id: number;
     title: string;
@@ -753,6 +754,14 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
                   onContactSeller={() => {
                     setActiveTab('chats');
                   }}
+                  onViewProfile={() => {
+                    setPerfilModalSeller({
+                      name: selectedProductData.seller.name,
+                      avatar: selectedProductData.seller.avatar,
+                      memberSince: selectedProductData.seller.member_since,
+                    });
+                    setPerfilModalOpen(true);
+                  }}
                 />
               ) : null}
             </div>
@@ -773,10 +782,13 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
       />
       
       {/* Perfil Marketplace Modal */}
-      <PerfilMarketplaceModal 
+      <PerfilMarketplaceModal
         open={perfilModalOpen}
-        onOpenChange={setPerfilModalOpen}
-        user={user}
+        onOpenChange={(open) => {
+          setPerfilModalOpen(open);
+          if (!open) setPerfilModalSeller(null);
+        }}
+        user={perfilModalSeller ?? user}
       />
       
       {/* Boost Publication Dialog */}

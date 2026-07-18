@@ -20,11 +20,12 @@ import {
   BarChart3,
   Percent
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "../ui/sheet";
 import { VisuallyHidden } from "../ui/visually-hidden";
+import { fetchUnreadCount } from "@/lib/notifications-api";
 
 interface DashboardSidebarProps {
   user: {
@@ -57,6 +58,18 @@ export default function DashboardSidebar({
 }: DashboardSidebarProps) {
   const [submenuView, setSubmenuView] = useState<'main' | 'compras' | 'ventas'>('main');
   const [searchValue, setSearchValue] = useState('');
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  const loadUnreadCount = useCallback(async () => {
+    const count = await fetchUnreadCount().catch(() => 0);
+    setUnreadNotifications(count);
+  }, []);
+
+  useEffect(() => {
+    loadUnreadCount();
+    const interval = setInterval(loadUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [loadUnreadCount]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -163,11 +176,17 @@ export default function DashboardSidebar({
               }
               onClick={() => {
                 onSectionChange("notifications");
+                setUnreadNotifications(0);
                 onItemClick?.();
               }}
             >
               <Bell className="w-5 h-5 mr-3" />
               Notificaciones
+              {unreadNotifications > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                  {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                </span>
+              )}
             </Button>
             <Button
               variant={currentSection === "chats" ? "default" : "ghost"}
