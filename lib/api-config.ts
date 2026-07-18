@@ -43,6 +43,10 @@ export const API_ENDPOINTS = {
     MARK_READ: (id: number) => `/api/notifications/${id}/mark-read`,
     MARK_ALL_READ: '/api/notifications/mark-all-read',
   },
+  USERS: {
+    FOLLOW_TOGGLE: (id: number) => `/api/users/${id}/follow`,
+    FOLLOW_STATUS: (id: number) => `/api/users/${id}/follow-status`,
+  },
   AUTH: {
     REGISTER: '/api/auth/register',
     LOGIN: '/api/auth/login',
