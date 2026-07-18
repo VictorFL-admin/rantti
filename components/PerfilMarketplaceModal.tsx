@@ -27,6 +27,8 @@ interface PerfilMarketplaceModalProps {
 export default function PerfilMarketplaceModal({ open, onOpenChange, user, sellerId, onSendMessage }: PerfilMarketplaceModalProps) {
   const [listings, setListings] = useState<SellerListing[]>([]);
   const [loadingListings, setLoadingListings] = useState(false);
+  const [activeProfileTab, setActiveProfileTab] = useState<'comprador' | 'vendedor'>('vendedor');
+  const [isFollowing, setIsFollowing] = useState(false);
 
   const getInitials = (name: string) => {
     return name
@@ -68,6 +70,8 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user, selle
   useEffect(() => {
     if (open && sellerId) {
       fetchSellerListings();
+      setActiveProfileTab('vendedor');
+      setIsFollowing(false);
     } else if (!open) {
       setListings([]);
     }
@@ -132,16 +136,25 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user, selle
             {/* Tabs y botones */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               {/* Tabs Comprador/Vendedor */}
-              <div className="flex gap-6 relative">
-                <div>
-                  <p className="font-['Poppins',sans-serif] font-medium text-sm md:text-base text-[#546a88] cursor-pointer">
-                    Comprador
-                  </p>
-                  <div className="h-[2px] w-full bg-[#546a88] mt-1" />
-                </div>
-                <p className="font-['Poppins',sans-serif] text-sm md:text-base text-[#546a88] cursor-pointer">
-                  Vendedor
-                </p>
+              <div className="flex gap-6">
+                {(['comprador', 'vendedor'] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveProfileTab(tab)}
+                    className="flex flex-col items-start cursor-pointer"
+                  >
+                    <p className={`font-['Poppins',sans-serif] text-sm md:text-base capitalize transition-colors ${
+                      activeProfileTab === tab
+                        ? 'font-medium text-[#111827]'
+                        : 'text-[#546a88] hover:text-[#374151]'
+                    }`}>
+                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </p>
+                    <div className={`h-[2px] w-full mt-1 transition-all ${
+                      activeProfileTab === tab ? 'bg-[#0047FF]' : 'bg-transparent'
+                    }`} />
+                  </button>
+                ))}
               </div>
 
               {/* Botón Enviar Mensaje */}
@@ -153,15 +166,24 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user, selle
                   }
                 }}
                 disabled={!onSendMessage}
-                className="bg-white h-[36px] rounded-lg px-5 border border-[#314158] flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer bg-white h-[36px] rounded-lg px-5 border border-[#314158] flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <p className="font-['Poppins',sans-serif] font-medium text-xs md:text-sm text-[#2e3a4b]">Enviar Mensaje</p>
               </button>
             </div>
 
             {/* Botón Seguir */}
-            <button className="bg-[#0047ff] hover:bg-[#0039CC] h-[38px] rounded-lg w-full sm:w-auto sm:min-w-[300px] flex items-center justify-center transition-colors">
-              <p className="font-['Poppins',sans-serif] text-sm md:text-base text-white">Seguir</p>
+            <button
+              onClick={() => setIsFollowing((prev) => !prev)}
+              className={`cursor-pointer h-[38px] rounded-lg w-full sm:w-auto sm:min-w-[300px] flex items-center justify-center transition-colors border ${
+                isFollowing
+                  ? 'bg-white border-[#0047FF] hover:bg-blue-50'
+                  : 'bg-[#0047ff] border-[#0047ff] hover:bg-[#0039CC]'
+              }`}
+            >
+              <p className={`font-['Poppins',sans-serif] text-sm md:text-base ${isFollowing ? 'text-[#0047FF]' : 'text-white'}`}>
+                {isFollowing ? 'Siguiendo ✓' : 'Seguir'}
+              </p>
             </button>
 
             {/* Grid de Cards - Calificaciones */}
@@ -193,33 +215,43 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user, selle
               </div>
             </div>
 
-            {/* Card: Publicaciones del vendedor */}
+            {/* Card: Publicaciones del vendedor/comprador */}
             <div className="bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.15)] shadow-sm p-5">
-              <p className="font-['Poppins',sans-serif] text-sm md:text-base text-black mb-1">
-                Publicaciones de {firstName}
-              </p>
-              <p className="font-['Poppins',sans-serif] text-[10px] md:text-xs text-[#546a88] mb-4">
-                {loadingListings
-                  ? 'Cargando...'
-                  : listings.length === 0
-                    ? 'Sin publicaciones activas'
-                    : `${listings.length} publicación${listings.length !== 1 ? 'es' : ''} activa${listings.length !== 1 ? 's' : ''}`}
-              </p>
+              {(() => {
+                const typeFilter = activeProfileTab === 'vendedor' ? 'VENTA' : 'COMPRA';
+                const filtered = listings.filter((l) => l.listing_type === typeFilter);
+                const tabLabel = activeProfileTab === 'vendedor' ? 'vendedor' : 'comprador';
+                const emptyLabel = activeProfileTab === 'vendedor'
+                  ? `${firstName} no tiene artículos en venta`
+                  : `${firstName} no tiene búsquedas activas`;
 
-              {loadingListings ? (
-                <div className="flex justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0047FF]" />
-                </div>
-              ) : listings.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <Package className="w-10 h-10 text-gray-200 mb-2" />
-                  <p className="font-['Poppins',sans-serif] text-sm text-[#546a88]">
-                    {firstName} no tiene publicaciones activas
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  {listings.map((listing) => (
+                return (
+                  <>
+                    <p className="font-['Poppins',sans-serif] text-sm md:text-base text-black mb-1">
+                      {activeProfileTab === 'vendedor' ? `Artículos en venta de ${firstName}` : `${firstName} está buscando`}
+                    </p>
+                    <p className="font-['Poppins',sans-serif] text-[10px] md:text-xs text-[#546a88] mb-4">
+                      {loadingListings
+                        ? 'Cargando...'
+                        : filtered.length === 0
+                          ? `Sin publicaciones como ${tabLabel}`
+                          : `${filtered.length} publicación${filtered.length !== 1 ? 'es' : ''} activa${filtered.length !== 1 ? 's' : ''}`}
+                    </p>
+
+                    {loadingListings ? (
+                      <div className="flex justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0047FF]" />
+                      </div>
+                    ) : filtered.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <Package className="w-10 h-10 text-gray-200 mb-2" />
+                        <p className="font-['Poppins',sans-serif] text-sm text-[#546a88]">
+                          {emptyLabel}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        {filtered.map((listing) => (
                     <div
                       key={listing.id}
                       className="bg-white rounded-tl-2xl rounded-tr-2xl rounded-bl-md rounded-br-md border border-[rgba(0,0,0,0.15)] shadow-sm overflow-hidden hover:shadow-md transition-shadow"
@@ -265,11 +297,14 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user, selle
                             </p>
                           </div>
                         )}
-                      </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              )}
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
