@@ -791,6 +791,7 @@ export default function Dashboard({ user: initialUser, onLogout, onNavigate, onU
         }}
         user={perfilModalSeller ?? user}
         sellerId={perfilModalSeller?.sellerId}
+        onSendMessage={perfilModalSeller ? () => setActiveTab('chats') : undefined}
       />
       
       {/* Boost Publication Dialog */}

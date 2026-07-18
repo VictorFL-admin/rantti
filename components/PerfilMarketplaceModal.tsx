@@ -21,9 +21,10 @@ interface PerfilMarketplaceModalProps {
   onOpenChange: (open: boolean) => void;
   user: { name: string; avatar?: string; memberSince?: string; email?: string };
   sellerId?: number;
+  onSendMessage?: () => void;
 }
 
-export default function PerfilMarketplaceModal({ open, onOpenChange, user, sellerId }: PerfilMarketplaceModalProps) {
+export default function PerfilMarketplaceModal({ open, onOpenChange, user, sellerId, onSendMessage }: PerfilMarketplaceModalProps) {
   const [listings, setListings] = useState<SellerListing[]>([]);
   const [loadingListings, setLoadingListings] = useState(false);
 
@@ -144,7 +145,16 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user, selle
               </div>
 
               {/* Botón Enviar Mensaje */}
-              <button className="bg-white h-[36px] rounded-lg px-5 border border-[#314158] flex items-center justify-center hover:bg-gray-50 transition-colors">
+              <button
+                onClick={() => {
+                  if (onSendMessage) {
+                    onOpenChange(false);
+                    onSendMessage();
+                  }
+                }}
+                disabled={!onSendMessage}
+                className="bg-white h-[36px] rounded-lg px-5 border border-[#314158] flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 <p className="font-['Poppins',sans-serif] font-medium text-xs md:text-sm text-[#2e3a4b]">Enviar Mensaje</p>
               </button>
             </div>
@@ -157,38 +167,17 @@ export default function PerfilMarketplaceModal({ open, onOpenChange, user, selle
             {/* Grid de Cards - Calificaciones */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Card: Calificaciones como vendedor */}
-              <div className="bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.15)] shadow-sm p-5">
+              <div className="bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.15)] shadow-sm p-5 flex flex-col justify-center min-h-[140px]">
                 <p className="font-['Poppins',sans-serif] text-sm md:text-base text-black mb-1">
                   Calificaciones como vendedor
                 </p>
-                <p className="font-['Poppins',sans-serif] text-[10px] md:text-xs text-[#546a88] mb-4">
+                <p className="font-['Poppins',sans-serif] text-[10px] md:text-xs text-[#546a88] mb-3">
                   Aún no hay calificaciones
                 </p>
-                <div className="flex items-center gap-1 mb-3">
+                <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <Star key={i} className="w-4 h-4 text-gray-200" fill="#e5e7eb" strokeWidth={0} />
+                    <Star key={i} className="w-5 h-5" fill="#e5e7eb" stroke="#e5e7eb" strokeWidth={1} />
                   ))}
-                </div>
-                <div className="mt-3">
-                  <svg width="160" height="27" fill="none" viewBox="0 0 220 37" className="w-full max-w-[180px]">
-                    <g clipPath="url(#clip0_575_190)">
-                      <path d={svgPaths.p1ca6a80} fill="#0047FF" />
-                      <path d={svgPaths.p60ecb00} fill="#0047FF" />
-                      <path d={svgPaths.p39714800} fill="#0047FF" />
-                      <path d={svgPaths.pae39a80} fill="#0047FF" />
-                      <path d={svgPaths.p1fe55200} fill="#0047FF" />
-                      <path d={svgPaths.p25701f80} fill="#0047FF" />
-                      <path d={svgPaths.p2c1a5d00} fill="#0047FF" />
-                      <path d={svgPaths.p22668100} fill="#0047FF" />
-                      <path d={svgPaths.p3a4d7400} fill="#0047FF" />
-                      <path d={svgPaths.p2b1e5900} fill="white" />
-                    </g>
-                    <defs>
-                      <clipPath id="clip0_575_190">
-                        <rect fill="white" height="37" width="220" />
-                      </clipPath>
-                    </defs>
-                  </svg>
                 </div>
               </div>
 
